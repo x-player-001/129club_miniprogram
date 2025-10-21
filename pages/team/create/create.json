@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "创建队伍",
+  "backgroundColor": "#f5f6f8",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "select-grid": "/components/select-grid/select-grid"
+  }
+}

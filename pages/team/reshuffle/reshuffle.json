@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "队伍重组",
+  "usingComponents": {
+    "position-tag": "/components/position-tag/position-tag"
+  }
+}

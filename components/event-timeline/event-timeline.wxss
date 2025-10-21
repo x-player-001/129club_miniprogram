@@ -1,0 +1,201 @@
+/* 事件时间轴组件样式 */
+
+/* 容器 */
+.events-timeline-container {
+  position: relative;
+}
+
+/* 时间轴容器 */
+.events-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+/* 每一行 - 三列布局 */
+.timeline-row {
+  display: grid;
+  grid-template-columns: 1fr 4rpx 1fr; /* 左列 | 中线 | 右列 */
+  gap: 0;
+  min-height: 60rpx; /* 最小高度，保证中线连续 */
+}
+
+/* 每一列 */
+.timeline-column {
+  display: flex;
+  flex-direction: column;
+  padding: 12rpx 0;
+}
+
+/* 左列 */
+.timeline-left {
+  padding-right: 12rpx;
+}
+
+/* 右列 */
+.timeline-right {
+  padding-left: 12rpx;
+}
+
+/* 中线列 */
+.timeline-center {
+  position: relative;
+  padding: 0;
+}
+
+/* 中间分隔线 */
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2rpx;
+  background: linear-gradient(to bottom,
+    rgba(242, 8, 16, 0.1) 0%,
+    rgba(242, 8, 16, 0.3) 50%,
+    rgba(242, 8, 16, 0.1) 100%
+  );
+  transform: translateX(-50%);
+}
+
+/* 事件项包装器 */
+.timeline-item-wrapper {
+  margin-bottom: 16rpx;
+}
+
+/* 事件项 */
+.event-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+}
+
+/* 左队事件：从左到右排列 */
+.event-left {
+  justify-content: flex-end; /* 靠右，接近中线 */
+}
+
+/* 右队事件：从左到右排列 */
+.event-right {
+  justify-content: flex-start; /* 靠左，接近中线 */
+}
+
+/* 事件图标 - 固定宽度，不压缩 */
+.event-icon {
+  font-size: 32rpx;
+  flex-shrink: 0;
+  width: 40rpx;
+  text-align: center;
+}
+
+/* 事件内容 - 三行垂直排列 */
+.event-content {
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  padding: 10rpx 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.2s;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 240rpx; /* 限制最大宽度，防止过长 */
+}
+
+.event-content:active {
+  background: #ecf0f1;
+}
+
+/* 每一行 */
+.event-line {
+  display: flex;
+  align-items: center;
+  line-height: 1.4;
+}
+
+/* 球员名称 */
+.event-player-name {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* 乌龙球标记 */
+.event-own-goal {
+  font-size: 22rpx;
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+/* 备注信息 */
+.event-notes {
+  font-size: 22rpx;
+  color: #7f8c8d;
+}
+
+/* 助攻信息 */
+.event-assist {
+  font-size: 22rpx;
+  color: #95a5a6;
+}
+
+/* 时间显示 */
+.timeline-time {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: var(--theme-color);
+  background: #ffffff;
+  padding: 6rpx 12rpx;
+  border-radius: 10rpx;
+  white-space: nowrap;
+  box-shadow: 0 2rpx 6rpx rgba(242, 8, 16, 0.15);
+  flex-shrink: 0;
+}
+
+/* 事件操作图标 */
+.event-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+
+.action-icon {
+  width: 30rpx;
+  height: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.action-icon:active {
+  transform: scale(0.9);
+}
+
+.edit-icon:active {
+  background: #e3f2fd;
+}
+
+.delete-icon:active {
+  background: #ffebee;
+}
+
+/* 空状态 */
+.empty-timeline {
+  padding: 60rpx 20rpx;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 24rpx;
+  color: #bdc3c7;
+}

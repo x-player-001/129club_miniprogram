@@ -1,0 +1,78 @@
+<!-- WXS 辅助函数 -->
+<wxs module="tools">
+  var isSelected = function(arr, value) {
+    if (!arr || arr.length === 0) {
+      return false;
+    }
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] === value) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  module.exports = {
+    isSelected: isSelected
+  };
+</wxs>
+
+<!-- 通用弹窗选择器组件 -->
+<view class="select-grid-modal {{show ? 'show' : ''}}" catchtap="onMaskTap">
+  <view class="select-grid-content" catchtap="onStopPropagation">
+    <!-- 标题栏 -->
+    <view class="picker-header">
+      <text class="picker-title">{{title}}</text>
+      <view class="close-btn" catchtap="onCloseTap">
+        <image src="/static/icons/close.png" mode="aspectFit"></image>
+      </view>
+    </view>
+
+    <!-- 选项区域 -->
+    <scroll-view class="picker-body" scroll-y>
+      <!-- 选项网格 -->
+      <view class="grid-container" wx:if="{{options.length > 0}}">
+        <view
+          class="grid-item {{tools.isSelected(selectedValues, item[valueField]) ? 'selected' : ''}}"
+          wx:for="{{options}}"
+          wx:key="id"
+          data-value="{{item[valueField]}}"
+          bindtap="onItemTap">
+
+          <!-- 头像 -->
+          <image
+            wx:if="{{showAvatar && item[avatarField]}}"
+            class="item-avatar"
+            src="{{item[avatarField]}}"
+            mode="aspectFill"></image>
+
+          <!-- 默认头像 -->
+          <image
+            wx:if="{{showAvatar && !item[avatarField]}}"
+            class="item-avatar"
+            src="/static/images/default-avatar.png"
+            mode="aspectFill"></image>
+
+          <!-- 文本 -->
+          <text class="item-text">{{item[displayField]}}</text>
+
+          <!-- 选中图标 -->
+          <view class="selected-icon" wx:if="{{tools.isSelected(selectedValues, item[valueField])}}">
+            <text class="check-mark">✓</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:else>
+        <text>{{emptyText}}</text>
+      </view>
+    </scroll-view>
+
+    <!-- 底部按钮 -->
+    <view class="picker-footer">
+      <button class="cancel-btn" bindtap="onCancel">取消</button>
+      <button class="confirm-btn" bindtap="onConfirm">确定</button>
+    </view>
+  </view>
+</view>

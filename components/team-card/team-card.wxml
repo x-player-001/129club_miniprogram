@@ -1,0 +1,80 @@
+<!-- components/team-card/team-card.wxml -->
+<view class="team-card {{mode}}" bindtap="onCardTap">
+  <!-- 队伍头部 -->
+  <view class="team-header" style="background: linear-gradient(135deg, {{teamData.color || '#f20810'}} 0%, {{teamData.colorDark || '#d10710'}} 100%);">
+    <view class="team-badge">
+      <image src="{{teamData.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+    </view>
+    <view class="team-info">
+      <view class="team-name">{{teamData.name}}</view>
+
+      <!-- 当前队伍模式：显示队长 -->
+      <view wx:if="{{mode === 'current'}}" class="team-captain">
+        <image class="crown-icon" src="/static/icons/crown.png" mode="aspectFit"></image>
+        <text>{{teamData.captainName}}</text>
+      </view>
+
+      <!-- 历史队伍模式：显示赛季和期数 -->
+      <view wx:elif="{{mode === 'history'}}" class="team-meta">
+        <text class="season">{{teamData.season}}</text>
+        <text class="period">{{teamData.period}}</text>
+      </view>
+    </view>
+
+    <!-- 标签 -->
+    <view wx:if="{{mode === 'current'}}" class="season-tag">{{teamData.season}}</view>
+    <view wx:elif="{{mode === 'history'}}" class="history-tag">已归档</view>
+  </view>
+
+  <!-- 队伍数据 -->
+  <view class="team-stats">
+    <view class="stat-item">
+      <text class="stat-value">{{teamData.stats.totalMatches || 0}}</text>
+      <text class="stat-label">比赛</text>
+    </view>
+    <view class="stat-divider"></view>
+
+    <!-- 当前队伍模式：分开显示胜平负 -->
+    <block wx:if="{{mode === 'current'}}">
+      <view class="stat-item">
+        <text class="stat-value win">{{teamData.stats.wins || 0}}</text>
+        <text class="stat-label">胜</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value draw">{{teamData.stats.draws || 0}}</text>
+        <text class="stat-label">平</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value loss">{{teamData.stats.losses || 0}}</text>
+        <text class="stat-label">负</text>
+      </view>
+    </block>
+
+    <!-- 历史队伍模式：合并显示胜平负 -->
+    <block wx:else>
+      <view class="stat-item">
+        <text class="stat-value">{{teamData.stats.wins || 0}}-{{teamData.stats.draws || 0}}-{{teamData.stats.losses || 0}}</text>
+        <text class="stat-label">胜平负</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{teamData.stats.winRate || 0}}%</text>
+        <text class="stat-label">胜率</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 队伍底部（仅当前队伍模式） -->
+  <view wx:if="{{mode === 'current'}}" class="team-footer">
+    <view class="member-count">
+      <image class="icon" src="/static/icons/users.png" mode="aspectFit"></image>
+      <text>{{teamData.memberCount || 0}}名队员</text>
+    </view>
+    <view class="win-rate">
+      <text>胜率 </text>
+      <text class="rate">{{teamData.stats.winRate || 0}}%</text>
+    </view>
+  </view>
+</view>

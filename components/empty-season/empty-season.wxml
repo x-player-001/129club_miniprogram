@@ -1,0 +1,9 @@
+<!-- components/empty-season/empty-season.wxml -->
+<view class="empty-season">
+  <image class="empty-icon" src="{{iconSrc}}" mode="aspectFit"></image>
+  <text class="empty-title">{{title}}</text>
+  <text class="empty-desc">{{description}}</text>
+  <view wx:if="{{actionText}}" class="empty-action" bindtap="onAction">
+    <text class="action-text">{{actionText}}</text>
+  </view>
+</view>

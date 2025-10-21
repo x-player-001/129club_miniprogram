@@ -1,0 +1,11 @@
+<!-- components/menu-item/menu-item.wxml -->
+<view class="menu-item" bindtap="onMenuTap">
+  <view class="menu-left">
+    <view class="menu-icon" style="background: {{iconBg}};">
+      <image src="{{icon}}" mode="aspectFit"></image>
+    </view>
+    <text class="menu-text">{{text}}</text>
+  </view>
+  <view class="menu-badge" wx:if="{{badge > 0}}">{{badge}}</view>
+  <image class="menu-arrow" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+</view>

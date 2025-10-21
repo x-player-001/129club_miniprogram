@@ -1,0 +1,468 @@
+/* 比赛列表页面样式 */
+.match-list-container {
+  min-height: 100vh;
+  background: #f5f6f8;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tab切换栏 */
+.tab-bar {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  display: flex;
+  z-index: 100;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.tab-item {
+  flex: 1;
+  position: relative;
+  padding: 32rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s;
+}
+
+.tab-text {
+  font-size: 30rpx;
+  color: #7f8c8d;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.tab-item.active .tab-text {
+  color: var(--theme-color);
+  font-weight: 700;
+}
+
+.tab-line {
+  position: absolute;
+  bottom: 0;
+  width: 60rpx;
+  height: 6rpx;
+  background: linear-gradient(90deg, var(--theme-color) 0%, var(--theme-color-dark) 100%);
+  border-radius: 3rpx;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { width: 0; }
+  to { width: 60rpx; }
+}
+
+/* 内容区域 */
+.content {
+  flex: 1;
+  padding: 24rpx;
+}
+
+/* 比赛列表 */
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+/* 比赛卡片 */
+.match-card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.3s;
+}
+
+.match-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 比赛头部 */
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid #ecf0f1;
+}
+
+.match-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.match-status {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.status-upcoming {
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+  color: #ffffff;
+}
+
+.status-ongoing {
+  background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+  color: #ffffff;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.status-finished {
+  background: linear-gradient(135deg, #dfe6e9 0%, #b2bec3 100%);
+  color: #2d3436;
+}
+
+/* 对阵信息 */
+.match-vs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.team-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.team-logo {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.team-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.team-count {
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+}
+
+.count-number {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--theme-color);
+}
+
+.count-label {
+  font-size: 24rpx;
+  color: #95a5a6;
+}
+
+.team-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-number {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: var(--theme-color);
+}
+
+.vs-divider {
+  width: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vs-text {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #95a5a6;
+  background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-color-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 比赛信息 */
+.match-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  padding: 20rpx;
+  background: #f8f9fa;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 26rpx;
+  color: #636e72;
+}
+
+.info-icon {
+  width: 28rpx;
+  height: 28rpx;
+  opacity: 0.6;
+}
+
+.live-indicator {
+  color: #00b894;
+  font-size: 20rpx;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.live-text {
+  color: #00b894;
+  font-weight: 600;
+}
+
+.fee-label {
+  color: #636e72;
+}
+
+.fee-value {
+  color: var(--theme-color);
+  font-weight: 700;
+}
+
+/* MVP显示 */
+.match-mvp {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 16rpx;
+  background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.mvp-icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.mvp-label {
+  font-size: 26rpx;
+  color: #f39c12;
+  font-weight: 600;
+}
+
+.mvp-avatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  border: 2rpx solid #f39c12;
+}
+
+.mvp-name {
+  font-size: 28rpx;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* 操作按钮 */
+.match-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.action-btn {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  line-height: 80rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.register-btn {
+  background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-color-dark) 100%);
+  color: #ffffff;
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, #dfe6e9 0%, #b2bec3 100%);
+  color: #2d3436;
+}
+
+.deadline-hint {
+  font-size: 24rpx;
+  color: #95a5a6;
+  text-align: center;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 60rpx;
+}
+
+.empty-icon {
+  width: 300rpx;
+  height: 300rpx;
+  margin-bottom: 40rpx;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #95a5a6;
+  margin-bottom: 16rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #bdc3c7;
+}
+
+/* 创建比赛按钮 */
+.create-btn-wrapper {
+  position: fixed;
+  bottom: 100rpx;
+  right: 40rpx;
+  z-index: 999;
+}
+
+.create-match-btn {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-color-dark) 100%);
+  box-shadow: 0 8rpx 24rpx rgba(242, 8, 16, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4rpx;
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+
+.create-match-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 4rpx 16rpx rgba(242, 8, 16, 0.5);
+}
+
+.create-match-btn .btn-icon {
+  width: 40rpx;
+  height: 40rpx;
+  display: block;
+  transition: transform 0.3s;
+}
+
+.create-match-btn .btn-icon.rotate {
+  transform: rotate(45deg);
+}
+
+/* 创建菜单 */
+.create-menu {
+  position: absolute;
+  bottom: 160rpx;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  animation: menuSlideIn 0.3s ease;
+}
+
+@keyframes menuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menu-item {
+  min-width: 200rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  transition: all 0.3s;
+}
+
+.menu-item:active {
+  transform: scale(0.95);
+  background: #f8f9fa;
+}
+
+.menu-icon {
+  font-size: 32rpx;
+}
+
+.menu-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  white-space: nowrap;
+}
+
+.menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: -1;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 底部占位 */
+.bottom-space {
+  height: 200rpx;
+}

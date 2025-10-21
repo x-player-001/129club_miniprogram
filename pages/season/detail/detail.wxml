@@ -1,0 +1,98 @@
+<!-- pages/season/detail/detail.wxml -->
+<view class="page-container">
+  <!-- 赛季头部信息 -->
+  <view class="season-header">
+    <view class="header-top">
+      <view class="title-section">
+        <text class="season-name">{{seasonInfo.name}}</text>
+        <text wx:if="{{seasonInfo.title}}" class="season-title">{{seasonInfo.title}}</text>
+      </view>
+      <season-status-badge status="{{seasonInfo.status}}"></season-status-badge>
+    </view>
+
+    <view class="info-grid">
+      <view class="info-item">
+        <text class="info-label">开始日期</text>
+        <text class="info-value">{{formattedStartDate}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">已进行</text>
+        <text class="info-value">{{seasonInfo.matchCount || 0}} 场</text>
+      </view>
+    </view>
+
+    <!-- 赛季总比分 -->
+    <view wx:if="{{seasonInfo.matchCount > 0}}" class="score-section">
+      <text class="section-label">赛季总比分</text>
+      <team-score-bar
+        team1="{{team1Data}}"
+        team2="{{team2Data}}"
+        showProgress="{{true}}">
+      </team-score-bar>
+    </view>
+  </view>
+
+  <!-- Tab切换 -->
+  <view class="tab-bar">
+    <view
+      class="tab-item {{currentTab === 'matches' ? 'active' : ''}}"
+      bindtap="onTabChange"
+      data-tab="matches">
+      比赛列表
+    </view>
+    <view
+      class="tab-item {{currentTab === 'statistics' ? 'active' : ''}}"
+      bindtap="onTabChange"
+      data-tab="statistics">
+      统计排名
+    </view>
+  </view>
+
+  <!-- 比赛列表Tab -->
+  <view wx:if="{{currentTab === 'matches'}}" class="tab-content">
+    <view wx:if="{{matches.length > 0}}" class="match-list">
+      <view class="match-item" wx:for="{{matches}}" wx:key="id" bindtap="onMatchTap" data-id="{{item.id}}">
+        <view class="match-header">
+          <text class="match-number">第{{index + 1}}场</text>
+          <text class="match-date">{{item.formattedDate}}</text>
+        </view>
+        <view class="match-teams">
+          <view class="team">
+            <image class="team-logo" src="{{item.team1.logo}}" mode="aspectFill"></image>
+            <text class="team-name">{{item.team1.name}}</text>
+          </view>
+          <view class="match-score">
+            <text class="score">{{item.team1Goals || 0}}</text>
+            <text class="separator">:</text>
+            <text class="score">{{item.team2Goals || 0}}</text>
+          </view>
+          <view class="team">
+            <text class="team-name">{{item.team2.name}}</text>
+            <image class="team-logo" src="{{item.team2.logo}}" mode="aspectFill"></image>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <empty-season
+      wx:if="{{matches.length === 0 && !loading}}"
+      type="no-match">
+    </empty-season>
+  </view>
+
+  <!-- 统计排名Tab -->
+  <view wx:if="{{currentTab === 'statistics'}}" class="tab-content">
+    <ranking-list rankings="{{rankings}}"></ranking-list>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 底部操作按钮 -->
+  <view class="bottom-actions">
+    <view class="action-btn secondary" bindtap="onEdit">编辑</view>
+    <view wx:if="{{seasonInfo.status === 'active'}}" class="action-btn primary" bindtap="onComplete">完成赛季</view>
+  </view>
+</view>

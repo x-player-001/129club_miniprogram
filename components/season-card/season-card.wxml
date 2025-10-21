@@ -1,0 +1,46 @@
+<!-- components/season-card/season-card.wxml -->
+<view class="season-card" bindtap="onCardTap">
+  <!-- 头部：名称 + 状态 -->
+  <view class="card-header">
+    <view class="season-title-section">
+      <text class="season-name">{{season.name}}</text>
+      <text wx:if="{{season.title}}" class="season-title">{{season.title}}</text>
+    </view>
+    <season-status-badge status="{{season.status}}"></season-status-badge>
+  </view>
+
+  <!-- 赛季信息 -->
+  <view class="card-info">
+    <view class="info-row">
+      <text class="info-label">开始日期</text>
+      <text class="info-value">{{formattedStartDate}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">已进行</text>
+      <text class="info-value">{{season.matchCount || 0}} 场</text>
+    </view>
+  </view>
+
+  <!-- 赛季总比分 -->
+  <view wx:if="{{showScore && season.matchCount > 0}}" class="card-score">
+    <text class="score-label">赛季总比分</text>
+    <team-score-bar
+      team1="{{team1Data}}"
+      team2="{{team2Data}}"
+      showProgress="{{true}}">
+    </team-score-bar>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view wx:if="{{showActions}}" class="card-actions" catchtap="onActionsTap">
+    <view class="action-btn" catchtap="onEdit" data-id="{{season.id}}">
+      <text>编辑</text>
+    </view>
+    <view class="action-btn" wx:if="{{season.status === 'active'}}" catchtap="onComplete" data-id="{{season.id}}">
+      <text>完成</text>
+    </view>
+    <view class="action-btn danger" catchtap="onDelete" data-id="{{season.id}}">
+      <text>删除</text>
+    </view>
+  </view>
+</view>

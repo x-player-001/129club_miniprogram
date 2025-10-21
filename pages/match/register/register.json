@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "比赛报名",
+  "usingComponents": {
+    "position-tag": "/components/position-tag/position-tag"
+  }
+}

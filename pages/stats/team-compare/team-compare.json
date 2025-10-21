@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "队伍对比",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f6f8",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "team-stats-bar": "/components/team-stats-bar/team-stats-bar"
+  }
+}

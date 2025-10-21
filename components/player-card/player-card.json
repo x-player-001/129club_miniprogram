@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "position-tag": "/components/position-tag/position-tag"
+  }
+}

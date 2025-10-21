@@ -1,0 +1,4 @@
+<!-- components/season-status-badge/season-status-badge.wxml -->
+<view class="status-badge status-{{status}}">
+  <text class="status-text">{{statusText}}</text>
+</view>

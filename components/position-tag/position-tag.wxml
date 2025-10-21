@@ -1,0 +1,12 @@
+<!-- components/position-tag/position-tag.wxml -->
+<view class="position-tag-container" bindtap="onTap">
+  <view
+    wx:for="{{positionTags}}"
+    wx:key="code"
+    class="position-tag size-{{size}}"
+    style="background-color: {{item.bgColor}};">
+    <text wx:if="{{mode === 'code' || mode === 'both'}}">{{item.code}}</text>
+    <text wx:if="{{mode === 'both'}}"> </text>
+    <text wx:if="{{mode === 'name' || mode === 'both'}}">{{name}}</text>
+  </view>
+</view>

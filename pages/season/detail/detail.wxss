@@ -1,0 +1,255 @@
+/* pages/season/detail/detail.wxss */
+.page-container {
+  min-height: 100vh;
+  background: #f5f6f8;
+  padding-bottom: 160rpx;
+}
+
+/* 赛季头部 */
+.season-header {
+  background: #ffffff;
+  padding: 32rpx 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24rpx;
+  gap: 16rpx;
+}
+
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.season-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.season-title {
+  font-size: 28rpx;
+  color: #636e72;
+}
+
+/* 信息网格 */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.info-label {
+  font-size: 24rpx;
+  color: #95a5a6;
+}
+
+.info-value {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* 比分区域 */
+.score-section {
+  padding-top: 24rpx;
+  border-top: 1rpx solid #ecf0f1;
+}
+
+.section-label {
+  display: block;
+  font-size: 24rpx;
+  color: #95a5a6;
+  margin-bottom: 16rpx;
+}
+
+/* Tab栏 */
+.tab-bar {
+  display: flex;
+  background: #ffffff;
+  padding: 16rpx 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.tab-item {
+  flex: 1;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #636e72;
+  border-radius: 12rpx;
+  transition: all 0.3s;
+}
+
+.tab-item.active {
+  background: var(--theme-color, #f20810);
+  color: #ffffff;
+}
+
+/* Tab内容 */
+.tab-content {
+  padding: 0 24rpx;
+}
+
+/* 比赛列表 */
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.match-item {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  transition: all 0.3s;
+}
+
+.match-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.12);
+}
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.match-number {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--theme-color, #f20810);
+}
+
+.match-date {
+  font-size: 24rpx;
+  color: #95a5a6;
+}
+
+.match-teams {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.team {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+}
+
+.team:last-child {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.team-logo {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.team-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.match-score {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex-shrink: 0;
+}
+
+.score {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--theme-color, #f20810);
+  min-width: 40rpx;
+  text-align: center;
+}
+
+.separator {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #95a5a6;
+}
+
+/* 加载状态 */
+.loading-container {
+  padding: 80rpx 0;
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #95a5a6;
+}
+
+/* 底部按钮 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx 24rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: #ffffff;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  display: flex;
+  gap: 16rpx;
+}
+
+.action-btn {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.action-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.action-btn.primary {
+  background: var(--theme-color, #f20810);
+  color: #ffffff;
+}
+
+.action-btn.secondary {
+  background: #ecf0f1;
+  color: #2c3e50;
+}

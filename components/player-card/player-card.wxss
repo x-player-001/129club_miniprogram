@@ -1,0 +1,182 @@
+/* components/player-card/player-card.wxss */
+.player-card {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx;
+  background: #ffffff;
+  border-radius: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  margin-bottom: 16rpx;
+  transition: all 0.3s;
+}
+
+.player-card:active {
+  transform: scale(0.98);
+  background: #f8f9fa;
+}
+
+.player-card.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ========== 球员头像 ========== */
+.player-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  border: 4rpx solid #f5f6f8;
+  flex-shrink: 0;
+}
+
+/* ========== 球员信息 ========== */
+.player-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  min-width: 0;
+}
+
+.player-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.player-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.captain-badge {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+}
+
+.player-meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+}
+
+.jersey-number {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #636e72;
+  padding: 4rpx 12rpx;
+  background: #f1f3f5;
+  border-radius: 8rpx;
+}
+
+.position {
+  font-size: 24rpx;
+  color: #95a5a6;
+}
+
+.team-tag {
+  padding: 4rpx 12rpx;
+  border: 1rpx solid;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+/* ========== 球员数据 ========== */
+.player-stats {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding-left: 24rpx;
+  border-left: 2rpx solid #ecf0f1;
+  flex-shrink: 0;
+}
+
+.stat-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.stat-mini .value {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--theme-color, #f20810);
+}
+
+.stat-mini .label {
+  font-size: 20rpx;
+  color: #95a5a6;
+}
+
+/* ========== Draft模式 ========== */
+.player-card.draft {
+  border: 2rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.player-card.draft.selected {
+  border-color: var(--theme-color, #f20810);
+  background: linear-gradient(135deg, rgba(242, 8, 16, 0.05) 0%, rgba(242, 8, 16, 0.02) 100%);
+}
+
+.select-indicator {
+  flex-shrink: 0;
+}
+
+.checkbox {
+  width: 48rpx;
+  height: 48rpx;
+  border: 3rpx solid #dce1e5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  font-size: 32rpx;
+  color: #ffffff;
+}
+
+.checkbox.checked {
+  background: var(--theme-color, #f20810);
+  border-color: var(--theme-color, #f20810);
+}
+
+/* ========== 紧凑版 ========== */
+.player-card.compact {
+  padding: 16rpx 20rpx;
+  gap: 16rpx;
+}
+
+.compact .player-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-width: 3rpx;
+}
+
+.compact .player-name {
+  font-size: 28rpx;
+}
+
+.compact .player-stats {
+  gap: 16rpx;
+  padding-left: 16rpx;
+}
+
+.compact .stat-mini .value {
+  font-size: 24rpx;
+}
+
+.compact .stat-mini .label {
+  font-size: 18rpx;
+}

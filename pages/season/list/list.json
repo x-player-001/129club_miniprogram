@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "赛季管理",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "season-card": "/components/season-card/season-card",
+    "empty-season": "/components/empty-season/empty-season"
+  }
+}

@@ -1,0 +1,57 @@
+/* components/filter-bar/filter-bar.wxss */
+.filter-bar {
+  background: #ffffff;
+  padding: 16rpx 0;
+}
+
+.filter-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.filter-options {
+  display: inline-flex;
+  gap: 16rpx;
+  padding: 0 24rpx;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 24rpx;
+  background: #f5f6f8;
+  border-radius: 32rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+.filter-item:active {
+  transform: scale(0.95);
+}
+
+.filter-item.active {
+  background: linear-gradient(135deg, rgba(242, 8, 16, 0.1) 0%, rgba(242, 8, 16, 0.05) 100%);
+  border-color: var(--theme-color, #f20810);
+}
+
+/* ========== 颜色标识 ========== */
+.color-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+}
+
+/* ========== 选项名称 ========== */
+.option-name {
+  font-size: 26rpx;
+  color: #636e72;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.filter-item.active .option-name {
+  color: var(--theme-color, #f20810);
+  font-weight: 700;
+}

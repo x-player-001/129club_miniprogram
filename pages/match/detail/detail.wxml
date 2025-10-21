@@ -1,0 +1,178 @@
+<!-- 比赛详情页面 - 重新设计 -->
+<view class="detail-container">
+  <!-- 顶部渐变背景 -->
+  <view class="top-gradient"></view>
+
+  <scroll-view class="content" scroll-y enable-back-to-top>
+    <!-- 比赛信息卡片 -->
+    <view class="match-hero-card" data-status="{{matchInfo.status}}">
+      <!-- 对阵信息 -->
+      <view class="match-vs">
+        <view class="team-section">
+          <view class="team-logo-wrapper">
+            <image class="team-logo-large" src="{{matchInfo.team1.logo}}" mode="aspectFit"></image>
+          </view>
+          <text class="team-name-hero">{{matchInfo.team1.name}}</text>
+          <!-- 已结束/进行中：显示比分 -->
+          <view class="team-score-badge" wx:if="{{matchInfo.status === 'finished' || matchInfo.status === 'ongoing'}}">
+            <text class="score-number">{{matchInfo.team1Score || 0}}</text>
+          </view>
+        </view>
+
+        <view class="vs-section">
+          <text class="vs-text">VS</text>
+          <view class="match-status status-{{matchInfo.status}}">
+            {{matchInfo.status === 'upcoming' ? '未开始' : matchInfo.status === 'ongoing' ? '进行中' : '已结束'}}
+          </view>
+        </view>
+
+        <view class="team-section">
+          <view class="team-logo-wrapper">
+            <image class="team-logo-large" src="{{matchInfo.team2.logo}}" mode="aspectFit"></image>
+          </view>
+          <text class="team-name-hero">{{matchInfo.team2.name}}</text>
+          <!-- 已结束/进行中：显示比分 -->
+          <view class="team-score-badge" wx:if="{{matchInfo.status === 'finished' || matchInfo.status === 'ongoing'}}">
+            <text class="score-number">{{matchInfo.team2Score || 0}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 比赛标题 -->
+      <view class="match-title-hero">{{matchInfo.title}}</view>
+
+      <!-- 基本信息 -->
+      <view class="match-info-row">
+        <text class="info-text">{{matchInfo.dateMonth}}{{matchInfo.dateDay}}日 {{matchInfo.time}}</text>
+        <text class="info-divider">·</text>
+        <text class="info-text">{{matchInfo.location}}</text>
+        <text class="info-divider">·</text>
+        <text class="info-text">{{matchInfo.maxPlayersPerTeam || 11}}人制</text>
+      </view>
+    </view>
+
+    <!-- 比赛数据（进行中/已完成的比赛） -->
+    <view class="match-data-section" wx:if="{{(matchInfo.status === 'ongoing' || matchInfo.status === 'finished') && matchInfo.quarterEvents && matchInfo.quarterEvents.length > 0}}">
+      <!-- <view class="section-header">
+        <text class="section-title">比赛数据</text>
+      </view> -->
+
+      <!-- 节次Tab切换 -->
+      <view class="quarter-tabs">
+        <view class="quarter-tab {{currentQuarter === item.quarterNumber ? 'active' : ''}}" wx:for="{{matchInfo.quarterEvents}}" wx:key="quarterNumber" bindtap="onSwitchQuarter" data-quarter="{{item.quarterNumber}}">
+          <text class="tab-label">{{item.quarterLabel}}</text>
+        </view>
+      </view>
+
+      <!-- 当前节次的比赛数据 -->
+      <view class="quarter-content" wx:for="{{matchInfo.quarterEvents}}" wx:key="quarterNumber" wx:if="{{currentQuarter === item.quarterNumber}}">
+        <!-- 该节次的事件时间轴 -->
+        <view class="timeline-wrapper" wx:if="{{item.events.length > 0}}">
+          <!-- 队伍名称 -->
+          <view class="quarter-teams-header">
+            <text class="team-name-left">{{matchInfo.team1.name}}</text>
+            <text class="score-display">{{item.team1Score}} : {{item.team2Score}}</text>
+            <text class="team-name-right">{{matchInfo.team2.name}}</text>
+          </view>
+
+          <event-timeline events="{{item.events}}" team1="{{matchInfo.team1}}" team2="{{matchInfo.team2}}" showActions="{{false}}">
+          </event-timeline>
+        </view>
+
+        <!-- 无事件提示 -->
+        <view class="empty-events" wx:else>
+          <text class="empty-icon">📋</text>
+          <text class="empty-text">本节暂无数据</text>
+        </view>
+      </view>
+
+      <!-- MVP（已完成的比赛） -->
+      <view class="mvp-card" wx:if="{{matchInfo.status === 'finished' && matchInfo.result && matchInfo.result.mvp}}">
+        <view class="mvp-icon">🏆</view>
+        <view class="mvp-info">
+          <text class="mvp-label">本场MVP</text>
+          <text class="mvp-name">{{matchInfo.result.mvp.name}}</text>
+        </view>
+        <image class="mvp-avatar" src="{{matchInfo.result.mvp.avatar}}" mode="aspectFill"></image>
+      </view>
+    </view>
+
+    <!-- 报名情况/到场情况（所有状态都显示） -->
+    <view class="registration-section">
+      <view class="section-header">
+        <text class="section-title">{{matchInfo.status === 'finished' ? '到场情况' : '报名情况'}}</text>
+        <text class="section-subtitle">共{{team1Players.length + team2Players.length}}人{{matchInfo.status === 'finished' ? '到场' : '报名'}}</text>
+      </view>
+
+      <view class="teams-tabs">
+        <view class="team-tab {{currentTeam === 'team1' ? 'active' : ''}}" bindtap="onSwitchTeam" data-team="team1">
+          <text class="tab-name">{{matchInfo.team1.name}}</text>
+          <view class="tab-count">{{team1Players.length}}</view>
+        </view>
+        <view class="team-tab {{currentTeam === 'team2' ? 'active' : ''}}" bindtap="onSwitchTeam" data-team="team2">
+          <text class="tab-name">{{matchInfo.team2.name}}</text>
+          <view class="tab-count">{{team2Players.length}}</view>
+        </view>
+      </view>
+
+      <view class="players-grid">
+        <view class="player-card-mini {{!item.isAttended ? 'absent' : ''}} {{item.isMvp ? 'mvp-player' : ''}}" wx:for="{{currentPlayers}}" wx:key="id">
+          <view class="avatar-wrapper">
+            <image class="player-avatar-mini" src="{{item.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+            <!-- 球衣号码徽章 -->
+            <view class="jersey-badge" wx:if="{{item.jerseyNumber}}">{{item.jerseyNumber}}</view>
+            <!-- 缺席标记（仅已完成的比赛显示） -->
+            <view class="absent-badge" wx:if="{{matchInfo.status === 'finished' && !item.isAttended}}">缺席</view>
+            <!-- MVP标记（仅已完成的比赛显示） -->
+            <view class="mvp-badge-mini" wx:if="{{matchInfo.status === 'finished' && item.isMvp}}">🏆</view>
+          </view>
+          <text class="player-name-mini">{{item.realName || item.nickname}}</text>
+        </view>
+      </view>
+
+      <view class="empty-state" wx:if="{{currentPlayers.length === 0}}">
+        <text class="empty-icon">👥</text>
+        <text class="empty-text">暂无人报名</text>
+      </view>
+    </view>
+
+    <!-- 比赛说明 -->
+    <view class="description-section" wx:if="{{matchInfo.description}}">
+      <view class="section-header">
+        <text class="section-title">比赛说明</text>
+      </view>
+      <view class="description-content">
+        <text class="description-text">{{matchInfo.description}}</text>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-space"></view>
+  </scroll-view>
+
+  <!-- 底部操作栏（未开始的比赛） -->
+  <view class="action-bar" wx:if="{{matchInfo.status === 'upcoming'}}">
+    <view class="action-btn share-btn" bindtap="onShare">
+      <text class="btn-text">分享</text>
+      <text class="btn-icon">📤</text>
+    </view>
+    <view class="action-btn register-btn" bindtap="onGoToRegister">
+      <text class="btn-text">去报名</text>
+      <text class="btn-icon">⚡</text>
+    </view>
+  </view>
+
+  <!-- 底部操作栏（已结束的比赛 - 管理员） -->
+  <view class="action-bar" wx:if="{{matchInfo.status === 'finished' && isAdmin && !matchInfo.hasRecord}}">
+    <view class="action-btn record-btn" bindtap="onManualRecord">
+      <text class="btn-text">录入比赛记录</text>
+    </view>
+  </view>
+
+  <!-- 底部操作栏（进行中的比赛 - 管理员） -->
+  <view class="action-bar" wx:if="{{matchInfo.status === 'ongoing' && isAdmin}}">
+    <view class="action-btn record-btn" bindtap="onManualRecord">
+      <text class="btn-text">录入比赛记录</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,46 @@
+<!-- 登录页面 -->
+<view class="login-container">
+  <!-- 背景装饰 -->
+  <view class="bg-decoration"></view>
+
+  <!-- Logo和标题区域 -->
+  <view class="logo-section">
+    <view class="logo-circle">
+      <image class="logo" src="/static/images/logo.png" mode="aspectFit"></image>
+    </view>
+    <text class="app-name">129俱乐部</text>
+    <text class="app-slogan">足球队队内管理系统</text>
+  </view>
+
+  <!-- 登录卡片 -->
+  <view class="login-card">
+    <view class="card-title">欢迎回来</view>
+    <view class="card-subtitle">使用微信授权登录，开启足球之旅</view>
+
+    <!-- 微信登录按钮 -->
+    <button
+      class="login-btn"
+      open-type="getUserInfo"
+      bindgetuserinfo="onGetUserInfo"
+      hover-class="login-btn-hover">
+      <image class="wechat-icon" src="/static/icons/wechat.png" mode="aspectFit"></image>
+      <text>微信授权登录</text>
+    </button>
+
+    <!-- 协议说明 -->
+    <view class="agreement">
+      <checkbox class="agreement-checkbox" checked="{{agreed}}" bindtap="toggleAgreement" />
+      <text class="agreement-text">
+        我已阅读并同意
+        <text class="link" bindtap="onViewAgreement" data-type="privacy">《隐私政策》</text>
+        和
+        <text class="link" bindtap="onViewAgreement" data-type="terms">《用户协议》</text>
+      </text>
+    </view>
+  </view>
+
+  <!-- 底部装饰 -->
+  <view class="bottom-decoration">
+    <image class="football-icon" src="/static/images/football.png" mode="aspectFit"></image>
+  </view>
+</view>

@@ -1,0 +1,109 @@
+/* components/ranking-list/ranking-list.wxss */
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 24rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.ranking-item.top-rank {
+  border-color: #ffd700;
+  background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+}
+
+/* 排名序号 */
+.rank-number {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.medal {
+  font-size: 48rpx;
+}
+
+.rank-text {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #95a5a6;
+}
+
+/* 队伍信息 */
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.team-logo {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.team-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 统计数据 */
+.stats-section {
+  display: flex;
+  gap: 24rpx;
+  flex-shrink: 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  min-width: 64rpx;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: #95a5a6;
+}
+
+.stat-value {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.stat-value.primary {
+  color: var(--theme-color, #f20810);
+  font-size: 32rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  padding: 80rpx 0;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #95a5a6;
+}

@@ -1,0 +1,51 @@
+<!-- pages/season/form/form.wxml -->
+<view class="page-container">
+  <view class="form-container">
+    <!-- 赛季名称 -->
+    <view class="form-item required">
+      <view class="item-label">赛季名称</view>
+      <input
+        class="item-input"
+        type="text"
+        placeholder="如: 2025年春季联赛"
+        value="{{formData.name}}"
+        bindinput="onInputChange"
+        data-field="name" />
+    </view>
+
+    <!-- 赛季说明 -->
+    <view class="form-item">
+      <view class="item-label">赛季说明</view>
+      <textarea
+        class="item-textarea"
+        placeholder="简单介绍一下这个赛季..."
+        value="{{formData.description}}"
+        bindinput="onInputChange"
+        data-field="description"
+        maxlength="200"
+        show-confirm-bar="{{false}}" />
+      <text class="char-count">{{formData.description.length}}/200</text>
+    </view>
+
+    <!-- 开始日期 -->
+    <view class="form-item required">
+      <view class="item-label">开始日期</view>
+      <picker
+        class="item-picker"
+        mode="date"
+        value="{{formData.startDate}}"
+        bindchange="onDateChange">
+        <view class="picker-value {{formData.startDate ? '' : 'placeholder'}}">
+          {{formData.startDate || '请选择开始日期'}}
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-actions">
+    <view class="submit-btn" bindtap="onSubmit">
+      <text class="btn-text">{{isEdit ? '保存' : '创建'}}</text>
+    </view>
+  </view>
+</view>

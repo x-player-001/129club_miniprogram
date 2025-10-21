@@ -1,0 +1,126 @@
+/* pages/season/form/form.wxss */
+.page-container {
+  min-height: 100vh;
+  background: #f5f6f8;
+  padding-bottom: 160rpx;
+}
+
+/* 表单容器 */
+.form-container {
+  padding: 24rpx;
+}
+
+/* 表单项 */
+.form-item {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 32rpx 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.form-item.required .item-label::before {
+  content: '*';
+  color: #e74c3c;
+  margin-right: 8rpx;
+}
+
+.item-label {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 16rpx;
+}
+
+.item-input {
+  width: 100%;
+  height: 72rpx;
+  padding: 0 20rpx;
+  background: #f5f6f8;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #2c3e50;
+}
+
+.item-input[disabled] {
+  color: #95a5a6;
+  background: #ecf0f1;
+}
+
+.item-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: 20rpx;
+  background: #f5f6f8;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+.item-picker {
+  display: block;
+}
+
+.picker-value {
+  height: 72rpx;
+  line-height: 72rpx;
+  padding: 0 20rpx;
+  background: #f5f6f8;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #2c3e50;
+}
+
+.picker-value.placeholder {
+  color: #95a5a6;
+}
+
+.item-tip {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #95a5a6;
+  line-height: 1.5;
+}
+
+.char-count {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #95a5a6;
+  text-align: right;
+}
+
+/* 底部按钮 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx 24rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: #ffffff;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+  z-index: 100;
+}
+
+.submit-btn {
+  height: 88rpx;
+  background: var(--theme-color, #f20810);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.submit-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.btn-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+}

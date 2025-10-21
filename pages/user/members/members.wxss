@@ -1,0 +1,234 @@
+/* 成员列表页面样式 */
+.members-container {
+  min-height: 100vh;
+  background: #f5f6f8;
+  padding-bottom: 40rpx;
+}
+
+/* 搜索栏 */
+.search-bar {
+  position: relative;
+  margin: 32rpx;
+  padding: 24rpx 32rpx;
+  background: #ffffff;
+  border-radius: 48rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.search-icon {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 16rpx;
+  opacity: 0.5;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #2c3e50;
+}
+
+.search-input::placeholder {
+  color: #bdc3c7;
+}
+
+.clear-btn {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #95a5a6;
+}
+
+/* 筛选栏 */
+.filter-bar {
+  margin: 0 32rpx 24rpx;
+}
+
+.filter-scroll {
+  white-space: nowrap;
+}
+
+.filter-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 16rpx 32rpx;
+  background: #ffffff;
+  border-radius: 32rpx;
+  margin-right: 16rpx;
+  font-size: 26rpx;
+  color: #7f8c8d;
+  transition: all 0.3s;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.filter-item.active {
+  background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-color-dark) 100%);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.team-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
+}
+
+/* 统计信息 */
+.stats-info {
+  padding: 0 32rpx 24rpx;
+}
+
+.stats-text {
+  font-size: 26rpx;
+  color: #95a5a6;
+}
+
+/* 成员列表 */
+.members-list {
+  padding: 0 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.member-card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.member-card:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+}
+
+.member-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+  border: 3rpx solid #f8f9fa;
+}
+
+.member-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.member-name-row {
+  display: flex;
+  align-items: center;
+}
+
+.member-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-right: 12rpx;
+}
+
+.captain-badge {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.member-meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+}
+
+.jersey-number {
+  font-size: 24rpx;
+  color: var(--theme-color);
+  padding: 4rpx 16rpx;
+  background: rgba(242, 8, 16, 0.1);
+  border-radius: 12rpx;
+  font-weight: 600;
+}
+
+.position {
+  font-size: 24rpx;
+  color: #7f8c8d;
+}
+
+.team-tag {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border: 2rpx solid;
+  border-radius: 12rpx;
+  font-weight: 500;
+}
+
+/* 成员统计 */
+.member-stats {
+  display: flex;
+  gap: 24rpx;
+}
+
+.stat-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 56rpx;
+}
+
+.stat-mini .value {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--theme-color);
+  margin-bottom: 4rpx;
+}
+
+.stat-mini .label {
+  font-size: 20rpx;
+  color: #95a5a6;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 40rpx;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 32rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #7f8c8d;
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #bdc3c7;
+}
+
+.bottom-space {
+  height: 40rpx;
+}

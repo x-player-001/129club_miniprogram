@@ -1,0 +1,84 @@
+/* components/achievement-badge/achievement-badge.wxss */
+.achievement-badge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 32rpx 24rpx;
+  border-radius: 20rpx;
+  transition: all 0.3s;
+}
+
+.achievement-badge:active {
+  transform: scale(0.95);
+}
+
+/* ========== 已解锁状态 ========== */
+.achievement-badge.unlocked {
+  background: linear-gradient(135deg, #fff5e6 0%, #ffe4cc 100%);
+  box-shadow: 0 4rpx 16rpx rgba(243, 156, 18, 0.2);
+}
+
+.achievement-badge.unlocked .badge-icon {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  box-shadow: 0 4rpx 12rpx rgba(243, 156, 18, 0.3);
+}
+
+.achievement-badge.unlocked .badge-name {
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+/* ========== 未解锁状态 ========== */
+.achievement-badge.locked {
+  background: #f5f6f8;
+  opacity: 0.6;
+}
+
+.achievement-badge.locked .badge-icon {
+  background: #bdc3c7;
+}
+
+.achievement-badge.locked .badge-name {
+  color: #95a5a6;
+}
+
+/* ========== 图标 ========== */
+.badge-icon {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8rpx;
+}
+
+.icon-emoji {
+  font-size: 56rpx;
+}
+
+/* ========== 名称 ========== */
+.badge-name {
+  font-size: 24rpx;
+  text-align: center;
+}
+
+/* ========== 解锁标识 ========== */
+.unlocked-tag {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: #27ae60;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  font-weight: 700;
+  box-shadow: 0 2rpx 8rpx rgba(39, 174, 96, 0.3);
+}

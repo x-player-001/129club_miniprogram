@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "season-status-badge": "/components/season-status-badge/season-status-badge",
+    "team-score-bar": "/components/team-score-bar/team-score-bar"
+  }
+}

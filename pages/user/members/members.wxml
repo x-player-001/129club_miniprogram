@@ -1,0 +1,47 @@
+<!-- 成员列表页面 -->
+<view class="members-container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <image class="search-icon" src="/static/icons/search.png" mode="aspectFit"></image>
+    <input class="search-input"
+           placeholder="搜索队员姓名或号码"
+           value="{{searchKeyword}}"
+           bindinput="onSearchInput"
+           confirm-type="search"
+           bindconfirm="onSearch"/>
+    <view class="clear-btn" wx:if="{{searchKeyword}}" bindtap="onClearSearch">
+      <text>✕</text>
+    </view>
+  </view>
+
+  <!-- 筛选栏 - 使用 filter-bar 组件 -->
+  <filter-bar options="{{filterOptions}}" current="{{currentTeam}}" bind:change="onFilterChange"></filter-bar>
+
+  <!-- 统计信息 -->
+  <view class="stats-info">
+    <text class="stats-text">共 {{filteredMembers.length}} 名队员</text>
+  </view>
+
+  <!-- 成员列表 - 使用 player-card 组件 -->
+  <view class="members-list" wx:if="{{filteredMembers.length > 0}}">
+    <player-card
+      wx:for="{{filteredMembers}}"
+      wx:key="id"
+      playerData="{{item}}"
+      mode="full"
+      bind:tap="onPlayerCardTap">
+    </player-card>
+  </view>
+
+  <!-- 空状态 - 使用 empty-state 组件 -->
+  <view wx:else>
+    <empty-state
+      icon="/static/images/empty-team.png"
+      text="暂无队员"
+      hint="{{searchKeyword ? '试试其他搜索关键词' : ''}}">
+    </empty-state>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-space"></view>
+</view>

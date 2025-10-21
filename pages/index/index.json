@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "129俱乐部",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f6f8",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "stats-grid": "/components/stats-grid/stats-grid",
+    "match-card": "/components/match-card/match-card",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

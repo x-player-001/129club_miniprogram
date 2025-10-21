@@ -1,0 +1,18 @@
+<!-- components/filter-bar/filter-bar.wxml -->
+<view class="filter-bar">
+  <scroll-view class="filter-scroll" scroll-x enable-flex>
+    <view class="filter-options">
+      <view
+        wx:for="{{options}}"
+        wx:key="id"
+        class="filter-item {{current === item.id ? 'active' : ''}}"
+        bindtap="onOptionChange"
+        data-id="{{item.id}}"
+      >
+        <!-- 颜色标识（可选） -->
+        <view wx:if="{{item.color}}" class="color-dot" style="background: {{item.color}};"></view>
+        <text class="option-name">{{item.name}}</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,85 @@
+<!-- 事件时间轴 - 三列固定布局 -->
+<view class="events-timeline-container" wx:if="{{timelineRows.length > 0}}">
+  <view class="events-timeline">
+    <view wx:for="{{timelineRows}}" wx:key="id" wx:for-item="row" class="timeline-row">
+      <!-- 左列：左队事件 -->
+      <view class="timeline-column timeline-left">
+        <view class="timeline-item-wrapper" wx:if="{{row.leftEvent}}">
+          <view class="event-item event-left">
+            <!-- 操作按钮 -->
+            <view class="event-actions" wx:if="{{showActions}}">
+              <view class="action-icon delete-icon" catchtap="onDeleteEvent" data-id="{{row.leftEvent.id}}">🗑️</view>
+              <view class="action-icon edit-icon" catchtap="onEditEvent" data-id="{{row.leftEvent.id}}">✏️</view>
+            </view>
+            <!-- 时间 -->
+            <view class="timeline-time">{{row.leftEvent.minute}}'</view>
+
+            <!-- 事件内容 -->
+            <view class="event-content" bindtap="onEventClick" data-id="{{row.leftEvent.id}}">
+              <view class="event-line">
+                <text class="event-player-name">{{row.leftEvent.playerName}}</text>
+              </view>
+              <view class="event-line" wx:if="{{row.leftEvent.isOwnGoal}}">
+                <text class="event-own-goal">乌龙球</text>
+              </view>
+              <view class="event-line" wx:if="{{row.leftEvent.assistName}}">
+                <text class="event-assist">助攻: {{row.leftEvent.assistName}}</text>
+              </view>
+              <view class="event-line" wx:if="{{row.leftEvent.notes}}">
+                <text class="event-notes">{{row.leftEvent.notes}}</text>
+              </view>
+            </view>
+
+            <!-- 事件图标 -->
+            <text class="event-icon">{{row.leftEvent.eventType === 'goal' ? '⚽' : row.leftEvent.eventType === 'yellow_card' ? '🟨' : row.leftEvent.eventType === 'red_card' ? '🟥' : row.leftEvent.eventType === 'save' ? '🧤' : '🔄'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 中列：时间轴线 -->
+      <view class="timeline-column timeline-center">
+        <view class="timeline-line"></view>
+      </view>
+
+      <!-- 右列：右队事件 -->
+      <view class="timeline-column timeline-right">
+        <view class="timeline-item-wrapper" wx:if="{{row.rightEvent}}">
+          <view class="event-item event-right">
+            <!-- 事件图标 -->
+            <text class="event-icon">{{row.rightEvent.eventType === 'goal' ? '⚽' : row.rightEvent.eventType === 'yellow_card' ? '🟨' : row.rightEvent.eventType === 'red_card' ? '🟥' : row.rightEvent.eventType === 'save' ? '🧤' : '🔄'}}</text>
+
+            <!-- 事件内容 -->
+            <view class="event-content" bindtap="onEventClick" data-id="{{row.rightEvent.id}}">
+              <view class="event-line">
+                <text class="event-player-name">{{row.rightEvent.playerName}}</text>
+              </view>
+              <view class="event-line" wx:if="{{row.rightEvent.isOwnGoal}}">
+                <text class="event-own-goal">乌龙球</text>
+              </view>
+              <view class="event-line" wx:if="{{row.rightEvent.assistName}}">
+                <text class="event-assist">助攻: {{row.rightEvent.assistName}}</text>
+              </view>
+              <view class="event-line" wx:if="{{row.rightEvent.notes}}">
+                <text class="event-notes">{{row.rightEvent.notes}}</text>
+              </view>
+            </view>
+
+            <!-- 时间 -->
+            <view class="timeline-time">{{row.rightEvent.minute}}'</view>
+
+            <!-- 操作按钮 -->
+            <view class="event-actions" wx:if="{{showActions}}">
+              <view class="action-icon edit-icon" catchtap="onEditEvent" data-id="{{row.rightEvent.id}}">✏️</view>
+              <view class="action-icon delete-icon" catchtap="onDeleteEvent" data-id="{{row.rightEvent.id}}">🗑️</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 空状态 -->
+<view class="empty-timeline" wx:else>
+  <text class="empty-text">暂无事件记录</text>
+</view>

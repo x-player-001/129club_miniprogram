@@ -1,0 +1,210 @@
+/* components/select-grid/select-grid.wxss */
+
+/* 弹窗遮罩 */
+.select-grid-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.select-grid-modal.show {
+  background: rgba(0, 0, 0, 0.5);
+  visibility: visible;
+}
+
+/* 弹窗内容 */
+.select-grid-content {
+  width: 100%;
+  max-height: 80vh;
+  background: #ffffff;
+  border-radius: 32rpx 32rpx 0 0;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.select-grid-modal.show .select-grid-content {
+  transform: translateY(0);
+}
+
+/* 标题栏 */
+.picker-header {
+  position: relative;
+  padding: 32rpx 48rpx;
+  border-bottom: 1rpx solid #e9ecef;
+  flex-shrink: 0;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  text-align: center;
+  display: block;
+}
+
+.close-btn {
+  position: absolute;
+  top: 50%;
+  right: 32rpx;
+  transform: translateY(-50%);
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn image {
+  width: 28rpx;
+  height: 28rpx;
+}
+
+/* 选项区域 */
+.picker-body {
+  flex: 1;
+  padding: 32rpx;
+  overflow-y: auto;
+}
+
+/* 网格容器 - 使用 flex 自动换行 */
+.grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  width: 100%;
+}
+
+/* 网格项 - 固定宽度，自动换行 */
+.grid-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 4rpx;
+  background: #f5f6f8;
+  border-radius: 8rpx;
+  border: 2rpx solid #e9ecef;
+  transition: all 0.3s ease;
+  min-height: 40rpx;
+  width: 100rpx;
+  box-sizing: border-box;
+  margin: 2rpx 5rpx;
+}
+
+/* 选中状态 */
+.grid-item.selected {
+  background: rgba(39, 174, 96, 0.15);
+  border-color: #27ae60;
+  transform: scale(0.98);
+}
+
+/* 头像 */
+.item-avatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  margin-bottom: 6rpx;
+  border: 2rpx solid transparent;
+}
+
+.grid-item.selected .item-avatar {
+  border-color: #27ae60;
+}
+
+/* 文本 */
+.item-text {
+  font-size: 22rpx;
+  color: #2c3e50;
+  font-weight: 500;
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.3;
+}
+
+.grid-item.selected .item-text {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+/* 选中图标 */
+.selected-icon {
+  position: absolute;
+  top: 2rpx;
+  right: 2rpx;
+  width: 24rpx;
+  height: 24rpx;
+  background: #27ae60;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.check-mark {
+  color: #ffffff;
+  font-size: 16rpx;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 0;
+  color: #95a5a6;
+  font-size: 28rpx;
+}
+
+/* 底部按钮栏 */
+.picker-footer {
+  display: flex;
+  gap: 24rpx;
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  border-top: 1rpx solid #e9ecef;
+  flex-shrink: 0;
+}
+
+.cancel-btn,
+.confirm-btn {
+  flex: 1;
+  height: 88rpx;
+  padding: 0;
+  margin: 0;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  border: none;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancel-btn {
+  background: #f5f6f8;
+  color: #7f8c8d;
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+}
+
+.cancel-btn::after,
+.confirm-btn::after {
+  border: none;
+}

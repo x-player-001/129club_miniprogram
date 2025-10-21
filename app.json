@@ -1,0 +1,89 @@
+{
+  "pages": [
+    "pages/startup/startup",
+    "pages/index/index",
+    "pages/user/login/login",
+    "pages/user/profile-edit/profile-edit",
+    "pages/team/list/list",
+    "pages/team/detail/detail",
+    "pages/team/create/create",
+    "pages/team/reshuffle/reshuffle",
+    "pages/team/vs/vs",
+    "pages/match/list/list",
+    "pages/match/detail/detail",
+    "pages/match/create/create",
+    "pages/match/register/register",
+    "pages/match/record/record",
+    "pages/match/report-import/report-import",
+    "pages/season/list/list",
+    "pages/season/detail/detail",
+    "pages/season/form/form",
+    "pages/user/profile/profile",
+    "pages/user/members/members",
+    "pages/user/stats/stats",
+    "pages/stats/overview/overview",
+    "pages/stats/ranking/ranking",
+    "pages/stats/team-compare/team-compare",
+    "pages/notice/list/list",
+    "pages/notice/detail/detail"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#f20810",
+    "navigationBarTitleText": "129俱乐部",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f6f8"
+  },
+  "tabBar": {
+    "color": "#95a5a6",
+    "selectedColor": "#f20810",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/icons/home.png",
+        "selectedIconPath": "static/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/team/list/list",
+        "text": "队伍",
+        "iconPath": "static/icons/team.png",
+        "selectedIconPath": "static/icons/team-active.png"
+      },
+      {
+        "pagePath": "pages/match/list/list",
+        "text": "比赛",
+        "iconPath": "static/icons/match.png",
+        "selectedIconPath": "static/icons/match-active.png"
+      },
+      {
+        "pagePath": "pages/stats/overview/overview",
+        "text": "数据",
+        "iconPath": "static/icons/stats.png",
+        "selectedIconPath": "static/icons/stats-active.png"
+      },
+      {
+        "pagePath": "pages/user/profile/profile",
+        "text": "我的",
+        "iconPath": "static/icons/user.png",
+        "selectedIconPath": "static/icons/user-active.png"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于显示比赛地点"
+    }
+  },
+  "requiredBackgroundModes": ["audio"],
+  "networkTimeout": {
+    "request": 10000,
+    "downloadFile": 10000
+  },
+  "debug": true,
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

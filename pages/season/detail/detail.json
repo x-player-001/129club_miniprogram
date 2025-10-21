@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "赛季详情",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "season-status-badge": "/components/season-status-badge/season-status-badge",
+    "team-score-bar": "/components/team-score-bar/team-score-bar",
+    "ranking-list": "/components/ranking-list/ranking-list",
+    "empty-season": "/components/empty-season/empty-season"
+  }
+}

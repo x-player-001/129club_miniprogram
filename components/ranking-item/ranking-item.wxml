@@ -1,0 +1,33 @@
+<!-- components/ranking-item/ranking-item.wxml -->
+<view class="ranking-item {{isCurrentUser ? 'highlight' : ''}}" bindtap="onItemTap">
+  <!-- 排名 -->
+  <view class="rank-number">
+    <view wx:if="{{rankData.rank <= 3}}" class="medal medal-{{rankData.rank}}">
+      <text class="medal-icon">
+        {{rankData.rank === 1 ? '🥇' : ''}}
+        {{rankData.rank === 2 ? '🥈' : ''}}
+        {{rankData.rank === 3 ? '🥉' : ''}}
+      </text>
+    </view>
+    <text wx:else class="rank-text">{{rankData.rank}}</text>
+  </view>
+
+  <!-- 球员信息 -->
+  <image class="avatar" src="{{rankData.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+  <view class="player-info">
+    <text class="name">{{rankData.name}}</text>
+    <view class="meta">
+      <text class="team" style="color: {{rankData.teamColor}}">{{rankData.team}}</text>
+      <text class="matches">{{rankData.matches}}场</text>
+    </view>
+  </view>
+
+  <!-- 数据值 -->
+  <view class="value-container">
+    <text class="value">{{rankData.value}}</text>
+    <text class="label">{{rankType === 'goals' ? '进球' : ''}}{{rankType === 'assists' ? '助攻' : ''}}{{rankType === 'mvp' ? '次' : ''}}{{rankType === 'attendance' ? '%' : ''}}</text>
+  </view>
+
+  <!-- 箭头 -->
+  <view class="arrow">›</view>
+</view>

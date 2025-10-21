@@ -1,0 +1,38 @@
+<!-- components/ranking-list/ranking-list.wxml -->
+<view class="ranking-list">
+  <view class="ranking-item {{index < highlightTop ? 'top-rank' : ''}}" wx:for="{{rankings}}" wx:key="teamId">
+    <!-- 排名序号 -->
+    <view class="rank-number">
+      <text wx:if="{{index === 0}}" class="medal gold">🥇</text>
+      <text wx:elif="{{index === 1}}" class="medal silver">🥈</text>
+      <text wx:elif="{{index === 2}}" class="medal bronze">🥉</text>
+      <text wx:else class="rank-text">{{index + 1}}</text>
+    </view>
+
+    <!-- 队伍信息 -->
+    <view class="team-info">
+      <image class="team-logo" src="{{item.teamLogo}}" mode="aspectFill"></image>
+      <text class="team-name">{{item.teamName}}</text>
+    </view>
+
+    <!-- 统计数据 -->
+    <view class="stats-section">
+      <view class="stat-item">
+        <text class="stat-label">积分</text>
+        <text class="stat-value primary">{{item.totalScore}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">进球</text>
+        <text class="stat-value">{{item.totalGoals}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">{{item.winCount}}胜{{item.loseCount}}负</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{rankings.length === 0}}" class="empty-state">
+    <text class="empty-text">暂无排名数据</text>
+  </view>
+</view>

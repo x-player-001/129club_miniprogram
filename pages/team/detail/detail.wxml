@@ -1,0 +1,110 @@
+<!-- 队伍详情页面 -->
+<view class="team-detail-container">
+  <!-- 队伍头部 -->
+  <view class="team-header" style="background: linear-gradient(135deg, {{teamInfo.color}} 0%, {{teamInfo.colorDark}} 100%);">
+    <view class="team-badge">
+      <image src="{{teamInfo.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+    </view>
+    <view class="team-name">{{teamInfo.name}}</view>
+    <view class="team-captain">
+      <image class="crown" src="/static/icons/crown.png" mode="aspectFit"></image>
+      <text>队长：{{teamInfo.captainName}}</text>
+    </view>
+    <view class="season-info">{{teamInfo.season}}</view>
+    
+    <!-- 队长/管理员操作按钮 -->
+    <view class="captain-actions" wx:if="{{canEdit}}">
+      <view class="action-icon-btn" bindtap="onEditTeam">
+        <image src="/static/icons/edit-white.png" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 战绩数据 - 使用 team-stats-bar 组件 -->
+  <view class="stats-section">
+    <view class="section-title">
+      <view class="title-line"></view>
+      <text>队伍战绩</text>
+    </view>
+
+    <team-stats-bar stats="{{teamStatsBarData}}" mode="full"></team-stats-bar>
+
+    <!-- 近期战绩 -->
+    <view class="recent-results" wx:if="{{teamStats.recentResults && teamStats.recentResults.length > 0}}">
+      <text class="results-label">近10场：</text>
+      <view class="results-list">
+        <view class="result-dot {{item}}" wx:for="{{teamStats.recentResults}}" wx:key="index">
+          {{item === 'win' ? '胜' : item === 'draw' ? '平' : '负'}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 队员列表 - 使用 player-card 组件 -->
+  <view class="members-section">
+    <view class="section-header">
+      <view class="section-title">
+        <view class="title-line"></view>
+        <text>队员名单 ({{members.length}}人)</text>
+      </view>
+      <view class="view-all" bindtap="onViewAllMembers">
+        <text>查看全部</text>
+        <image src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+      </view>
+    </view>
+
+    <view class="members-grid">
+      <player-card
+        wx:for="{{membersCardData}}"
+        wx:key="id"
+        playerData="{{item}}"
+        mode="compact"
+        bind:tap="onPlayerCardTap">
+      </player-card>
+    </view>
+  </view>
+
+  <!-- 队内排行 -->
+  <view class="ranking-section">
+    <view class="section-title">
+      <view class="title-line"></view>
+      <text>队内排行</text>
+    </view>
+
+    <view class="ranking-tabs">
+      <view class="rank-tab {{rankType === 'goals' ? 'active' : ''}}" bindtap="onSwitchRankType" data-type="goals">
+        <text>射手榜</text>
+      </view>
+      <view class="rank-tab {{rankType === 'assists' ? 'active' : ''}}" bindtap="onSwitchRankType" data-type="assists">
+        <text>助攻榜</text>
+      </view>
+      <view class="rank-tab {{rankType === 'mvp' ? 'active' : ''}}" bindtap="onSwitchRankType" data-type="mvp">
+        <text>MVP榜</text>
+      </view>
+    </view>
+
+    <view class="ranking-list">
+      <view class="rank-item {{index < 3 ? 'top' + (index + 1) : ''}}" wx:for="{{rankingList}}" wx:key="id">
+        <view class="rank-number">{{index + 1}}</view>
+        <image class="rank-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+        <text class="rank-name">{{item.realName}}</text>
+        <text class="rank-value">{{item.value}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="quick-actions">
+    <button class="quick-btn" bindtap="onViewMatches">
+      <image src="/static/icons/football-white.png" mode="aspectFit"></image>
+      <text>比赛记录</text>
+    </button>
+    <button class="quick-btn" bindtap="onViewVsHistory" wx:if="{{teamInfo.opponentId}}">
+      <image src="/static/icons/vs.png" mode="aspectFit"></image>
+      <text>对战历史</text>
+    </button>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-space"></view>
+</view>

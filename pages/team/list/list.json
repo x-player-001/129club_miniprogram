@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "队伍",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f6f8",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "team-card": "/components/team-card/team-card",
+    "tab-bar": "/components/tab-bar/tab-bar",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

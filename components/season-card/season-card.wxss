@@ -1,0 +1,114 @@
+/* components/season-card/season-card.wxss */
+.season-card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+}
+
+.season-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.12);
+}
+
+/* 头部 */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24rpx;
+  gap: 16rpx;
+}
+
+.season-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.season-name {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.season-title {
+  font-size: 26rpx;
+  color: #636e72;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 信息行 */
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-bottom: 24rpx;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #95a5a6;
+}
+
+.info-value {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* 比分区域 */
+.card-score {
+  margin-bottom: 24rpx;
+}
+
+.score-label {
+  display: block;
+  font-size: 24rpx;
+  color: #95a5a6;
+  margin-bottom: 12rpx;
+}
+
+/* 操作按钮 */
+.card-actions {
+  display: flex;
+  gap: 16rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #ecf0f1;
+}
+
+.action-btn {
+  flex: 1;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ecf0f1;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  transition: all 0.3s;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+.action-btn.danger {
+  background: #fee;
+  color: #e74c3c;
+}

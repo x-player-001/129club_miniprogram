@@ -1,0 +1,123 @@
+<!-- components/match-card/match-card.wxml -->
+<view class="match-card {{mode}}" bindtap="onCardTap">
+  <!-- 完整版布局 -->
+  <block wx:if="{{mode === 'full'}}">
+    <!-- 比赛头部 -->
+    <view class="match-header">
+      <view class="match-title">{{matchData.title}}</view>
+      <view class="match-status status-{{matchData.status}}">
+        {{matchData.status === 'upcoming' ? '未开始' : matchData.status === 'ongoing' ? '进行中' : '已结束'}}
+      </view>
+    </view>
+
+    <!-- 对阵信息 -->
+    <view class="match-vs">
+      <!-- 队伍1 -->
+      <view class="team-section">
+        <image class="team-logo" src="{{matchData.team1.logo}}" mode="aspectFit"></image>
+        <text class="team-name">{{matchData.team1.name}}</text>
+        <!-- 未开始：显示报名人数 -->
+        <view class="team-count" wx:if="{{matchData.status === 'upcoming'}}">
+          <text class="count-number">{{matchData.team1RegisteredCount}}</text>
+          <text class="count-label">人</text>
+        </view>
+        <!-- 进行中/已结束：显示比分 -->
+        <view class="team-score" wx:if="{{matchData.status !== 'upcoming'}}">
+          <text class="score-number">{{matchData.team1Score}}</text>
+        </view>
+      </view>
+
+      <!-- VS -->
+      <view class="vs-divider">
+        <text class="vs-text">VS</text>
+      </view>
+
+      <!-- 队伍2 -->
+      <view class="team-section">
+        <image class="team-logo" src="{{matchData.team2.logo}}" mode="aspectFit"></image>
+        <text class="team-name">{{matchData.team2.name}}</text>
+        <!-- 未开始：显示报名人数 -->
+        <view class="team-count" wx:if="{{matchData.status === 'upcoming'}}">
+          <text class="count-number">{{matchData.team2RegisteredCount}}</text>
+          <text class="count-label">人</text>
+        </view>
+        <!-- 进行中/已结束：显示比分 -->
+        <view class="team-score" wx:if="{{matchData.status !== 'upcoming'}}">
+          <text class="score-number">{{matchData.team2Score}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 比赛信息 -->
+    <view class="match-info">
+      <view class="info-item">
+        <image class="info-icon" src="/static/icons/match.png" mode="aspectFit"></image>
+        <text>{{matchData.dateMonth}}{{matchData.dateDay}}日 {{matchData.time}}</text>
+      </view>
+      <view class="info-item">
+        <image class="info-icon" src="/static/icons/location.png" mode="aspectFit"></image>
+        <text>{{matchData.location}}</text>
+      </view>
+      <view class="info-item">
+        <image class="info-icon" src="/static/icons/match.png" mode="aspectFit"></image>
+        <text>{{matchData.maxPlayersPerTeam || 11}}人制</text>
+      </view>
+      <view class="info-item" wx:if="{{matchData.status === 'ongoing'}}">
+        <text class="live-indicator">●</text>
+        <text class="live-text">第{{matchData.currentMinute}}'分钟</text>
+      </view>
+    </view>
+
+    <!-- MVP显示（已结束的比赛） -->
+    <view class="match-mvp" wx:if="{{matchData.status === 'finished' && matchData.mvp}}">
+      <image class="mvp-icon" src="/static/icons/star.png" mode="aspectFit"></image>
+      <text class="mvp-label">MVP：</text>
+      <image class="mvp-avatar" src="{{matchData.mvp.avatar}}" mode="aspectFill"></image>
+      <text class="mvp-name">{{matchData.mvp.name}}</text>
+    </view>
+
+    <!-- 操作按钮（未开始的比赛） -->
+    <view class="match-actions" wx:if="{{matchData.status === 'upcoming' && showActions}}">
+      <button
+        class="action-btn {{matchData.isRegistered ? 'cancel-btn' : 'register-btn'}}"
+        catchtap="onRegister">
+        {{matchData.isRegistered ? '取消报名' : '立即报名'}}
+      </button>
+    </view>
+  </block>
+
+  <!-- 紧凑版布局 -->
+  <block wx:else>
+    <view class="match-date">
+      <text class="date-day">{{matchData.dateDay}}</text>
+      <text class="date-month">{{matchData.dateMonth}}</text>
+    </view>
+    <view class="match-info-compact">
+      <view class="match-teams">
+        <view class="team">
+          <image class="team-logo" src="{{matchData.team1.logo}}" mode="aspectFit"></image>
+          <text class="team-name">{{matchData.team1.name}}</text>
+        </view>
+        <view class="match-vs-compact">
+          <text class="vs-text" wx:if="{{matchData.status === 'upcoming'}}">VS</text>
+          <view class="score" wx:else>
+            <text class="score-value">{{matchData.team1Score}}</text>
+            <text class="score-divider">:</text>
+            <text class="score-value">{{matchData.team2Score}}</text>
+          </view>
+        </view>
+        <view class="team">
+          <text class="team-name">{{matchData.team2.name}}</text>
+          <image class="team-logo" src="{{matchData.team2.logo}}" mode="aspectFit"></image>
+        </view>
+      </view>
+      <view class="match-meta">
+        <text class="match-time">{{matchData.time}}</text>
+        <text class="match-location">{{matchData.location}}</text>
+        <view class="status-tag {{matchData.status}}">
+          {{matchData.status === 'upcoming' ? '未开始' : matchData.status === 'ongoing' ? '进行中' : '已结束'}}
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

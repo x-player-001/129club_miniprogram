@@ -1,0 +1,107 @@
+<!-- pages/user/stats/stats.wxml -->
+<view class="page-container">
+  <!-- 用户信息头部 -->
+  <view class="user-header" wx:if="{{userInfo}}">
+    <view class="bg-gradient" style="background: linear-gradient(135deg, {{userInfo.teamColor}} 0%, {{userInfo.teamColor}}dd 100%);"></view>
+    <view class="user-info">
+      <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
+      <view class="info-text">
+        <text class="name">{{userInfo.name}}</text>
+        <view class="meta">
+          <text class="number">{{userInfo.jerseyNumber}}号</text>
+          <position-tag wx:if="{{userInfo.position}}" code="{{userInfo.position}}" size="small"></position-tag>
+        </view>
+        <text class="team" style="color: {{userInfo.teamColor}}">{{userInfo.team}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 总体数据卡片 - 使用 stats-grid 组件 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="title-text">总体数据</text>
+    </view>
+    <stats-grid stats="{{statsGridData}}" columns="3"></stats-grid>
+
+    <!-- 战绩 - 使用 team-stats-bar 组件 -->
+    <team-stats-bar stats="{{recordStats}}" mode="full"></team-stats-bar>
+  </view>
+
+  <!-- 当前队伍数据 - 使用 stats-grid 和 team-stats-bar 组件 -->
+  <view class="section" wx:if="{{currentTeamStats}}">
+    <view class="section-title">
+      <text class="title-text">本队贡献</text>
+      <view class="more" bindtap="onCurrentTeamTap">
+        <text class="more-text">查看详情</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+    <view class="team-stats-card" bindtap="onCurrentTeamTap">
+      <view class="team-header">
+        <image class="team-logo" src="{{currentTeamStats.teamLogo}}" mode="aspectFill"></image>
+        <text class="team-name" style="color: {{currentTeamStats.teamColor}}">{{currentTeamStats.teamName}}</text>
+      </view>
+      <stats-grid stats="{{currentTeamStatsGrid}}" columns="4"></stats-grid>
+      <team-stats-bar stats="{{currentTeamStatsBar}}" mode="compact"></team-stats-bar>
+    </view>
+  </view>
+
+  <!-- 历史队伍 -->
+  <view class="section" wx:if="{{teamHistory.length > 0}}">
+    <view class="section-title">
+      <text class="title-text">效力历史</text>
+    </view>
+    <view class="team-history-list">
+      <view
+        wx:for="{{teamHistory}}"
+        wx:key="id"
+        class="history-item"
+        bindtap="onTeamTap"
+        data-id="{{item.id}}"
+      >
+        <image class="team-logo" src="{{item.teamLogo}}" mode="aspectFill"></image>
+        <view class="team-info">
+          <text class="team-name" style="color: {{item.teamColor}}">{{item.teamName}}</text>
+          <text class="season">{{item.season}}赛季</text>
+        </view>
+        <view class="team-stats">
+          <text class="stat">{{item.matches}}场</text>
+          <text class="stat">{{item.goals}}球</text>
+          <text class="stat">{{item.assists}}助</text>
+        </view>
+        <view class="arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 成就徽章 - 使用 achievement-badge 组件 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="title-text">成就徽章</text>
+      <text class="subtitle">已解锁 {{unlockedCount}}/{{achievements.length}}</text>
+    </view>
+    <view class="achievements-grid">
+      <achievement-badge
+        wx:for="{{achievements}}"
+        wx:key="id"
+        achievement="{{item}}">
+      </achievement-badge>
+    </view>
+  </view>
+
+  <!-- 近期比赛 - 使用 match-card 组件 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="title-text">近期比赛</text>
+    </view>
+    <view class="match-list">
+      <match-card
+        wx:for="{{recentMatchesData}}"
+        wx:key="id"
+        matchData="{{item}}"
+        mode="compact"
+        bind:tap="onMatchCardTap">
+      </match-card>
+    </view>
+  </view>
+</view>

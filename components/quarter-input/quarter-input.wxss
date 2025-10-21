@@ -1,0 +1,598 @@
+/* 单节录入组件样式 */
+.quarter-input {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 节次标题 */
+.quarter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #ecf0f1;
+}
+
+.quarter-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--theme-color);
+}
+
+.quarter-points-rule {
+  font-size: 22rpx;
+  color: #7f8c8d;
+  background: #f8f9fa;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+/* 进球数输入区域 */
+.goals-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 32rpx;
+  padding: 24rpx;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ecf0f1 100%);
+  border-radius: 20rpx;
+}
+
+.team-goal-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.team-logo-small {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.team-name-small {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  flex-shrink: 0;
+}
+
+.goal-input {
+  width: 80rpx;
+  height: 60rpx;
+  background: #ffffff;
+  border-radius: 12rpx;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--theme-color);
+  border: 2rpx solid #ecf0f1;
+}
+
+.goal-unit {
+  font-size: 20rpx;
+  color: #95a5a6;
+}
+
+.vs-separator {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #bdc3c7;
+}
+
+/* 事件录入区域 */
+.events-section {
+  margin-bottom: 32rpx;
+}
+
+.section-header-mini {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.section-title-mini {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.event-count-mini {
+  font-size: 22rpx;
+  color: #95a5a6;
+}
+
+/* 事件操作按钮（紧凑版） */
+.event-actions-mini {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.event-action-mini {
+  height: 72rpx;
+  border-radius: 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rpx;
+  color: #ffffff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.12);
+  transition: all 0.3s;
+}
+
+.event-action-mini:active {
+  transform: scale(0.95);
+}
+
+.action-icon-mini {
+  font-size: 24rpx;
+}
+
+.action-name-mini {
+  font-size: 20rpx;
+  font-weight: 600;
+}
+
+/* 事件列表 - 时间轴样式 */
+.events-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  position: relative;
+  padding: 12rpx 0;
+}
+
+/* 中间分隔线 */
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2rpx;
+  background: linear-gradient(to bottom,
+    rgba(242, 8, 16, 0.1) 0%,
+    rgba(242, 8, 16, 0.3) 50%,
+    rgba(242, 8, 16, 0.1) 100%
+  );
+  transform: translateX(-50%);
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  position: relative;
+  z-index: 1;
+}
+
+/* 左队事件 */
+.timeline-item.left .event-left {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.timeline-item.right .event-left {
+  display: none;
+}
+
+/* 右队事件 */
+.timeline-item.right .event-right {
+  display: flex;
+  flex: 1;
+}
+
+.timeline-item.left .event-right {
+  display: none;
+}
+
+/* 事件内容 */
+.event-content {
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  padding: 12rpx 16rpx;
+  max-width: 90%;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.event-player-name {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 4rpx;
+}
+
+.own-goal-tag-inline {
+  font-size: 22rpx;
+  color: #e74c3c;
+  font-weight: 600;
+  margin-left: 4rpx;
+}
+
+.event-detail {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-wrap: wrap;
+}
+
+.event-icon {
+  font-size: 20rpx;
+}
+
+.event-notes {
+  font-size: 22rpx;
+  color: #7f8c8d;
+}
+
+.event-assist {
+  font-size: 22rpx;
+  color: #95a5a6;
+}
+
+/* 时间轴中心 */
+.timeline-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  min-width: 72rpx;
+}
+
+.timeline-time {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: var(--theme-color);
+  background: #ffffff;
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+  white-space: nowrap;
+  box-shadow: 0 2rpx 6rpx rgba(242, 8, 16, 0.15);
+}
+
+.timeline-dot {
+  width: 20rpx;
+  height: 20rpx;
+  background: var(--theme-color);
+  border-radius: 50%;
+  border: 4rpx solid #ffffff;
+  box-shadow: 0 0 0 2rpx var(--theme-color);
+  flex-shrink: 0;
+}
+
+/* 事件操作图标 */
+.event-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.action-icon {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.action-icon:active {
+  transform: scale(0.9);
+}
+
+.edit-icon:active {
+  background: #e3f2fd;
+}
+
+.delete-icon:active {
+  background: #ffebee;
+}
+
+/* 空状态 */
+.empty-events-mini {
+  padding: 40rpx 20rpx;
+  text-align: center;
+}
+
+.empty-text-mini {
+  font-size: 24rpx;
+  color: #bdc3c7;
+}
+
+/* 节次总结 */
+.summary-section {
+  margin-top: 32rpx;
+}
+
+.summary-textarea {
+  width: 100%;
+  min-height: 120rpx;
+  padding: 20rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #ecf0f1;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  color: #2c3e50;
+  line-height: 1.6;
+  transition: all 0.3s;
+}
+
+.summary-textarea:focus {
+  background: #ffffff;
+  border-color: var(--theme-color);
+}
+
+/* 事件编辑弹窗 */
+.event-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.dialog-content {
+  position: relative;
+  width: 640rpx;
+  max-height: 80vh;
+  background: #ffffff;
+  border-radius: 24rpx;
+  overflow: hidden;
+  animation: dialogSlideUp 0.3s ease-out;
+}
+
+@keyframes dialogSlideUp {
+  from {
+    transform: translateY(100rpx);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 2rpx solid #ecf0f1;
+}
+
+.dialog-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.dialog-close {
+  width: 56rpx;
+  height: 56rpx;
+  font-size: 48rpx;
+  font-weight: 300;
+  color: #95a5a6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.dialog-close:active {
+  color: #7f8c8d;
+}
+
+.dialog-body {
+  padding: 32rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.form-row {
+  margin-bottom: 24rpx;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 12rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #ecf0f1;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #2c3e50;
+  transition: all 0.3s;
+}
+
+.form-input:focus {
+  background: #ffffff;
+  border-color: var(--theme-color);
+}
+
+/* 队伍选择 */
+.team-select {
+  display: flex;
+  gap: 16rpx;
+}
+
+.team-option {
+  flex: 1;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border: 2rpx solid #ecf0f1;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #636e72;
+  transition: all 0.3s;
+}
+
+.team-option.selected {
+  background: var(--theme-color);
+  border-color: var(--theme-color);
+  color: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(242, 8, 16, 0.3);
+}
+
+.team-option:active {
+  transform: scale(0.98);
+}
+
+/* 行内布局 */
+.form-row-inline {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.flex-grow {
+  flex: 1;
+}
+
+/* 乌龙球开关 */
+.own-goal-switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+
+.switch-label {
+  font-size: 24rpx;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.own-goal-switch {
+  position: relative;
+  width: 88rpx;
+  height: 48rpx;
+  background: #dfe6e9;
+  border-radius: 24rpx;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.own-goal-switch.checked {
+  background: var(--theme-color);
+}
+
+.switch-handle {
+  position: absolute;
+  top: 4rpx;
+  left: 4rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+}
+
+.own-goal-switch.checked .switch-handle {
+  left: 44rpx;
+}
+
+.own-goal-switch:active .switch-handle {
+  width: 48rpx;
+}
+
+/* Picker输入框 */
+.picker-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #ecf0f1;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+}
+
+/* 对话框底部 */
+.dialog-footer {
+  display: flex;
+  gap: 16rpx;
+  padding: 24rpx 32rpx;
+  border-top: 2rpx solid #ecf0f1;
+}
+
+.dialog-btn {
+  flex: 1;
+  height: 88rpx;
+  padding: 0;
+  margin: 0;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  border: none;
+  line-height: 1;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-btn::after {
+  border: none;
+}
+
+.cancel-btn {
+  background: #ecf0f1;
+  color: #7f8c8d;
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-color-dark) 100%);
+  color: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(242, 8, 16, 0.3);
+}
+
+.dialog-btn:active {
+  transform: scale(0.98);
+}

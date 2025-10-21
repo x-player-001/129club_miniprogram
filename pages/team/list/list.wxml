@@ -1,0 +1,112 @@
+<!-- 队伍列表页面 -->
+<view class="team-list-container">
+  <!-- Tab切换 - 使用 tab-bar 组件 -->
+  <tab-bar tabs="{{tabs}}" current="{{currentTab}}" bind:change="onTabChange"></tab-bar>
+
+  <!-- 内容区域 -->
+  <scroll-view class="content" scroll-y enable-back-to-top>
+    <!-- 当前队伍 -->
+    <view wx:if="{{currentTab === '0'}}">
+      <!-- 当前赛季信息 -->
+      <view class="current-season" wx:if="{{currentSeason}}">
+        <view class="season-name">{{currentSeason.name}}</view>
+        <view class="season-status {{currentSeason.status}}">
+          {{currentSeason.status === 'active' ? '进行中' : currentSeason.status === 'completed' ? '已完成' : '即将开始'}}
+        </view>
+      </view>
+
+      <!-- 创建队伍入口（仅在新赛季开始且无队伍时显示） -->
+      <view class="create-team-prompt" wx:if="{{showCreateUI}}">
+        <view class="prompt-icon">🏆</view>
+        <view class="prompt-title">新赛季已开始</view>
+        <view class="prompt-text">请创建队伍并选择队员</view>
+        <view class="prompt-actions">
+          <button class="prompt-btn create" bindtap="onCreateTeam">
+            <text>创建队伍</text>
+          </button>
+          <button class="prompt-btn reshuffle" bindtap="onReshuffle">
+            <text>发起重组</text>
+          </button>
+        </view>
+      </view>
+
+      <!-- 当前队伍列表 - 使用 team-card 组件 -->
+      <view class="team-list" wx:if="{{activeTeams.length > 0}}">
+        <team-card
+          wx:for="{{activeTeams}}"
+          wx:key="id"
+          teamData="{{item}}"
+          mode="current"
+          bind:tap="onTeamCardTap">
+        </team-card>
+      </view>
+
+      <!-- 空状态 - 使用 empty-state 组件 -->
+      <view wx:elif="{{!showCreateUI}}">
+        <empty-state icon="/static/images/empty-team.png" text="暂无队伍" hint="请等待管理员创建队伍"></empty-state>
+      </view>
+    </view>
+
+    <!-- 历史队伍 -->
+    <view wx:if="{{currentTab === '1'}}">
+      <!-- 赛季筛选器 -->
+      <view class="season-filter" bindtap="onShowSeasonPicker">
+        <view class="filter-label">赛季筛选</view>
+        <view class="filter-value">
+          <text class="{{selectedSeasonId ? '' : 'placeholder'}}">{{selectedSeasonName}}</text>
+          <image class="dropdown-icon" src="/static/icons/arrow-down.png"></image>
+        </view>
+      </view>
+
+      <!-- 历史队伍列表 - 使用 team-card 组件 -->
+      <view class="team-list" wx:if="{{historyTeams.length > 0}}">
+        <team-card
+          wx:for="{{historyTeams}}"
+          wx:key="id"
+          teamData="{{item}}"
+          mode="history"
+          bind:tap="onTeamCardTap">
+        </team-card>
+      </view>
+
+      <!-- 空状态 - 使用 empty-state 组件 -->
+      <view wx:else>
+        <empty-state icon="/static/images/empty-team.png" text="暂无历史队伍" hint="{{selectedSeasonId ? '该赛季暂无历史队伍' : ''}}"></empty-state>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-space"></view>
+  </scroll-view>
+
+  <!-- 赛季选择器弹窗 -->
+  <view class="season-picker-modal" wx:if="{{showSeasonPicker}}" catchtap="onCloseSeasonPicker">
+    <view class="picker-content" catchtap="{{null}}">
+      <view class="picker-header">
+        <text class="picker-title">选择赛季</text>
+        <view class="close-btn" catchtap="onCloseSeasonPicker">
+          <image src="/static/icons/close.png" mode="aspectFit"></image>
+        </view>
+      </view>
+
+      <scroll-view class="picker-list" scroll-y>
+        <!-- 赛季列表 -->
+        <view
+          wx:for="{{allSeasons}}"
+          wx:key="id"
+          class="season-option {{selectedSeasonId === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          data-name="{{item.name}}"
+          bindtap="onSelectSeason">
+          <view class="option-info">
+            <view class="option-name">{{item.name}}</view>
+            <view class="option-status {{item.status}}">
+              {{item.status === 'active' ? '进行中' : item.status === 'completed' ? '已完成' : '即将开始'}}
+            </view>
+          </view>
+          <image wx:if="{{selectedSeasonId === item.id}}" class="check-icon" src="/static/icons/check.png"></image>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

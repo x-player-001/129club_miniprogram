@@ -1,0 +1,226 @@
+<!-- AI简报录入页面 -->
+<view class="report-import-container">
+
+  <!-- 步骤1: 输入简报 -->
+  <view class="step-content" wx:if="{{currentStep === 1}}">
+    <!-- 页面标题 -->
+    <view class="page-header">
+      <text class="page-title">AI智能简报录入</text>
+      <text class="page-desc">粘贴比赛简报文本，AI自动识别并提取结构化数据</text>
+    </view>
+
+    <!-- 功能特点 -->
+    <view class="features">
+      <view class="feature-item">
+        <text class="feature-icon">🤖</text>
+        <text class="feature-text">AI智能解析</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">📝</text>
+        <text class="feature-text">支持任意格式</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">⚡</text>
+        <text class="feature-text">快速录入</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">✓</text>
+        <text class="feature-text">准确率95%+</text>
+      </view>
+    </view>
+
+    <!-- 简报输入框 -->
+    <view class="input-section">
+      <view class="input-header">
+        <text class="input-title">比赛简报</text>
+        <view class="input-actions">
+          <text class="action-link" bindtap="onUseExample">使用示例</text>
+          <text class="action-divider">|</text>
+          <text class="action-link" bindtap="onClearText">清空</text>
+        </view>
+      </view>
+
+      <textarea
+        class="report-textarea"
+        placeholder="请粘贴比赛简报文本...&#10;&#10;示例格式：&#10;嘉陵摩托（红）VS 长江（花）&#10;星期六2025.10.12，轨道集团&#10;比分:3:0&#10;&#10;到场人员：&#10;红：黄波 施毅 洪胜..."
+        value="{{reportText}}"
+        bindinput="onReportInput"
+        auto-height
+        maxlength="-1"
+      />
+
+      <view class="input-footer">
+        <text class="char-count">{{reportText.length}} 字符</text>
+      </view>
+    </view>
+
+    <!-- 温馨提示 -->
+    <view class="tips-section">
+      <view class="tips-header">
+        <text class="tips-icon">💡</text>
+        <text class="tips-title">温馨提示</text>
+      </view>
+      <view class="tips-list">
+        <text class="tip-item">• 支持任意格式的简报文本</text>
+        <text class="tip-item">• 自动识别队伍、日期、地点、比分</text>
+        <text class="tip-item">• 自动提取节次详情和球员数据</text>
+        <text class="tip-item">• 解析完成后可预览和修正</text>
+      </view>
+    </view>
+
+    <!-- 解析进度（解析中显示） -->
+    <view class="parse-progress" wx:if="{{isParsing}}">
+      <view class="progress-header">
+        <text class="progress-title">{{parseMessage}}</text>
+        <text class="progress-percent">{{parseProgress}}%</text>
+      </view>
+      <view class="progress-bar-container">
+        <view class="progress-bar" style="width: {{parseProgress}}%"></view>
+      </view>
+      <view class="progress-tips">
+        <text class="tips-text">AI正在分析简报内容，请稍候...</text>
+      </view>
+    </view>
+
+    <!-- 解析按钮 -->
+    <view class="bottom-actions">
+      <button
+        class="btn-parse"
+        bindtap="onParseReport"
+        loading="{{isParsing}}"
+        disabled="{{isParsing || !reportText}}"
+      >
+        {{isParsing ? 'AI智能解析中...' : '开始解析'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 步骤2: 解析结果预览 -->
+  <view class="step-content" wx:if="{{currentStep === 2 && parsed}}">
+    <!-- 解析方式标识 -->
+    <view class="parse-badge {{parseMethod === 'AI' ? 'ai-badge' : 'regex-badge'}}">
+      <text class="badge-icon">{{parseMethod === 'AI' ? '🤖' : '⚙️'}}</text>
+      <text class="badge-text">{{parseMethod === 'AI' ? 'AI智能解析' : '正则解析'}}</text>
+      <text class="badge-confidence">{{parsed.confidence === 'high' ? '高准确率' : '中等准确率'}}</text>
+    </view>
+
+    <!-- 警告信息 -->
+    <view class="warnings-section" wx:if="{{warnings.length > 0}}">
+      <view class="warning-item" wx:for="{{warnings}}" wx:key="index">
+        <text class="warning-icon">⚠️</text>
+        <text class="warning-text">{{item}}</text>
+      </view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="preview-card">
+      <view class="card-header">
+        <text class="card-title">基本信息</text>
+        <text class="card-icon">✓</text>
+      </view>
+      <view class="info-grid">
+        <view class="info-item">
+          <text class="info-label">队伍1</text>
+          <text class="info-value">{{parsed.basicInfo.team1Name}} ({{parsed.basicInfo.team1Alias}})</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">队伍2</text>
+          <text class="info-value">{{parsed.basicInfo.team2Name}} ({{parsed.basicInfo.team2Alias}})</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">比赛日期</text>
+          <text class="info-value">{{parsed.basicInfo.date}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">比赛地点</text>
+          <text class="info-value">{{parsed.basicInfo.location}}</text>
+        </view>
+        <view class="info-item full-width">
+          <text class="info-label">最终比分</text>
+          <text class="info-value highlight">{{parsed.basicInfo.finalScore}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 节次数据 -->
+    <view class="preview-card">
+      <view class="card-header">
+        <text class="card-title">节次数据</text>
+        <text class="card-badge">共{{parsed.quarters.length}}节</text>
+      </view>
+      <view class="quarters-list">
+        <view class="quarter-item" wx:for="{{parsed.quarters}}" wx:key="quarterNumber">
+          <view class="quarter-header">
+            <text class="quarter-title">第{{item.quarterNumber}}节</text>
+            <text class="quarter-score">{{item.team1Goals}}:{{item.team2Goals}}</text>
+          </view>
+          <text class="quarter-summary">{{item.summary || '暂无总结'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 到场人员 -->
+    <view class="preview-card">
+      <view class="card-header">
+        <text class="card-title">到场人员</text>
+      </view>
+      <view class="participants-grid">
+        <view class="participants-team">
+          <text class="team-label">{{parsed.basicInfo.team1Alias}}队</text>
+          <view class="players-tags">
+            <text class="player-tag" wx:for="{{parsed.participants.team1}}" wx:key="index">{{item}}</text>
+          </view>
+        </view>
+        <view class="participants-team">
+          <text class="team-label">{{parsed.basicInfo.team2Alias}}队</text>
+          <view class="players-tags">
+            <text class="player-tag" wx:for="{{parsed.participants.team2}}" wx:key="index">{{item}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 球员数据统计 -->
+    <view class="preview-card" wx:if="{{parsed.statistics}}">
+      <view class="card-header">
+        <text class="card-title">球员数据</text>
+      </view>
+      <view class="stats-list">
+        <view class="stat-item" wx:for="{{parsed.statistics}}" wx:for-item="stat" wx:for-index="playerName" wx:key="playerName">
+          <text class="stat-player">{{playerName}}</text>
+          <view class="stat-details">
+            <text class="stat-value" wx:if="{{stat.goals > 0}}">{{stat.goals}}球</text>
+            <text class="stat-value" wx:if="{{stat.assists > 0}}">{{stat.assists}}助</text>
+            <text class="stat-value" wx:if="{{stat.saves > 0}}">{{stat.saves}}门</text>
+            <text class="stat-value" wx:if="{{stat.referee > 0}}">{{stat.referee}}裁</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- MVP -->
+    <view class="preview-card" wx:if="{{parsed.mvp && parsed.mvp.length > 0}}">
+      <view class="card-header">
+        <text class="card-title">MVP</text>
+        <text class="mvp-icon">🏆</text>
+      </view>
+      <view class="mvp-list">
+        <text class="mvp-name" wx:for="{{parsed.mvp}}" wx:key="index">{{item}}</text>
+      </view>
+    </view>
+
+    <!-- 底部操作按钮 -->
+    <view class="bottom-actions two-buttons">
+      <button class="btn-secondary" bindtap="onBackToEdit">返回修改</button>
+      <button
+        class="btn-primary"
+        bindtap="onConfirmImport"
+        loading="{{isSubmitting}}"
+        disabled="{{isSubmitting}}"
+      >
+        {{isSubmitting ? '创建中...' : '确认导入'}}
+      </button>
+    </view>
+  </view>
+
+</view>

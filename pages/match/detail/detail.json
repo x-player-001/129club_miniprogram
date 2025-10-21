@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "比赛详情",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "player-card": "/components/player-card/player-card",
+    "empty-state": "/components/empty-state/empty-state",
+    "event-timeline": "/components/event-timeline/event-timeline",
+    "position-tag": "/components/position-tag/position-tag"
+  }
+}

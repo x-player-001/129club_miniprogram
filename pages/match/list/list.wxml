@@ -1,0 +1,41 @@
+<!-- 比赛列表页面 -->
+<view class="match-list-container">
+  <!-- Tab切换 - 使用 tab-bar 组件 -->
+  <tab-bar tabs="{{tabs}}" current="{{currentTab}}" bind:change="onTabChange"></tab-bar>
+
+  <!-- 内容区域 -->
+  <scroll-view class="content" scroll-y enable-back-to-top>
+    <!-- 比赛列表 - 使用 match-card 组件 -->
+    <view class="match-list" wx:if="{{matchList.length > 0}}">
+      <match-card
+        wx:for="{{matchList}}"
+        wx:key="id"
+        matchData="{{item}}"
+        mode="full"
+        showActions="{{true}}"
+        bind:tap="onMatchCardTap"
+        bind:register="onMatchRegister">
+      </match-card>
+    </view>
+
+    <!-- 空状态 - 使用 empty-state 组件 -->
+    <view wx:else>
+      <empty-state
+        icon="/static/images/empty-match.png"
+        text="暂无比赛"
+        hint="{{currentTab === '0' ? '等待管理员创建比赛' : currentTab === '1' ? '当前没有进行中的比赛' : '还没有比赛记录'}}">
+      </empty-state>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-space"></view>
+  </scroll-view>
+
+  <!-- 创建比赛按钮（管理员可见） -->
+  <view class="create-btn-wrapper" wx:if="{{isAdmin}}">
+    <view class="create-match-btn" bindtap="onCreateMatch">
+      <image class="btn-icon" src="/static/icons/add.png" mode="aspectFit"></image>
+      <text>创建比赛</text>
+    </view>
+  </view>
+</view>

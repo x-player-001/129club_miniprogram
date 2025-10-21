@@ -1,0 +1,89 @@
+<!-- 个人中心页面 -->
+<view class="profile-container">
+  <!-- 顶部背景 -->
+  <view class="profile-header">
+    <view class="header-bg"></view>
+
+    <!-- 用户信息 -->
+    <view class="user-card">
+      <image class="avatar" src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill" bindtap="onAvatarTap"></image>
+      <view class="user-info" bindtap="onAvatarTap">
+        <view class="user-name">{{userInfo.realName || userInfo.nickname || '点击获取授权'}}</view>
+        <view class="user-meta">
+          <text class="jersey-number" wx:if="{{userInfo.jerseyNumber}}">{{userInfo.jerseyNumber}}号</text>
+          <position-tag wx:if="{{userInfo.position}}" code="{{userInfo.position}}" size="small"></position-tag>
+        </view>
+      </view>
+      <view class="edit-btn" bindtap="onEditProfile">
+        <image src="/static/icons/edit.png" mode="aspectFit"></image>
+      </view>
+    </view>
+
+    <!-- 队伍信息 -->
+    <view class="team-info-card" wx:if="{{currentTeam}}" bindtap="onGoToTeamDetail">
+      <view class="team-badge">
+        <image src="{{currentTeam.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+      </view>
+      <view class="team-text">
+        <text class="team-name">{{currentTeam.name}}</text>
+        <text class="team-role">{{currentTeam.iscaptain ? '队长' : '队员'}}</text>
+      </view>
+      <image class="arrow" src="/static/icons/arrow-right-white.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 功能菜单 - 使用 menu-item 组件 -->
+  <view class="menu-section">
+    <view class="menu-title">我的功能</view>
+    <view class="menu-list">
+      <menu-item
+        icon="/static/icons/users.png"
+        text="队员列表"
+        type="members"
+        bind:tap="onMenuItemTap">
+      </menu-item>
+
+      <menu-item
+        icon="/static/icons/message.png"
+        text="消息中心"
+        type="message"
+        badge="{{unreadCount}}"
+        bind:tap="onMenuItemTap">
+      </menu-item>
+
+      <menu-item
+        icon="/static/icons/notice.png"
+        text="通知公告"
+        type="notice"
+        bind:tap="onMenuItemTap">
+      </menu-item>
+    </view>
+  </view>
+
+  <view class="menu-section">
+    <view class="menu-title">设置</view>
+    <view class="menu-list">
+      <menu-item
+        icon="/static/icons/setting.png"
+        text="设置"
+        type="settings"
+        bind:tap="onMenuItemTap">
+      </menu-item>
+
+      <menu-item
+        icon="/static/icons/info.png"
+        text="关于我们"
+        type="about"
+        bind:tap="onMenuItemTap">
+      </menu-item>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <text>版本 {{version}}</text>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-space"></view>
+</view>

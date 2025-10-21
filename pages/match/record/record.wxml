@@ -1,0 +1,308 @@
+<!-- 比赛记录录入页面 - 4节制分步录入 -->
+<view class="record-container">
+  <!-- 进度指示器 -->
+  <view class="progress-bar">
+    <view
+      class="progress-step {{currentStep >= item.id ? 'active' : ''}}"
+      wx:for="{{steps}}"
+      wx:key="id"
+    >
+      <view class="step-circle">{{item.id}}</view>
+      <text class="step-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 内容区域 -->
+  <scroll-view class="content" scroll-y enable-back-to-top>
+
+    <!-- Step 1: 基本信息 -->
+    <view class="step-content" wx:if="{{currentStep === 1 && matchInfo}}">
+      <view class="match-info-card">
+        <view class="match-header">
+          <text class="match-title">{{matchInfo.title}}</text>
+          <text class="match-date">{{matchInfo.date}} {{matchInfo.time}}</text>
+          <text class="match-location">📍 {{matchInfo.location}}</text>
+        </view>
+
+        <view class="teams-display">
+          <view class="team-item">
+            <image class="team-logo-big" src="{{matchInfo.team1.logo}}" mode="aspectFill"></image>
+            <text class="team-name-big">{{matchInfo.team1.name}}</text>
+          </view>
+          <text class="vs-big">VS</text>
+          <view class="team-item">
+            <image class="team-logo-big" src="{{matchInfo.team2.logo}}" mode="aspectFill"></image>
+            <text class="team-name-big">{{matchInfo.team2.name}}</text>
+          </view>
+        </view>
+
+        <view class="quarter-switch">
+          <view class="switch-row">
+            <text class="switch-label">🏀 使用4节制计分</text>
+            <switch
+              checked="{{quarterSystem}}"
+              bindchange="onToggleQuarterSystem"
+              color="{{matchInfo.team1.color || '#f20810'}}"
+            />
+          </view>
+          <text class="switch-desc">开启后将按4节分别录入，前2节胜者各得1分，后2节胜者各得2分</text>
+        </view>
+      </view>
+
+      <view class="info-tip">
+        <text class="tip-icon">💡</text>
+        <text class="tip-text">接下来将引导您分4节录入比赛数据，每节独立记录进球和事件</text>
+      </view>
+    </view>
+
+    <!-- Step 2-5: 第1-4节录入 -->
+    <view class="step-content" wx:if="{{currentStep >= 2 && currentStep <= 5 && matchInfo}}">
+      <quarter-input
+        match-id="{{matchId}}"
+        quarter-number="{{currentStep - 1}}"
+        team1="{{matchInfo.team1}}"
+        team2="{{matchInfo.team2}}"
+        quarter-data="{{quarters[currentStep - 2]}}"
+        all-players="{{allPlayers}}"
+        bind:change="onQuarterChange"
+        bind:saved="onQuarterSaved"
+      />
+
+      <!-- 当前累计得分预览 -->
+      <view class="score-preview-card">
+        <view class="preview-header" bindtap="onToggleScorePreview">
+          <text class="preview-title">📊 当前累计得分</text>
+          <text class="preview-toggle">{{showScorePreview ? '收起' : '展开'}}</text>
+        </view>
+
+        <view class="preview-body" wx:if="{{showScorePreview}}">
+          <view class="preview-row">
+            <text class="preview-label">累计得分</text>
+            <text class="preview-value score">{{totalTeam1Score}} : {{totalTeam2Score}}</text>
+          </view>
+          <view class="preview-row">
+            <text class="preview-label">累计进球</text>
+            <text class="preview-value">{{totalTeam1Goals}} : {{totalTeam2Goals}}</text>
+          </view>
+
+          <!-- 各节得分明细 -->
+          <view class="quarters-detail">
+            <view
+              class="quarter-detail-item"
+              wx:for="{{quarters}}"
+              wx:key="quarterNumber"
+              wx:if="{{item.quarterNumber < currentStep - 1}}"
+            >
+              <text class="quarter-num">第{{item.quarterNumber}}节</text>
+              <text class="quarter-goals">{{item.team1Goals}}:{{item.team2Goals}}</text>
+              <text class="quarter-points">({{item.team1Points}}:{{item.team2Points}}分)</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Step 6: 到场人员 -->
+    <view class="step-content" wx:if="{{currentStep === 6 && matchInfo}}">
+      <view class="section-card">
+        <view class="section-header">
+          <text class="section-title">到场人员选择</text>
+          <text class="section-desc">请选择本场比赛的到场球员</text>
+        </view>
+
+        <!-- 队伍1到场人员 -->
+        <view class="participant-team">
+          <view class="participant-header">
+            <view class="team-info">
+              <image class="team-logo-small" src="{{matchInfo.team1.logo}}" mode="aspectFill"></image>
+              <text class="team-name">{{matchInfo.team1.name}}</text>
+            </view>
+            <view class="select-btn" bindtap="onShowParticipantPicker" data-team="team1">
+              <text class="select-count">已选{{participants.team1.length}}人</text>
+              <text class="select-arrow">›</text>
+            </view>
+          </view>
+
+          <view class="participant-list" wx:if="{{participants.team1.length > 0}}">
+            <view class="participant-item" wx:for="{{participants.team1}}" wx:key="id">
+              <image class="participant-avatar" src="{{item.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+              <text class="participant-name">{{item.name || item.nickname}}</text>
+              <image class="participant-remove" src="/static/icons/close-red.png" bindtap="onRemoveParticipant" data-team="team1" data-id="{{item.id}}" mode="aspectFill"></image>
+            </view>
+          </view>
+          <view class="participant-empty" wx:else>
+            <text>点击上方选择到场人员</text>
+          </view>
+        </view>
+
+        <!-- 队伍2到场人员 -->
+        <view class="participant-team">
+          <view class="participant-header">
+            <view class="team-info">
+              <image class="team-logo-small" src="{{matchInfo.team2.logo}}" mode="aspectFill"></image>
+              <text class="team-name">{{matchInfo.team2.name}}</text>
+            </view>
+            <view class="select-btn" bindtap="onShowParticipantPicker" data-team="team2">
+              <text class="select-count">已选{{participants.team2.length}}人</text>
+              <text class="select-arrow">›</text>
+            </view>
+          </view>
+
+          <view class="participant-list" wx:if="{{participants.team2.length > 0}}">
+            <view class="participant-item" wx:for="{{participants.team2}}" wx:key="id">
+              <image class="participant-avatar" src="{{item.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+              <text class="participant-name">{{item.name || item.nickname}}</text>
+              <image class="participant-remove" src="/static/icons/close-red.png" bindtap="onRemoveParticipant" data-team="team2" data-id="{{item.id}}" mode="aspectFill"></image>
+            </view>
+          </view>
+          <view class="participant-empty" wx:else>
+            <text>点击上方选择到场人员</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Step 7: MVP与照片 -->
+    <view class="step-content" wx:if="{{currentStep === 7 && matchInfo}}">
+      <!-- 最终得分展示 -->
+      <view class="final-score-card">
+        <text class="final-title">比赛结果</text>
+        <view class="final-score-display">
+          <view class="final-team">
+            <image class="final-logo" src="{{matchInfo.team1.logo}}" mode="aspectFill"></image>
+            <text class="final-name">{{matchInfo.team1.name}}</text>
+            <text class="final-score {{totalTeam1Score > totalTeam2Score ? 'winner' : ''}}">{{totalTeam1Score}}</text>
+            <text class="final-goals">({{totalTeam1Goals}}球)</text>
+          </view>
+          <text class="final-vs">:</text>
+          <view class="final-team">
+            <image class="final-logo" src="{{matchInfo.team2.logo}}" mode="aspectFill"></image>
+            <text class="final-name">{{matchInfo.team2.name}}</text>
+            <text class="final-score {{totalTeam2Score > totalTeam1Score ? 'winner' : ''}}">{{totalTeam2Score}}</text>
+            <text class="final-goals">({{totalTeam2Goals}}球)</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- MVP选择 -->
+      <view class="section-card mvp-section">
+        <view class="section-header">
+          <text class="section-title">🏆 本场MVP</text>
+          <text class="section-desc">可选择多人</text>
+        </view>
+
+        <!-- 已选择的MVP列表 -->
+        <view class="mvp-container" wx:if="{{mvpPlayers.length > 0}}">
+          <view class="mvp-item" wx:for="{{mvpPlayers}}" wx:key="id">
+            <view class="mvp-glow"></view>
+            <image class="mvp-avatar-mini" src="{{item.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+            <view class="mvp-details">
+              <text class="mvp-name-mini">{{item.name}}</text>
+              <text class="mvp-num" wx:if="{{item.nickname}}">{{item.nickname}}</text>
+            </view>
+            <view class="mvp-trophy-mini">🏆</view>
+            <view class="mvp-del" bindtap="onRemoveMvp" data-id="{{item.id}}">×</view>
+          </view>
+
+          <!-- 添加按钮 -->
+          <view class="mvp-add-compact" bindtap="onShowMvpPicker">
+            <text class="add-plus">+</text>
+          </view>
+        </view>
+
+        <!-- 空状态 -->
+        <view class="mvp-empty-compact" wx:else bindtap="onShowMvpPicker">
+          <text class="empty-trophy">🏆</text>
+          <text class="empty-hint">选择MVP</text>
+        </view>
+      </view>
+
+      <!-- 照片上传 -->
+      <view class="section-card">
+        <view class="section-header">
+          <text class="section-title">比赛照片</text>
+          <text class="photo-count">{{photos.length}}/{{maxPhotos}}</text>
+        </view>
+
+        <view class="photo-grid">
+          <view class="photo-item {{item.uploading ? 'uploading' : ''}}" wx:for="{{photos}}" wx:key="id">
+            <image class="photo-img" src="{{item.url}}" mode="aspectFill" bindtap="onPreviewPhoto" data-index="{{index}}"></image>
+            <image class="photo-delete" wx:if="{{!item.uploading}}" src="/static/icons/close-red.png" mode="aspectFit" bindtap="onDeletePhoto" data-index="{{index}}"></image>
+            <view class="photo-loading" wx:if="{{item.uploading}}">
+              <text class="loading-text">上传中...</text>
+            </view>
+          </view>
+
+          <view class="photo-upload-btn" wx:if="{{photos.length < maxPhotos}}" bindtap="onChoosePhoto">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">添加照片</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-space"></view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="action-bar">
+    <button
+      class="prev-btn"
+      wx:if="{{currentStep > 1}}"
+      bindtap="onPrevStep"
+    >
+      上一步
+    </button>
+
+    <button
+      class="next-btn {{currentStep === 1 ? 'full-width' : ''}}"
+      wx:if="{{currentStep < 7}}"
+      bindtap="onNextStep"
+    >
+      下一步
+    </button>
+
+    <button
+      class="submit-btn full-width"
+      wx:if="{{currentStep === 7}}"
+      bindtap="onSubmit"
+      disabled="{{isSubmitting}}"
+    >
+      {{isSubmitting ? '提交中...' : '提交记录'}}
+    </button>
+  </view>
+</view>
+
+<!-- 到场人员选择器 -->
+<select-grid
+  show="{{showParticipantPicker}}"
+  title="选择到场人员"
+  options="{{currentPickerTeam === 'team1' ? team1Players : team2Players}}"
+  value="{{currentPickerTeam === 'team1' ? participantIds.team1 : participantIds.team2}}"
+  multiple="{{true}}"
+  display-field="name"
+  value-field="id"
+  show-avatar="{{true}}"
+  avatar-field="avatar"
+  columns="3"
+  bind:confirm="onConfirmParticipants"
+  bind:close="onCloseParticipantPicker"
+/>
+
+<!-- MVP选择器 -->
+<select-grid
+  show="{{showMvpPicker}}"
+  title="选择MVP"
+  options="{{allPlayers}}"
+  value="{{mvpUserIds}}"
+  multiple="{{true}}"
+  display-field="name"
+  value-field="id"
+  show-avatar="{{true}}"
+  avatar-field="avatar"
+  columns="3"
+  empty-text="暂无球员"
+  bind:confirm="onConfirmMvp"
+  bind:close="onCloseMvpPicker"
+/>

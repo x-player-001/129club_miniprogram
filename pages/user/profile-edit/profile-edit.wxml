@@ -1,0 +1,266 @@
+<!-- 用户信息完善页面 -->
+<view class="profile-edit-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar">
+    <view class="navbar-inner">
+      <view class="navbar-left" wx:if="{{type !== 'complete'}}" bindtap="onBack">
+        <image class="back-icon" src="/static/icons/back.png" mode="aspectFit"></image>
+      </view>
+      <view class="navbar-title">{{type === 'complete' ? '完善信息' : '编辑资料'}}</view>
+      <view class="navbar-right"></view>
+    </view>
+  </view>
+
+  <!-- 内容区域 -->
+  <scroll-view class="content" scroll-y>
+    <!-- 头像上传 -->
+    <view class="avatar-section">
+      <view class="section-label">头像</view>
+      <view class="avatar-upload" bindtap="onChooseAvatar">
+        <image class="avatar" src="{{formData.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <view class="avatar-mask">
+          <image class="camera-icon" src="/static/icons/camera.png" mode="aspectFit"></image>
+          <text>更换头像</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 表单区域 -->
+    <view class="form-section">
+      <!-- 昵称 -->
+      <view class="form-item required" bindtap="onNicknameTap">
+        <view class="item-label">昵称</view>
+        <input
+          class="item-input"
+          type="text"
+          placeholder="请输入昵称"
+          value="{{formData.nickname}}"
+          bindinput="onInputChange"
+          data-field="nickname"
+          maxlength="20"
+        />
+      </view>
+
+      <!-- 真实姓名 -->
+      <view class="form-item required">
+        <view class="item-label">真实姓名</view>
+        <input
+          class="item-input"
+          type="text"
+          placeholder="请输入真实姓名"
+          value="{{formData.realName}}"
+          bindinput="onInputChange"
+          data-field="realName"
+          maxlength="20"
+        />
+      </view>
+
+      <!-- 手机号 -->
+      <view class="form-item required">
+        <view class="item-label">手机号</view>
+        <input
+          class="item-input"
+          type="number"
+          placeholder="请输入手机号"
+          value="{{formData.phone}}"
+          bindinput="onInputChange"
+          data-field="phone"
+          maxlength="11"
+        />
+      </view>
+
+      <!-- 球衣号码 -->
+      <view class="form-item required">
+        <view class="item-label">球衣号码</view>
+        <input
+          class="item-input"
+          type="number"
+          placeholder="请输入球衣号码"
+          value="{{formData.jerseyNumber}}"
+          bindinput="onInputChange"
+          data-field="jerseyNumber"
+          maxlength="2"
+        />
+      </view>
+
+      <!-- 位置选择 -->
+      <view class="form-item required" bindtap="onShowPositionPicker">
+        <view class="item-label">场上位置</view>
+        <view class="item-picker {{formData.position ? '' : 'placeholder'}}">
+          <text>{{formData.position || '请选择场上位置'}}</text>
+          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        </view>
+      </view>
+
+      <!-- 身高 -->
+      <view class="form-item">
+        <view class="item-label">身高(cm)</view>
+        <input
+          class="item-input"
+          type="number"
+          placeholder="选填"
+          value="{{formData.height}}"
+          bindinput="onInputChange"
+          data-field="height"
+          maxlength="3"
+        />
+      </view>
+
+      <!-- 体重 -->
+      <view class="form-item">
+        <view class="item-label">体重(kg)</view>
+        <input
+          class="item-input"
+          type="number"
+          placeholder="选填"
+          value="{{formData.weight}}"
+          bindinput="onInputChange"
+          data-field="weight"
+          maxlength="3"
+        />
+      </view>
+
+      <!-- 擅长脚 -->
+      <view class="form-item" bindtap="onShowFootPicker">
+        <view class="item-label">擅长脚</view>
+        <view class="item-picker {{formData.preferredFoot ? '' : 'placeholder'}}">
+          <text>{{formData.preferredFoot || '选填'}}</text>
+          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        </view>
+      </view>
+
+      <!-- 技术特点 -->
+      <view class="form-item textarea-item">
+        <view class="item-label">技术特点</view>
+        <textarea
+          class="item-textarea"
+          placeholder="介绍一下你的技术特点（选填）"
+          value="{{formData.skillDescription}}"
+          bindinput="onInputChange"
+          data-field="skillDescription"
+          maxlength="200"
+          show-confirm-bar="{{false}}"
+        />
+        <view class="textarea-counter">{{formData.skillDescription.length}}/200</view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="submit-section">
+      <button class="submit-btn" bindtap="onSubmit" hover-class="submit-btn-hover">
+        {{type === 'complete' ? '完成' : '保存'}}
+      </button>
+    </view>
+
+    <!-- 占位空间 -->
+    <view class="bottom-space"></view>
+  </scroll-view>
+
+  <!-- WXS 辅助函数 -->
+  <wxs module="tools">
+    var isSelected = function(arr, code) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === code) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    module.exports = {
+      isSelected: isSelected
+    };
+  </wxs>
+
+  <!-- 位置选择器弹出层 -->
+  <view class="position-picker-modal {{showPositionPicker ? 'show' : ''}}" catchtap="onClosePositionPicker">
+    <view class="position-picker-content" catchtap="onStopPropagation">
+      <!-- 标题 -->
+      <view class="picker-header">
+        <text class="picker-title">选择场上位置（可多选）</text>
+        <view class="close-btn" catchtap="onClosePositionPicker">
+          <image src="/static/icons/close.png" mode="aspectFit"></image>
+        </view>
+      </view>
+
+      <!-- 位置分组 -->
+      <scroll-view class="picker-body" scroll-y>
+        <!-- 守门员 -->
+        <view class="position-group" wx:if="{{positionGroups.GK && positionGroups.GK.length > 0}}">
+          <view class="group-title">守门员 (GK)</view>
+          <view class="position-tags">
+            <view
+              class="position-tag {{tools.isSelected(selectedPositions, item.code) ? 'selected' : ''}}"
+              wx:for="{{positionGroups.GK}}"
+              wx:key="id"
+              data-code="{{item.code}}"
+              bindtap="onTogglePosition">
+              <text>{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 后卫 -->
+        <view class="position-group" wx:if="{{positionGroups.DF && positionGroups.DF.length > 0}}">
+          <view class="group-title">后卫 (DF)</view>
+          <view class="position-tags">
+            <view
+              class="position-tag {{tools.isSelected(selectedPositions, item.code) ? 'selected' : ''}}"
+              wx:for="{{positionGroups.DF}}"
+              wx:key="id"
+              data-code="{{item.code}}"
+              bindtap="onTogglePosition">
+              <text>{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 中场 -->
+        <view class="position-group" wx:if="{{positionGroups.MF && positionGroups.MF.length > 0}}">
+          <view class="group-title">中场 (MF)</view>
+          <view class="position-tags">
+            <view
+              class="position-tag {{tools.isSelected(selectedPositions, item.code) ? 'selected' : ''}}"
+              wx:for="{{positionGroups.MF}}"
+              wx:key="id"
+              data-code="{{item.code}}"
+              bindtap="onTogglePosition">
+              <text>{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 前锋 -->
+        <view class="position-group" wx:if="{{positionGroups.FW && positionGroups.FW.length > 0}}">
+          <view class="group-title">前锋 (FW)</view>
+          <view class="position-tags">
+            <view
+              class="position-tag {{tools.isSelected(selectedPositions, item.code) ? 'selected' : ''}}"
+              wx:for="{{positionGroups.FW}}"
+              wx:key="id"
+              data-code="{{item.code}}"
+              bindtap="onTogglePosition">
+              <text>{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+
+      <!-- 底部按钮 -->
+      <view class="picker-footer">
+        <button class="cancel-btn" bindtap="onClosePositionPicker">取消</button>
+        <button class="confirm-btn" bindtap="onConfirmPosition">确定</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 擅长脚选择器 -->
+  <picker
+    hidden
+    id="footPicker"
+    mode="selector"
+    range="{{footList}}"
+    value="{{footIndex}}"
+    bindchange="onFootChange">
+  </picker>
+</view>

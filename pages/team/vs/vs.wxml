@@ -1,0 +1,123 @@
+<!-- 队伍对战记录页面 -->
+<view class="vs-container">
+  <!-- 对战头部 -->
+  <view class="vs-header">
+    <!-- 队伍1 -->
+    <view class="team-section">
+      <view class="team-badge" style="background: {{team1Info.color}};">
+        <image src="{{team1Info.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+      </view>
+      <view class="team-name">{{team1Info.name}}</view>
+      <view class="team-wins">{{vsStats.team1Wins}}胜</view>
+    </view>
+
+    <!-- VS 标识 -->
+    <view class="vs-divider">
+      <view class="vs-icon">VS</view>
+      <view class="vs-record">{{vsStats.totalMatches}}场对战</view>
+    </view>
+
+    <!-- 队伍2 -->
+    <view class="team-section">
+      <view class="team-badge" style="background: {{team2Info.color}};">
+        <image src="{{team2Info.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+      </view>
+      <view class="team-name">{{team2Info.name}}</view>
+      <view class="team-wins">{{vsStats.team2Wins}}胜</view>
+    </view>
+  </view>
+
+  <!-- 数据对比 -->
+  <view class="stats-compare">
+    <view class="section-title">
+      <view class="title-line"></view>
+      <text>数据对比</text>
+    </view>
+
+    <view class="compare-list">
+      <view class="compare-item">
+        <view class="compare-value left">{{vsStats.team1GoalsFor}}</view>
+        <view class="compare-label">总进球</view>
+        <view class="compare-value right">{{vsStats.team2GoalsFor}}</view>
+      </view>
+      <view class="compare-item">
+        <view class="compare-value left">{{vsStats.team1GoalsAgainst}}</view>
+        <view class="compare-label">总失球</view>
+        <view class="compare-value right">{{vsStats.team2GoalsAgainst}}</view>
+      </view>
+      <view class="compare-item">
+        <view class="compare-value left">{{vsStats.team1AvgGoals}}</view>
+        <view class="compare-label">场均进球</view>
+        <view class="compare-value right">{{vsStats.team2AvgGoals}}</view>
+      </view>
+      <view class="compare-item">
+        <view class="compare-value left">{{vsStats.draws}}</view>
+        <view class="compare-label">平局</view>
+        <view class="compare-value right">{{vsStats.draws}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 历史对战记录 -->
+  <view class="match-history">
+    <view class="section-title">
+      <view class="title-line"></view>
+      <text>历史对战 ({{matchList.length}}场)</text>
+    </view>
+
+    <view class="match-list" wx:if="{{matchList.length > 0}}">
+      <view class="match-card" wx:for="{{matchList}}" wx:key="id" bindtap="onViewMatchDetail" data-id="{{item.id}}">
+        <view class="match-date">
+          <text class="date-text">{{item.dateText}}</text>
+          <text class="time-text">{{item.time}}</text>
+        </view>
+
+        <view class="match-content">
+          <view class="match-teams">
+            <view class="team-info left">
+              <image class="team-logo" src="{{item.team1Logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+              <text class="team-name-small">{{item.team1Name}}</text>
+            </view>
+
+            <view class="match-score">
+              <text class="score-num {{item.team1Score > item.team2Score ? 'win' : item.team1Score < item.team2Score ? 'loss' : ''}}">
+                {{item.team1Score}}
+              </text>
+              <text class="score-divider">:</text>
+              <text class="score-num {{item.team2Score > item.team1Score ? 'win' : item.team2Score < item.team1Score ? 'loss' : ''}}">
+                {{item.team2Score}}
+              </text>
+            </view>
+
+            <view class="team-info right">
+              <text class="team-name-small">{{item.team2Name}}</text>
+              <image class="team-logo" src="{{item.team2Logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+            </view>
+          </view>
+
+          <view class="match-location">
+            <text>{{item.location}}</text>
+          </view>
+
+          <!-- 进球者列表 -->
+          <view class="match-scorers" wx:if="{{item.scorers && item.scorers.length > 0}}">
+            <view class="scorers-list">
+              <text class="scorer-item" wx:for="{{item.scorers}}" wx:for-item="scorer" wx:key="index">
+                ⚽ {{scorer.name}}
+              </text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:else>
+      <image class="empty-icon" src="/static/images/empty-match.png" mode="aspectFit"></image>
+      <text class="empty-text">暂无对战记录</text>
+    </view>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-space"></view>
+</view>

@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "队伍详情",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f6f8",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "player-card": "/components/player-card/player-card",
+    "match-card": "/components/match-card/match-card",
+    "team-stats-bar": "/components/team-stats-bar/team-stats-bar",
+    "empty-state": "/components/empty-state/empty-state",
+    "position-tag": "/components/position-tag/position-tag"
+  }
+}

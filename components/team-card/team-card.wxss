@@ -1,0 +1,205 @@
+/* components/team-card/team-card.wxss */
+.team-card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  margin-bottom: 24rpx;
+  transition: all 0.3s;
+}
+
+.team-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+/* ========== 队伍头部 ========== */
+.team-header {
+  display: flex;
+  align-items: center;
+  padding: 32rpx 24rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.team-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+}
+
+.team-badge {
+  position: relative;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #ffffff;
+  padding: 12rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.team-badge image {
+  width: 100%;
+  height: 100%;
+}
+
+.team-info {
+  position: relative;
+  flex: 1;
+  margin-left: 24rpx;
+}
+
+.team-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8rpx;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.2);
+}
+
+.team-captain {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.crown-icon {
+  width: 28rpx;
+  height: 28rpx;
+}
+
+.team-meta {
+  display: flex;
+  gap: 16rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.season-tag,
+.history-tag {
+  position: relative;
+  font-size: 22rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ========== 队伍数据 ========== */
+.team-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 24rpx 32rpx;
+  background: #f8f9fa;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.stat-value {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.stat-value.win {
+  color: #27ae60;
+}
+
+.stat-value.draw {
+  color: #f39c12;
+}
+
+.stat-value.loss {
+  color: #e74c3c;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #95a5a6;
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 40rpx;
+  background: #dce1e5;
+}
+
+/* ========== 队伍底部 ========== */
+.team-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 32rpx;
+  border-top: 1rpx solid #ecf0f1;
+  background: #ffffff;
+}
+
+.member-count {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 26rpx;
+  color: #636e72;
+}
+
+.member-count .icon {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.win-rate {
+  font-size: 26rpx;
+  color: #636e72;
+}
+
+.win-rate .rate {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #27ae60;
+}
+
+/* ========== 历史队伍样式 ========== */
+.team-card.history {
+  opacity: 0.95;
+}
+
+.team-card.history .team-header {
+  opacity: 0.9;
+}
+
+/* ========== 紧凑版样式 ========== */
+.team-card.compact .team-header {
+  padding: 24rpx 20rpx;
+}
+
+.team-card.compact .team-badge {
+  width: 72rpx;
+  height: 72rpx;
+  padding: 8rpx;
+}
+
+.team-card.compact .team-name {
+  font-size: 28rpx;
+}
+
+.team-card.compact .team-stats {
+  padding: 16rpx 24rpx;
+}
+
+.team-card.compact .stat-value {
+  font-size: 28rpx;
+}

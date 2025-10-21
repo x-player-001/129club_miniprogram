@@ -1,0 +1,18 @@
+<!-- 启动加载页 -->
+<view class="startup-container">
+  <!-- Logo区域 -->
+  <view class="logo-section">
+    <image class="logo" src="/static/images/logo.png" mode="aspectFill"></image>
+    <view class="app-name">129俱乐部</view>
+  </view>
+
+  <!-- Loading动画 -->
+  <view class="loading-section">
+    <view class="loading-dots">
+      <view class="dot"></view>
+      <view class="dot"></view>
+      <view class="dot"></view>
+    </view>
+    <view class="loading-text">{{loadingText}}</view>
+  </view>
+</view>

@@ -1,0 +1,110 @@
+<!-- 创建队伍页面 -->
+<view class="create-team-container">
+  <scroll-view class="content" scroll-y enable-back-to-top>
+    <!-- 表单区域 -->
+    <view class="form-section">
+      <!-- 队伍 Logo -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">队伍 Logo</text>
+          <text class="optional">（选填）</text>
+        </view>
+        <view class="logo-upload" bindtap="onChooseLogo">
+          <image wx:if="{{formData.logo}}" class="logo-preview" src="{{formData.logo}}" mode="aspectFill"></image>
+          <view wx:else class="logo-placeholder">
+            <text class="upload-icon">📷</text>
+            <text class="upload-text">点击上传 Logo</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 队伍名称 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">队伍名称</text>
+          <text class="required">*</text>
+        </view>
+        <input
+          class="form-input"
+          placeholder="请输入队伍名称"
+          value="{{formData.name}}"
+          bindinput="onNameInput"
+          maxlength="20"
+        />
+      </view>
+
+      <!-- 队伍颜色 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">队伍颜色</text>
+        </view>
+        <view class="color-grid">
+          <view
+            wx:for="{{colorList}}"
+            wx:key="index"
+            class="color-item {{formData.color === item ? 'selected' : ''}}"
+            style="background-color: {{item}};"
+            data-color="{{item}}"
+            bindtap="onSelectColor">
+            <text wx:if="{{formData.color === item}}" class="check-icon">✓</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 赛季 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">赛季</text>
+          <text class="required">*</text>
+        </view>
+        <input
+          class="form-input"
+          placeholder="例如：2025赛季"
+          value="{{formData.season}}"
+          bindinput="onSeasonInput"
+          maxlength="20"
+        />
+      </view>
+
+      <!-- 队长 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">队长</text>
+          <text class="optional">（选填）</text>
+        </view>
+        <view class="form-picker" bindtap="onShowCaptainPicker">
+          <view class="picker-content {{captainName ? '' : 'placeholder'}}">
+            {{captainName || '请选择队长'}}
+          </view>
+          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-space"></view>
+  </scroll-view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-actions">
+    <button class="action-btn cancel-btn" bindtap="onCancel">取消</button>
+    <button class="action-btn submit-btn" bindtap="onSubmit">{{mode === 'edit' ? '保存修改' : '创建队伍'}}</button>
+  </view>
+
+  <!-- 队长选择器 -->
+  <select-grid
+    show="{{showCaptainPicker}}"
+    title="选择队长"
+    options="{{users}}"
+    value="{{formData.captainId}}"
+    multiple="{{false}}"
+    displayField="realName"
+    valueField="id"
+    showAvatar="{{true}}"
+    avatarField="avatar"
+    columns="{{3}}"
+    emptyText="暂无成员"
+    bind:close="onCloseCaptainPicker"
+    bind:confirm="onConfirmCaptain">
+  </select-grid>
+</view>

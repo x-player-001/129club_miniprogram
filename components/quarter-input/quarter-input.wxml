@@ -1,0 +1,282 @@
+<!-- WXS 辅助函数 -->
+<wxs module="utils">
+  var getEventTypeName = function(eventType) {
+    var typeMap = {
+      'goal': '⚽ 进球',
+      'save': '🧤 扑救',
+      'yellow_card': '🟨 黄牌',
+      'red_card': '🟥 红牌',
+      'substitution': '🔄 换人'
+    };
+    return typeMap[eventType] || eventType;
+  };
+
+  module.exports = {
+    getEventTypeName: getEventTypeName
+  };
+</wxs>
+
+<!-- 单节录入组件 -->
+<view class="quarter-input">
+  <!-- 节次标题 -->
+  <view class="quarter-header">
+    <text class="quarter-title">第 {{quarterNumber}} 节</text>
+    <text class="quarter-points-rule">{{quarterNumber <= 2 ? '胜者得1分' : '胜者得2分'}}</text>
+  </view>
+
+  <!-- 进球数输入 -->
+  <view class="goals-section">
+    <view class="team-goal-input">
+      <image class="team-logo-small" src="{{team1.logo}}" mode="aspectFill"></image>
+      <text class="team-name-small">{{team1.name}}</text>
+      <input
+        class="goal-input"
+        type="number"
+        value="{{form.team1Goals}}"
+        bindinput="onTeam1GoalsInput"
+        placeholder="0"
+      />
+      <text class="goal-unit">球</text>
+    </view>
+
+    <text class="vs-separator">-</text>
+
+    <view class="team-goal-input">
+      <input
+        class="goal-input"
+        type="number"
+        value="{{form.team2Goals}}"
+        bindinput="onTeam2GoalsInput"
+        placeholder="0"
+      />
+      <text class="goal-unit">球</text>
+      <text class="team-name-small">{{team2.name}}</text>
+      <image class="team-logo-small" src="{{team2.logo}}" mode="aspectFill"></image>
+    </view>
+  </view>
+
+  <!-- 事件录入 -->
+  <view class="events-section">
+    <!-- 事件列表 - 使用时间轴组件 -->
+    <event-timeline
+      events="{{form.events}}"
+      team1="{{team1}}"
+      team2="{{team2}}"
+      show-actions="{{true}}"
+      bind:edit="onEditEvent"
+      bind:delete="onDeleteEvent"
+    />
+
+    <view class="section-header-mini">
+      <text class="section-title-mini">比赛事件</text>
+      <text class="event-count-mini">{{form.events.length}}条</text>
+    </view>
+
+    <!-- 添加事件按钮 -->
+    <view class="event-actions-mini">
+      <view
+        class="event-action-mini"
+        wx:for="{{eventTypes}}"
+        wx:key="id"
+        bindtap="onAddEvent"
+        data-type="{{item.id}}"
+        style="background: {{item.color}};"
+      >
+        <text class="action-icon-mini">{{item.icon}}</text>
+        <text class="action-name-mini">{{item.name}}</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-events-mini" wx:if="{{form.events.length === 0}}">
+      <text class="empty-text-mini">点击下方按钮添加事件</text>
+    </view>
+  </view>
+
+  <!-- 节次总结 -->
+  <view class="summary-section">
+    <view class="section-header-mini">
+      <text class="section-title-mini">本节总结</text>
+    </view>
+    <textarea
+      class="summary-textarea"
+      placeholder="输入本节比赛情况描述（选填）"
+      value="{{form.summary}}"
+      bindinput="onSummaryInput"
+      maxlength="500"
+      auto-height
+    />
+  </view>
+</view>
+
+<!-- 事件编辑弹窗 -->
+<view class="event-dialog" wx:if="{{showEventDialog}}">
+  <view class="dialog-mask" bindtap="onCancelEvent"></view>
+  <view class="dialog-content">
+    <view class="dialog-header">
+      <text class="dialog-title">{{editingEvent ? '编辑' : '添加'}}{{currentEventType.name}}</text>
+      <view class="dialog-close" bindtap="onCancelEvent">×</view>
+    </view>
+
+    <view class="dialog-body">
+      <!-- 时间输入 -->
+      <view class="form-row">
+        <text class="form-label">时间（分钟）</text>
+        <input
+          class="form-input"
+          type="number"
+          placeholder="请输入时间"
+          value="{{eventForm.minute}}"
+          bindinput="onEventMinuteInput"
+        />
+      </view>
+
+      <!-- 队伍选择 -->
+      <view class="form-row">
+        <text class="form-label">队伍</text>
+        <view class="team-select">
+          <view
+            class="team-option {{eventForm.teamId === team1.id ? 'selected' : ''}}"
+            bindtap="onSelectTeam"
+            data-team-id="{{team1.id}}"
+          >
+            {{team1.name}}
+          </view>
+          <view
+            class="team-option {{eventForm.teamId === team2.id ? 'selected' : ''}}"
+            bindtap="onSelectTeam"
+            data-team-id="{{team2.id}}"
+          >
+            {{team2.name}}
+          </view>
+        </view>
+      </view>
+
+      <!-- 进球事件 -->
+      <block wx:if="{{eventForm.type === 'goal'}}">
+        <view class="form-row">
+          <text class="form-label">{{eventForm.isOwnGoal ? '乌龙球员' : '进球球员'}}</text>
+          <view class="form-row-inline">
+            <view class="picker-input flex-grow" bindtap="onShowPlayerPicker">
+              {{eventForm.playerName || '请选择球员'}}
+            </view>
+            <view class="own-goal-switch-wrapper">
+              <text class="switch-label">乌龙</text>
+              <view
+                class="own-goal-switch {{eventForm.isOwnGoal ? 'checked' : ''}}"
+                bindtap="onToggleOwnGoal"
+              >
+                <view class="switch-handle"></view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="form-row">
+          <text class="form-label">助攻球员（选填）</text>
+          <view class="picker-input" bindtap="onShowAssistPicker">
+            {{eventForm.assistName || '请选择球员'}}
+          </view>
+        </view>
+      </block>
+
+      <!-- 扑救、黄牌、红牌事件 -->
+      <block wx:if="{{eventForm.type === 'save' || eventForm.type === 'yellow_card' || eventForm.type === 'red_card'}}">
+        <view class="form-row">
+          <text class="form-label">球员</text>
+          <view class="picker-input" bindtap="onShowPlayerPicker">
+            {{eventForm.playerName || '请选择球员'}}
+          </view>
+        </view>
+      </block>
+
+      <!-- 换人事件 -->
+      <block wx:if="{{eventForm.type === 'substitution'}}">
+        <view class="form-row">
+          <text class="form-label">下场球员</text>
+          <view class="picker-input" bindtap="onShowPlayerOutPicker">
+            {{eventForm.playerOutName || '请选择球员'}}
+          </view>
+        </view>
+        <view class="form-row">
+          <text class="form-label">上场球员</text>
+          <view class="picker-input" bindtap="onShowPlayerInPicker">
+            {{eventForm.playerInName || '请选择球员'}}
+          </view>
+        </view>
+      </block>
+
+      <!-- 备注 -->
+      <view class="form-row">
+        <text class="form-label">备注（选填）</text>
+        <input
+          class="form-input"
+          placeholder="如：远射、点球等"
+          value="{{eventForm.notes}}"
+          bindinput="onEventNotesInput"
+        />
+      </view>
+    </view>
+
+    <view class="dialog-footer">
+      <button class="dialog-btn cancel-btn" bindtap="onCancelEvent">取消</button>
+      <button class="dialog-btn confirm-btn" bindtap="onSaveEvent">保存</button>
+    </view>
+  </view>
+</view>
+
+<!-- 球员选择器 - 进球球员 -->
+<select-grid
+  show="{{showPlayerPicker}}"
+  title="{{eventForm.isOwnGoal ? '选择乌龙球员' : '选择进球球员'}}"
+  options="{{filteredPlayers}}"
+  value-field="id"
+  display-field="name"
+  avatar-field="avatar"
+  show-avatar="{{true}}"
+  multiple="{{false}}"
+  bind:confirm="onConfirmPlayerSelect"
+  bind:close="onClosePlayerPicker"
+/>
+
+<!-- 球员选择器 - 助攻球员 -->
+<select-grid
+  show="{{showAssistPicker}}"
+  title="选择助攻球员"
+  options="{{filteredPlayers}}"
+  value-field="id"
+  display-field="name"
+  avatar-field="avatar"
+  show-avatar="{{true}}"
+  multiple="{{false}}"
+  bind:confirm="onConfirmPlayerSelect"
+  bind:close="onClosePlayerPicker"
+/>
+
+<!-- 球员选择器 - 下场球员 -->
+<select-grid
+  show="{{showPlayerOutPicker}}"
+  title="选择下场球员"
+  options="{{filteredPlayers}}"
+  value-field="id"
+  display-field="name"
+  avatar-field="avatar"
+  show-avatar="{{true}}"
+  multiple="{{false}}"
+  bind:confirm="onConfirmPlayerSelect"
+  bind:close="onClosePlayerPicker"
+/>
+
+<!-- 球员选择器 - 上场球员 -->
+<select-grid
+  show="{{showPlayerInPicker}}"
+  title="选择上场球员"
+  options="{{filteredPlayers}}"
+  value-field="id"
+  display-field="name"
+  avatar-field="avatar"
+  show-avatar="{{true}}"
+  multiple="{{false}}"
+  bind:confirm="onConfirmPlayerSelect"
+  bind:close="onClosePlayerPicker"
+/>

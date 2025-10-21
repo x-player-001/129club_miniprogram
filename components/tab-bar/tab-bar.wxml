@@ -1,0 +1,32 @@
+<!-- components/tab-bar/tab-bar.wxml -->
+<view class="tab-bar {{scrollable ? 'scrollable' : ''}}">
+  <scroll-view wx:if="{{scrollable}}" class="tabs-scroll" scroll-x enable-flex>
+    <view class="tabs">
+      <view
+        wx:for="{{tabs}}"
+        wx:key="id"
+        class="tab-item {{current === item.id ? 'active' : ''}}"
+        bindtap="onTabChange"
+        data-id="{{item.id}}"
+      >
+        <text wx:if="{{item.icon}}" class="tab-icon">{{item.icon}}</text>
+        <text class="tab-name">{{item.name}}</text>
+        <view wx:if="{{current === item.id}}" class="tab-line"></view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:else class="tabs">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="id"
+      class="tab-item {{current === item.id ? 'active' : ''}}"
+      bindtap="onTabChange"
+      data-id="{{item.id}}"
+    >
+      <text wx:if="{{item.icon}}" class="tab-icon">{{item.icon}}</text>
+      <text class="tab-name">{{item.name}}</text>
+      <view wx:if="{{current === item.id}}" class="tab-line"></view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "排行榜",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f6f8",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "ranking-item": "/components/ranking-item/ranking-item",
+    "tab-bar": "/components/tab-bar/tab-bar",
+    "filter-bar": "/components/filter-bar/filter-bar",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

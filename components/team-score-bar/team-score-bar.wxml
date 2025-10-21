@@ -1,0 +1,29 @@
+<!-- components/team-score-bar/team-score-bar.wxml -->
+<view class="score-bar-container">
+  <!-- 队伍1信息 -->
+  <view class="team-info team-left">
+    <image class="team-logo" src="{{team1.logo}}" mode="aspectFill"></image>
+    <text class="team-name">{{team1.name}}</text>
+  </view>
+
+  <!-- 比分显示 -->
+  <view class="score-section">
+    <view class="score-numbers">
+      <text class="score score-team1">{{team1.wins}}</text>
+      <text class="score-separator">:</text>
+      <text class="score score-team2">{{team2.wins}}</text>
+    </view>
+
+    <!-- 进度条 -->
+    <view wx:if="{{showProgress}}" class="progress-bar">
+      <view class="progress-fill progress-team1" style="width: {{team1Percent}}%"></view>
+      <view class="progress-fill progress-team2" style="width: {{team2Percent}}%"></view>
+    </view>
+  </view>
+
+  <!-- 队伍2信息 -->
+  <view class="team-info team-right">
+    <text class="team-name">{{team2.name}}</text>
+    <image class="team-logo" src="{{team2.logo}}" mode="aspectFill"></image>
+  </view>
+</view>

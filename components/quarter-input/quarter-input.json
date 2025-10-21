@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "select-grid": "/components/select-grid/select-grid",
+    "event-timeline": "/components/event-timeline/event-timeline"
+  }
+}

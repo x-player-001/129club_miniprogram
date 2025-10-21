@@ -1,0 +1,36 @@
+/* components/position-tag/position-tag.wxss */
+.position-tag-container {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  align-items: center;
+}
+
+.position-tag {
+  display: inline-block;
+  padding: 6rpx 12rpx;
+  border-radius: 6rpx;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  color: #ffffff;
+}
+
+/* 尺寸 */
+.position-tag.size-small {
+  padding: 4rpx 10rpx;
+  font-size: 20rpx;
+  border-radius: 4rpx;
+}
+
+.position-tag.size-medium {
+  padding: 6rpx 12rpx;
+  font-size: 22rpx;
+  border-radius: 6rpx;
+}
+
+.position-tag.size-large {
+  padding: 8rpx 16rpx;
+  font-size: 24rpx;
+  border-radius: 8rpx;
+}

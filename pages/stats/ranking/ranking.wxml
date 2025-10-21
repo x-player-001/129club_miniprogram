@@ -1,0 +1,164 @@
+<!-- pages/stats/ranking/ranking.wxml -->
+<view class="page-container">
+  <!-- 头部背景装饰 -->
+  <view class="header-bg">
+    <view class="bg-circle circle-1"></view>
+    <view class="bg-circle circle-2"></view>
+    <view class="bg-circle circle-3"></view>
+  </view>
+
+  <!-- Tab切换 -->
+  <view class="tabs-wrapper">
+    <view class="tabs">
+      <view
+        wx:for="{{rankTabs}}"
+        wx:key="id"
+        class="tab-item {{rankType === item.id ? 'active' : ''}}"
+        bindtap="onTabChange"
+        data-type="{{item.id}}">
+        <view class="tab-icon">{{item.icon}}</view>
+        <text class="tab-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选器 -->
+  <view class="filter-container">
+    <view class="filter-group">
+      <view
+        wx:for="{{scopeOptions}}"
+        wx:key="id"
+        class="filter-item {{scope === item.id ? 'active' : ''}}"
+        bindtap="onScopeChange"
+        data-scope="{{item.id}}">
+        {{item.name}}
+      </view>
+    </view>
+    <view class="season-picker">
+      <picker
+        mode="selector"
+        range="{{seasonOptions}}"
+        range-key="name"
+        value="{{seasonIndex}}"
+        bindchange="onSeasonChange">
+        <view class="picker-text">
+          {{seasonOptions[seasonIndex].name}}
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 领奖台区域 -->
+  <view class="podium-container" wx:if="{{topThree.length > 0}}">
+    <view class="podium-stage">
+      <!-- 第二名 -->
+      <view class="podium-item rank-2" wx:if="{{topThree[1]}}">
+        <view class="player-avatar-wrapper">
+          <image class="player-avatar" src="{{topThree[1].avatar}}" mode="aspectFill"></image>
+          <view class="avatar-glow glow-silver"></view>
+        </view>
+        <view class="player-name">{{topThree[1].name}}</view>
+        <view class="player-team" style="color: {{topThree[1].teamColor}}">{{topThree[1].team}}</view>
+        <view class="player-value">
+          <text class="value-number">{{topThree[1].value}}</text>
+          <text class="value-unit" wx:if="{{rankType !== 'attendance'}}">{{getRankLabel()}}</text>
+          <text class="value-unit" wx:else>%</text>
+        </view>
+        <view class="podium-base base-2">
+          <view class="base-top"></view>
+          <view class="base-rank">🥈</view>
+        </view>
+      </view>
+
+      <!-- 第一名 -->
+      <view class="podium-item rank-1" wx:if="{{topThree[0]}}">
+        <view class="player-avatar-wrapper">
+          <image class="player-avatar" src="{{topThree[0].avatar}}" mode="aspectFill"></image>
+          <view class="avatar-glow glow-gold"></view>
+        </view>
+        <view class="player-name">{{topThree[0].name}}</view>
+        <view class="player-team" style="color: {{topThree[0].teamColor}}">{{topThree[0].team}}</view>
+        <view class="player-value">
+          <text class="value-number">{{topThree[0].value}}</text>
+          <text class="value-unit" wx:if="{{rankType !== 'attendance'}}">{{getRankLabel()}}</text>
+          <text class="value-unit" wx:else>%</text>
+        </view>
+        <view class="podium-base base-1">
+          <view class="base-top"></view>
+          <view class="base-rank">🥇</view>
+        </view>
+      </view>
+
+      <!-- 第三名 -->
+      <view class="podium-item rank-3" wx:if="{{topThree[2]}}">
+        <view class="player-avatar-wrapper">
+          <image class="player-avatar" src="{{topThree[2].avatar}}" mode="aspectFill"></image>
+          <view class="avatar-glow glow-bronze"></view>
+        </view>
+        <view class="player-name">{{topThree[2].name}}</view>
+        <view class="player-team" style="color: {{topThree[2].teamColor}}">{{topThree[2].team}}</view>
+        <view class="player-value">
+          <text class="value-number">{{topThree[2].value}}</text>
+          <text class="value-unit" wx:if="{{rankType !== 'attendance'}}">{{getRankLabel()}}</text>
+          <text class="value-unit" wx:else>%</text>
+        </view>
+        <view class="podium-base base-3">
+          <view class="base-top"></view>
+          <view class="base-rank">🥉</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 完整排行榜列表 -->
+  <view class="ranking-section">
+    <view class="section-header">
+      <view class="header-line"></view>
+      <text class="header-text">完整排名</text>
+      <view class="header-line"></view>
+    </view>
+
+    <view class="ranking-list" wx:if="{{remainingList.length > 0}}">
+      <view
+        wx:for="{{remainingList}}"
+        wx:key="id"
+        class="ranking-item {{item.isCurrentUser ? 'highlight' : ''}}"
+        bindtap="onPlayerTap"
+        data-id="{{item.id}}">
+        <!-- 排名 -->
+        <view class="rank-number">
+          <text class="rank-text">{{item.rank}}</text>
+        </view>
+
+        <!-- 球员信息 -->
+        <image class="player-avatar-small" src="{{item.avatar}}" mode="aspectFill"></image>
+        <view class="player-info">
+          <view class="player-name-row">
+            <text class="name">{{item.name}}</text>
+            <view class="current-tag" wx:if="{{item.isCurrentUser}}">我</view>
+          </view>
+          <view class="meta">
+            <text class="team" style="color: {{item.teamColor}}">{{item.team}}</text>
+            <text class="matches">{{item.matches}}场</text>
+          </view>
+        </view>
+
+        <!-- 数据值 -->
+        <view class="value-container">
+          <text class="value">{{item.value}}<text class="unit" wx:if="{{rankType === 'attendance'}}">%</text></text>
+          <text class="label">{{getRankLabel()}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && rankingList.length === 0}}">
+      <text class="empty-icon">📊</text>
+      <text class="empty-text">暂无排名数据</text>
+    </view>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-space"></view>
+</view>

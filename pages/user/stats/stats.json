@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "个人数据",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f6f8",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "stats-grid": "/components/stats-grid/stats-grid",
+    "team-stats-bar": "/components/team-stats-bar/team-stats-bar",
+    "match-card": "/components/match-card/match-card",
+    "achievement-badge": "/components/achievement-badge/achievement-badge",
+    "position-tag": "/components/position-tag/position-tag"
+  }
+}

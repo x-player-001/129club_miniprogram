@@ -1,0 +1,165 @@
+<!-- 数据总览页面 -->
+<view class="overview-container">
+  <scroll-view class="content" scroll-y enable-back-to-top>
+    <!-- 赛季选择器 -->
+    <view class="season-selector" bindtap="onShowSeasonPicker">
+      <text class="season-name">{{currentSeasonName || '全部'}}</text>
+      <image class="dropdown-icon" src="/static/icons/dropdown.png"></image>
+    </view>
+
+    <!-- 赛季选择弹窗 -->
+    <view class="season-picker-mask" wx:if="{{showSeasonPicker}}" bindtap="onHideSeasonPicker">
+      <view class="season-picker-modal" catchtap="onPickerModalTap">
+        <view class="picker-header">
+          <text class="picker-title">选择赛季</text>
+          <view class="picker-close" bindtap="onHideSeasonPicker">✕</view>
+        </view>
+        <scroll-view class="picker-list" scroll-y>
+          <view
+            class="picker-item {{item.id === selectedSeasonId ? 'active' : ''}}"
+            wx:for="{{seasonOptions}}"
+            wx:key="id"
+            bindtap="onSelectSeason"
+            data-id="{{item.id}}"
+            data-name="{{item.name}}"
+          >
+            <text class="picker-item-name">{{item.name}}</text>
+            <image class="picker-check-icon" wx:if="{{item.id === selectedSeasonId}}" src="/static/icons/check.png"></image>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+
+    <!-- 我的数据 - 大卡片设计 -->
+    <view class="my-stats-hero-card" bindtap="onViewMyStats">
+      <view class="hero-header">
+        <view class="user-info">
+          <image class="user-avatar" src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <view class="user-text">
+            <text class="user-name">{{userInfo.nickname || userInfo.realName || '球员'}}</text>
+            <text class="user-subtitle">本赛季数据</text>
+          </view>
+        </view>
+        <view class="more-btn">
+          <text>详情</text>
+          <image class="arrow-icon" src="/static/icons/arrow-right.png"></image>
+        </view>
+      </view>
+
+      <!-- 核心4项数据 -->
+      <view class="hero-stats-grid">
+        <view class="hero-stat-item">
+          <view class="stat-icon-wrapper match">
+            <image class="stat-icon" src="/static/icons/match.png"></image>
+          </view>
+          <text class="stat-value">{{myStats.matches}}</text>
+          <text class="stat-label">参赛场次</text>
+        </view>
+        <view class="hero-stat-item">
+          <view class="stat-icon-wrapper goal">
+            <image class="stat-icon" src="/static/icons/goal.png"></image>
+          </view>
+          <text class="stat-value">{{myStats.goals}}</text>
+          <text class="stat-label">进球</text>
+        </view>
+        <view class="hero-stat-item">
+          <view class="stat-icon-wrapper assist">
+            <image class="stat-icon" src="/static/icons/assist.png"></image>
+          </view>
+          <text class="stat-value">{{myStats.assists}}</text>
+          <text class="stat-label">助攻</text>
+        </view>
+        <view class="hero-stat-item">
+          <view class="stat-icon-wrapper mvp">
+            <image class="stat-icon" src="/static/icons/star.png"></image>
+          </view>
+          <text class="stat-value">{{myStats.mvp}}</text>
+          <text class="stat-label">MVP</text>
+        </view>
+      </view>
+
+      <!-- 个人排名 -->
+      <view class="hero-rankings" wx:if="{{myRankings.goals || myRankings.assists || myRankings.attendance}}">
+        <view class="ranking-tag" wx:if="{{myRankings.goals}}">
+          <text class="rank-icon">⚽</text>
+          <text class="rank-text">射手榜第{{myRankings.goals}}名</text>
+        </view>
+        <view class="ranking-tag" wx:if="{{myRankings.assists}}">
+          <text class="rank-icon">🎯</text>
+          <text class="rank-text">助攻榜第{{myRankings.assists}}名</text>
+        </view>
+        <view class="ranking-tag" wx:if="{{myRankings.attendance}}">
+          <text class="rank-icon">📅</text>
+          <text class="rank-text">出勤榜第{{myRankings.attendance}}名</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 成就徽章 -->
+    <view class="achievements-card" wx:if="{{achievements.length > 0}}">
+      <view class="card-title">
+        <text>我的成就</text>
+        <text class="achievement-count">{{unlockedAchievementCount}}</text>
+      </view>
+      <scroll-view class="achievements-scroll" scroll-x>
+        <view class="achievements-list">
+          <view class="achievement-item {{item.unlocked ? 'unlocked' : 'locked'}}" wx:for="{{achievements}}" wx:key="id">
+            <view class="achievement-icon">{{item.icon}}</view>
+            <text class="achievement-name">{{item.name}}</text>
+            <text class="achievement-desc" wx:if="{{item.unlocked}}">{{item.description}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 能力雷达图 - 暂时隐藏 -->
+    <!-- <view class="radar-card" wx:if="{{radarData.length > 0}}">
+      <view class="card-title">能力分析</view>
+      <radar-chart
+        data="{{radarData}}"
+        indicators="{{radarIndicators}}"
+        color="#f20810"
+        width="500"
+        height="500"
+      ></radar-chart>
+    </view> -->
+
+    <!-- 近期战绩 -->
+    <view class="recent-card">
+      <view class="card-title">近期战绩</view>
+      <view class="recent-list" wx:if="{{recentMatches.length > 0}}">
+        <view class="recent-item" wx:for="{{recentMatches}}" wx:key="id" bindtap="onMatchTap" data-id="{{item.id}}">
+          <view class="recent-left">
+            <view class="recent-date">{{item.date}}</view>
+            <view class="recent-match-info">
+              <view class="recent-result {{item.result}}">
+                <text class="result-text">{{item.result === 'win' ? '胜' : item.result === 'draw' ? '平' : '负'}}</text>
+              </view>
+              <view class="recent-score">{{item.score}}</view>
+              <view class="recent-opponent">vs {{item.opponent}}</view>
+            </view>
+          </view>
+          <view class="recent-my-performance" wx:if="{{item.myGoals !== undefined || item.myAssists !== undefined}}">
+            <text class="my-perf-label">我的表现</text>
+            <view class="my-perf-stats">
+              <text class="perf-item" wx:if="{{item.myGoals > 0}}">{{item.myGoals}}球</text>
+              <text class="perf-item" wx:if="{{item.myAssists > 0}}">{{item.myAssists}}助攻</text>
+              <text class="perf-item mvp-badge" wx:if="{{item.isMVP}}">⭐MVP</text>
+              <text class="perf-item no-data" wx:if="{{item.myGoals === 0 && item.myAssists === 0 && !item.isMVP}}">无数据</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <empty-state wx:else icon="/static/images/empty-match.png" text="暂无比赛记录"></empty-state>
+    </view>
+
+    <!-- 赛季总览 -->
+    <view class="season-overview-card">
+      <view class="card-title">赛季总览</view>
+      <stats-grid stats="{{overallStatsGrid}}" columns="3"></stats-grid>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-space"></view>
+  </scroll-view>
+</view>

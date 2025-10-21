@@ -1,0 +1,16 @@
+<!-- components/stats-grid/stats-grid.wxml -->
+<view class="stats-grid columns-{{columns}}">
+  <view
+    wx:for="{{stats}}"
+    wx:key="index"
+    class="stat-card"
+    bindtap="onStatTap"
+    data-index="{{index}}"
+  >
+    <view class="stat-icon {{item.iconClass}}">
+      <image wx:if="{{item.icon}}" src="{{item.icon}}" mode="aspectFit"></image>
+    </view>
+    <text class="stat-value">{{item.value}}</text>
+    <text class="stat-label">{{item.label}}</text>
+  </view>
+</view>

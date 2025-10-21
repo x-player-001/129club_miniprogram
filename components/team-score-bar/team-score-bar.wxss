@@ -1,0 +1,102 @@
+/* components/team-score-bar/team-score-bar.wxss */
+.score-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 24rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+}
+
+/* 队伍信息 */
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.team-left {
+  flex-direction: row;
+}
+
+.team-right {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.team-logo {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.team-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 比分区域 */
+.score-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  flex-shrink: 0;
+}
+
+.score-numbers {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.score {
+  font-size: 40rpx;
+  font-weight: 700;
+  min-width: 48rpx;
+  text-align: center;
+}
+
+.score-team1 {
+  color: var(--theme-color, #f20810);
+}
+
+.score-team2 {
+  color: #924ab0;
+}
+
+.score-separator {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #95a5a6;
+}
+
+/* 进度条 */
+.progress-bar {
+  display: flex;
+  width: 200rpx;
+  height: 8rpx;
+  border-radius: 4rpx;
+  background: #ecf0f1;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.progress-team1 {
+  background: linear-gradient(90deg, var(--theme-color, #f20810) 0%, #ff4757 100%);
+}
+
+.progress-team2 {
+  background: linear-gradient(90deg, #924ab0 0%, #a855c4 100%);
+}

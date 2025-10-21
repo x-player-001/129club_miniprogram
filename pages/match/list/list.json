@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "比赛",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f6f8",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "match-card": "/components/match-card/match-card",
+    "tab-bar": "/components/tab-bar/tab-bar",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

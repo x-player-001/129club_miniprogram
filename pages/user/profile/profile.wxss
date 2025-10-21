@@ -1,0 +1,324 @@
+/* 个人中心页面样式 */
+.profile-container {
+  min-height: 100vh;
+  background: #f5f6f8;
+  padding-bottom: 40rpx;
+}
+
+/* 顶部区域 */
+.profile-header {
+  position: relative;
+  padding: 60rpx 32rpx 32rpx;
+  margin-bottom: 120rpx;
+}
+
+.header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 360rpx;
+  background: linear-gradient(135deg, #f20810 0%, #f50c2f 100%);
+  border-radius: 0 0 60rpx 60rpx;
+}
+
+/* 用户卡片 */
+.user-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20rpx);
+  border-radius: 32rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 6rpx solid rgba(255, 255, 255, 0.5);
+  margin-right: 24rpx;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12rpx;
+}
+
+.user-meta {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.jersey-number {
+  padding: 6rpx 16rpx;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 16rpx;
+  margin-right: 16rpx;
+}
+
+.position {
+  padding: 6rpx 16rpx;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 16rpx;
+}
+
+.edit-btn {
+  width: 72rpx;
+  height: 72rpx;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-btn image {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+/* 队伍信息卡片 */
+.team-info-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20rpx);
+  border-radius: 24rpx;
+  padding: 24rpx 32rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.team-badge {
+  width: 80rpx;
+  height: 80rpx;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+
+.team-badge image {
+  width: 56rpx;
+  height: 56rpx;
+}
+
+.team-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.team-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8rpx;
+}
+
+.team-role {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.arrow {
+  width: 24rpx;
+  height: 24rpx;
+}
+
+/* 数据统计卡片 */
+.stats-card {
+  position: relative;
+  margin: -60rpx 32rpx 32rpx;
+  background: #ffffff;
+  border-radius: 32rpx;
+  padding: 40rpx;
+  box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 32rpx;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 26rpx;
+  color: #7f8c8d;
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 60rpx;
+  background: #ecf0f1;
+}
+
+.view-detail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 32rpx;
+  border-top: 2rpx solid #ecf0f1;
+  font-size: 28rpx;
+  color: #ff6b6b;
+}
+
+.view-detail image {
+  width: 24rpx;
+  height: 24rpx;
+  margin-left: 8rpx;
+}
+
+/* 功能菜单 */
+.menu-section {
+  margin: 40rpx 32rpx 32rpx;
+}
+
+.menu-title {
+  font-size: 28rpx;
+  color: #95a5a6;
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+}
+
+.menu-list {
+  background: #ffffff;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  transition: background 0.2s;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:active {
+  background: #f8f9fa;
+}
+
+.menu-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.menu-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+
+.menu-icon image {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.menu-text {
+  font-size: 30rpx;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.menu-badge {
+  min-width: 36rpx;
+  height: 36rpx;
+  background: #e74c3c;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12rpx;
+  font-size: 22rpx;
+  color: #ffffff;
+  font-weight: 600;
+  margin-right: 16rpx;
+}
+
+.menu-arrow {
+  width: 24rpx;
+  height: 24rpx;
+}
+
+/* 退出登录 */
+.logout-section {
+  padding: 0 32rpx;
+  margin-top: 60rpx;
+}
+
+.logout-btn {
+  width: 100%;
+  height: 96rpx;
+  background: #ffffff;
+  border-radius: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #e74c3c;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #e74c3c;
+  box-shadow: 0 8rpx 24rpx rgba(231, 76, 60, 0.1);
+}
+
+.logout-btn::after {
+  border: none;
+}
+
+.logout-btn-hover {
+  background: #fff5f5;
+  transform: scale(0.98);
+}
+
+/* 版本信息 */
+.version-info {
+  text-align: center;
+  margin-top: 40rpx;
+  font-size: 24rpx;
+  color: #bdc3c7;
+}
+
+.bottom-space {
+  height: 40rpx;
+}

@@ -1,0 +1,168 @@
+<!-- pages/stats/team-compare/team-compare.wxml -->
+<view class="page-container">
+  <!-- 队伍选择头部 -->
+  <view class="team-selector">
+    <!-- 队伍1 -->
+    <view class="team-option" bindtap="onSelectTeam" data-position="team1">
+      <image wx:if="{{team1}}" class="team-logo" src="{{team1.logo}}" mode="aspectFill"></image>
+      <text wx:if="{{team1}}" class="team-name" style="color: {{team1.color}}">{{team1.name}}</text>
+      <text wx:else class="placeholder">选择队伍</text>
+    </view>
+
+    <!-- VS + 交换按钮 -->
+    <view class="vs-container">
+      <text class="vs-text">VS</text>
+      <view class="swap-btn" bindtap="onSwapTeams">
+        <text class="swap-icon">⇄</text>
+      </view>
+    </view>
+
+    <!-- 队伍2 -->
+    <view class="team-option" bindtap="onSelectTeam" data-position="team2">
+      <image wx:if="{{team2}}" class="team-logo" src="{{team2.logo}}" mode="aspectFill"></image>
+      <text wx:if="{{team2}}" class="team-name" style="color: {{team2.color}}">{{team2.name}}</text>
+      <text wx:else class="placeholder">选择队伍</text>
+    </view>
+  </view>
+
+  <!-- 战绩对比 -->
+  <view class="section" wx:if="{{compareData.team1Stats && compareData.team2Stats}}">
+    <view class="section-title">
+      <text class="title-text">战绩对比</text>
+    </view>
+
+    <!-- 战绩对比 - 使用 team-stats-bar 组件 -->
+    <view class="teams-stats-compare">
+      <view class="team-stats-container">
+        <view class="team-label" style="color: {{team1.color}}">{{team1.name}}</view>
+        <team-stats-bar stats="{{team1StatsBar}}" mode="compact"></team-stats-bar>
+      </view>
+
+      <view class="vs-divider-vertical">VS</view>
+
+      <view class="team-stats-container">
+        <view class="team-label" style="color: {{team2.color}}">{{team2.name}}</view>
+        <team-stats-bar stats="{{team2StatsBar}}" mode="compact"></team-stats-bar>
+      </view>
+    </view>
+
+    <!-- 详细对比数据 -->
+    <view class="compare-grid">
+      <!-- 比赛场次 -->
+      <view class="compare-row">
+        <text class="value-left">{{compareData.team1Stats.matches}}</text>
+        <text class="label-center">比赛场次</text>
+        <text class="value-right">{{compareData.team2Stats.matches}}</text>
+      </view>
+
+      <!-- 进球数据 -->
+      <view class="compare-row">
+        <text class="value-left">{{compareData.team1Stats.goalsFor}}</text>
+        <text class="label-center">进球</text>
+        <text class="value-right">{{compareData.team2Stats.goalsFor}}</text>
+      </view>
+
+      <view class="compare-row">
+        <text class="value-left">{{compareData.team1Stats.goalsAgainst}}</text>
+        <text class="label-center">失球</text>
+        <text class="value-right">{{compareData.team2Stats.goalsAgainst}}</text>
+      </view>
+
+      <view class="compare-row">
+        <text class="value-left {{compareData.team1Stats.goalDifference > 0 ? 'positive' : 'negative'}}">
+          {{compareData.team1Stats.goalDifference > 0 ? '+' : ''}}{{compareData.team1Stats.goalDifference}}
+        </text>
+        <text class="label-center">净胜球</text>
+        <text class="value-right {{compareData.team2Stats.goalDifference > 0 ? 'positive' : 'negative'}}">
+          {{compareData.team2Stats.goalDifference > 0 ? '+' : ''}}{{compareData.team2Stats.goalDifference}}
+        </text>
+      </view>
+
+      <view class="compare-row">
+        <text class="value-left">{{compareData.team1Stats.avgGoalsFor}}</text>
+        <text class="label-center">场均进球</text>
+        <text class="value-right">{{compareData.team2Stats.avgGoalsFor}}</text>
+      </view>
+
+      <view class="compare-row">
+        <text class="value-left">{{compareData.team1Stats.cleanSheets}}</text>
+        <text class="label-center">零封对手</text>
+        <text class="value-right">{{compareData.team2Stats.cleanSheets}}</text>
+      </view>
+    </view>
+
+    <!-- 队内最佳 -->
+    <view class="best-players">
+      <view class="best-item">
+        <text class="player-name">{{compareData.team1Stats.topScorer.name}}</text>
+        <text class="player-stat">{{compareData.team1Stats.topScorer.goals}}球</text>
+        <text class="player-label">最佳射手</text>
+      </view>
+      <view class="divider"></view>
+      <view class="best-item">
+        <text class="player-name">{{compareData.team2Stats.topScorer.name}}</text>
+        <text class="player-stat">{{compareData.team2Stats.topScorer.goals}}球</text>
+        <text class="player-label">最佳射手</text>
+      </view>
+    </view>
+
+    <view class="best-players">
+      <view class="best-item">
+        <text class="player-name">{{compareData.team1Stats.topAssister.name}}</text>
+        <text class="player-stat">{{compareData.team1Stats.topAssister.assists}}助</text>
+        <text class="player-label">助攻王</text>
+      </view>
+      <view class="divider"></view>
+      <view class="best-item">
+        <text class="player-name">{{compareData.team2Stats.topAssister.name}}</text>
+        <text class="player-stat">{{compareData.team2Stats.topAssister.assists}}助</text>
+        <text class="player-label">助攻王</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 历史交锋 -->
+  <view class="section" wx:if="{{compareData.vsHistory.length > 0}}">
+    <view class="section-title">
+      <text class="title-text">历史交锋（{{compareData.vsHistory.length}}场）</text>
+    </view>
+
+    <view class="vs-history-list">
+      <view
+        wx:for="{{compareData.vsHistory}}"
+        wx:key="id"
+        class="history-match"
+        bindtap="onMatchTap"
+        data-id="{{item.id}}"
+      >
+        <view class="match-date">
+          <text class="date-text">{{item.date}}</text>
+        </view>
+
+        <view class="match-score">
+          <text class="team1-score {{item.winner === team1.id ? 'winner' : ''}}">{{item.team1Score}}</text>
+          <text class="score-divider">:</text>
+          <text class="team2-score {{item.winner === team2.id ? 'winner' : ''}}">{{item.team2Score}}</text>
+        </view>
+
+        <view class="match-result">
+          <text wx:if="{{item.winner === team1.id}}" class="result-text win" style="color: {{team1.color}}">
+            {{team1.name}}胜
+          </text>
+          <text wx:elif="{{item.winner === team2.id}}" class="result-text win" style="color: {{team2.color}}">
+            {{team2.name}}胜
+          </text>
+          <text wx:else class="result-text draw">平局</text>
+        </view>
+
+        <view class="arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态提示 -->
+  <view class="empty-state" wx:if="{{!team1 || !team2}}">
+    <text class="empty-icon">⚔️</text>
+    <text class="empty-text">请选择两支队伍进行对比</text>
+  </view>
+</view>
