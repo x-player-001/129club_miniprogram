@@ -28,5 +28,5 @@ test-*.bat
 11.png
 22.png
 
-# Mock数据（如果是临时的）
-# mock/
+# Mock数据保留用于开发
+# mock/ 文件夹应该被提交，方便团队开发
