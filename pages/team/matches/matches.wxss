@@ -1,0 +1,151 @@
+/* pages/team/matches/matches.wxss */
+.matches-container {
+  min-height: 100vh;
+  background: #f5f6f8;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 头部卡片 */
+.header-card {
+  padding: 24rpx 24rpx 0;
+  background: #f5f6f8;
+}
+
+.header-bg {
+  position: relative;
+  /* 背景色通过内联样式设置（使用队伍颜色） */
+  border-radius: 32rpx;
+  padding: 40rpx 32rpx;
+  overflow: hidden;
+  /* 阴影通过内联样式设置（使用队伍颜色） */
+}
+
+/* 装饰圆圈 */
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.circle-1 {
+  width: 200rpx;
+  height: 200rpx;
+  top: -80rpx;
+  right: -60rpx;
+}
+
+.circle-2 {
+  width: 120rpx;
+  height: 120rpx;
+  bottom: -40rpx;
+  left: -30rpx;
+}
+
+.header-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+/* 赛季标签 */
+.season-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10rpx);
+  padding: 8rpx 20rpx;
+  border-radius: 40rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.season-icon {
+  font-size: 28rpx;
+}
+
+.season-name {
+  font-size: 24rpx;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* 队伍名称 */
+.team-name {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.3;
+  letter-spacing: 2rpx;
+}
+
+/* 比赛类型标签容器 */
+.match-type-container {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.match-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 12rpx 28rpx;
+  border-radius: 40rpx;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.type-icon {
+  font-size: 32rpx;
+}
+
+.type-text {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+/* 不同类型的颜色 */
+.type-all .type-text {
+  color: #2c3e50;
+}
+
+.type-win .type-text {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.type-draw .type-text {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.type-loss .type-text {
+  background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.content {
+  flex: 1;
+  height: 0;
+}
+
+.match-list {
+  padding: 16rpx 24rpx;
+}
+
+.empty-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.bottom-space {
+  height: 40rpx;
+}

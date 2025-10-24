@@ -64,20 +64,21 @@
   opacity: 0.6;
 }
 
-/* ========== 个人数据英雄卡片 - 全新设计 ========== */
+/* ========== 个人数据英雄卡片 - 金黄色系 ========== */
 .my-stats-hero-card {
-  background: linear-gradient(135deg, #f56105 0%, #ff6b35 50%, #f4511e 100%);
+  background: linear-gradient(135deg, #ebc678 0%, #e5bb65 50%, #dfb052 100%);
   border-radius: 32rpx;
   padding: 48rpx 40rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 20rpx 60rpx rgba(255, 107, 53, 0.35);
+  box-shadow: 0 20rpx 60rpx rgba(235, 198, 120, 0.35);
   position: relative;
   overflow: hidden;
-  animation: heroCardEntrance 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 禁用首次入场动画，避免闪屏 */
+  /* animation: heroCardEntrance 1s cubic-bezier(0.34, 1.56, 0.64, 1); */
 }
 
-/* 流光特效 */
-.my-stats-hero-card::after {
+/* 流光特效 - 禁用以提升性能 */
+/* .my-stats-hero-card::after {
   content: '';
   position: absolute;
   top: -50%;
@@ -93,7 +94,7 @@
   animation: shineFlow 3s ease-in-out infinite;
   pointer-events: none;
   z-index: 1;
-}
+} */
 
 @keyframes shineFlow {
   0% {
@@ -104,8 +105,8 @@
   }
 }
 
-/* 卡片装饰元素 */
-.my-stats-hero-card::before {
+/* 卡片装饰元素 - 禁用以提升性能 */
+/* .my-stats-hero-card::before {
   content: '';
   position: absolute;
   top: -100rpx;
@@ -116,7 +117,7 @@
   border-radius: 50%;
   animation: float 6s ease-in-out infinite;
   z-index: 0;
-}
+} */
 
 @keyframes float {
   0%, 100% {
@@ -197,13 +198,14 @@
 .user-name {
   font-size: 38rpx;
   font-weight: 800;
-  color: #ffffff;
+  color: #101416;
   text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 .user-subtitle {
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.85);
+  color: #101416;
+  opacity: 0.7;
   font-weight: 500;
 }
 
@@ -212,7 +214,7 @@
   align-items: center;
   gap: 8rpx;
   padding: 14rpx 24rpx;
-  background: rgba(255, 255, 255, 0.25);
+  background: #101416;
   backdrop-filter: blur(20rpx);
   border-radius: 28rpx;
   font-size: 24rpx;
@@ -224,13 +226,13 @@
 
 .more-btn:active {
   transform: scale(0.95);
-  background: rgba(255, 255, 255, 0.3);
+  background: #202426;
 }
 
 .arrow-icon {
   width: 20rpx;
   height: 20rpx;
-  filter: brightness(0) invert(1);
+  /* 保持白色，因为按钮背景是深色 */
 }
 
 /* 核心4项数据 - 玻璃态设计 */
@@ -248,13 +250,15 @@
   flex-direction: column;
   align-items: center;
   gap: 12rpx;
-  animation: statItemPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  /* 禁用首次入场动画，避免闪屏 */
+  /* animation: statItemPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; */
 }
 
-.hero-stat-item:nth-child(1) { animation-delay: 0.15s; }
+/* 禁用延迟动画 */
+/* .hero-stat-item:nth-child(1) { animation-delay: 0.15s; }
 .hero-stat-item:nth-child(2) { animation-delay: 0.25s; }
 .hero-stat-item:nth-child(3) { animation-delay: 0.35s; }
-.hero-stat-item:nth-child(4) { animation-delay: 0.45s; }
+.hero-stat-item:nth-child(4) { animation-delay: 0.45s; } */
 
 @keyframes statItemPop {
   0% {
@@ -291,14 +295,14 @@
 .stat-icon {
   width: 44rpx;
   height: 44rpx;
-  filter: brightness(0) invert(1);
-  opacity: 0.95;
+  filter: brightness(0);
+  opacity: 0.8;
 }
 
 .hero-stat-item .stat-value {
   font-size: 56rpx;
   font-weight: 800;
-  color: #ffffff;
+  color: #101416;
   line-height: 1;
   text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
   letter-spacing: -1rpx;
@@ -306,14 +310,15 @@
 
 .hero-stat-item .stat-label {
   font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.9);
+  color: #101416;
+  opacity: 0.8;
   font-weight: 600;
 }
 
 /* 个人排名标签 - 流光效果 */
 .hero-rankings {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12rpx;
   position: relative;
   z-index: 2;
@@ -322,19 +327,22 @@
 .ranking-tag {
   display: flex;
   align-items: center;
-  gap: 10rpx;
-  padding: 12rpx 24rpx;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 12rpx 16rpx;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(20rpx);
   border-radius: 24rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-  animation: rankTagBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) backwards;
+  /* 禁用首次入场动画，避免闪屏 */
+  /* animation: rankTagBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) backwards; */
 }
 
-.ranking-tag:nth-child(1) { animation-delay: 0.6s; }
+/* 禁用延迟动画 */
+/* .ranking-tag:nth-child(1) { animation-delay: 0.6s; }
 .ranking-tag:nth-child(2) { animation-delay: 0.7s; }
-.ranking-tag:nth-child(3) { animation-delay: 0.8s; }
+.ranking-tag:nth-child(3) { animation-delay: 0.8s; } */
 
 @keyframes rankTagBounce {
   0% {
@@ -351,14 +359,18 @@
 }
 
 .rank-icon {
-  font-size: 28rpx;
+  font-size: 24rpx;
+  flex-shrink: 0;
 }
 
 .rank-text {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.98);
+  font-size: 22rpx;
+  color: #101416;
   font-weight: 700;
   text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ========== 成就徽章 - 全新设计 ========== */
@@ -371,7 +383,8 @@
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
   border: 1rpx solid rgba(255, 255, 255, 0.8);
   overflow: hidden;
-  animation: cardSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 禁用首次入场动画，避免闪屏 */
+  /* animation: cardSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); */
 }
 
 @keyframes cardSlideIn {
@@ -408,7 +421,8 @@
   font-weight: 800;
   border-radius: 16rpx;
   box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
-  animation: celebrate 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  /* 禁用庆祝动画，避免闪屏 */
+  /* animation: celebrate 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); */
 }
 
 @keyframes celebrate {
@@ -467,7 +481,8 @@
   background: linear-gradient(135deg, rgba(255, 107, 53, 0.08) 0%, rgba(255, 127, 80, 0.12) 100%);
   border-color: rgba(255, 107, 53, 0.3);
   box-shadow: 0 8rpx 24rpx rgba(255, 107, 53, 0.15);
-  animation: achievementShine 2s ease-in-out infinite;
+  /* 禁用闪烁动画，避免性能问题 */
+  /* animation: achievementShine 2s ease-in-out infinite; */
 }
 
 @keyframes achievementShine {
@@ -492,7 +507,23 @@
   font-size: 64rpx;
   line-height: 1;
   filter: drop-shadow(0 4rpx 8rpx rgba(0, 0, 0, 0.1));
-  animation: iconBounce 3s ease-in-out infinite;
+  /* 禁用图标跳动动画，避免性能问题 */
+  /* animation: iconBounce 3s ease-in-out infinite; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.achievement-icon .icon-emoji {
+  font-size: 64rpx;
+  line-height: 1;
+}
+
+.achievement-icon .icon-image {
+  width: 64rpx;
+  height: 64rpx;
 }
 
 @keyframes iconBounce {
@@ -527,7 +558,8 @@
   margin-bottom: 24rpx;
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
   border: 1rpx solid rgba(255, 255, 255, 0.8);
-  animation: cardSlideInLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 禁用首次入场动画，避免闪屏 */
+  /* animation: cardSlideInLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); */
   transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
@@ -590,7 +622,8 @@
   margin-bottom: 24rpx;
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
   border: 1rpx solid rgba(255, 255, 255, 0.8);
-  animation: cardSlideInRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 禁用首次入场动画，避免闪屏 */
+  /* animation: cardSlideInRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); */
 }
 
 @keyframes cardSlideInRight {
@@ -742,7 +775,8 @@
   margin-bottom: 24rpx;
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
   border: 1rpx solid rgba(255, 255, 255, 0.8);
-  animation: cardFadeIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 禁用首次入场动画，避免闪屏 */
+  /* animation: cardFadeIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); */
 }
 
 /* ========== 赛季选择弹窗 - 现代化 ========== */

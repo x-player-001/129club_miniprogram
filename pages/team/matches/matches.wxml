@@ -1,0 +1,55 @@
+<!-- 队伍比赛列表页面 -->
+<view class="matches-container">
+  <!-- 头部信息卡片 -->
+  <view class="header-card">
+    <view class="header-bg" style="background: linear-gradient(135deg, {{teamColor}} 0%, {{teamColorDark}} 100%); box-shadow: 0 8rpx 32rpx {{teamColor}}40;">
+      <view class="header-content">
+        <!-- 顶部：赛季标签 -->
+        <view class="season-tag">
+          <text class="season-icon">🏆</text>
+          <text class="season-name">{{seasonName}}</text>
+        </view>
+
+        <!-- 中间：队伍名称 -->
+        <view class="team-name">{{teamName}}</view>
+
+        <!-- 底部：比赛类型标签 -->
+        <view class="match-type-container">
+          <view class="match-type-tag {{filterType === 'win' ? 'type-win' : filterType === 'draw' ? 'type-draw' : filterType === 'loss' ? 'type-loss' : 'type-all'}}">
+            <text class="type-icon">{{filterType === 'win' ? '🎯' : filterType === 'draw' ? '🤝' : filterType === 'loss' ? '📊' : '📋'}}</text>
+            <text class="type-text">{{filterType === 'all' ? '全部比赛' : filterType === 'win' ? '胜场记录' : filterType === 'draw' ? '平局记录' : '负场记录'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 装饰圆圈 -->
+      <view class="deco-circle circle-1"></view>
+      <view class="deco-circle circle-2"></view>
+    </view>
+  </view>
+
+  <scroll-view class="content" scroll-y enable-back-to-top>
+    <!-- 比赛列表 -->
+    <view class="match-list" wx:if="{{matchList.length > 0}}">
+      <match-card
+        wx:for="{{matchList}}"
+        wx:key="id"
+        matchData="{{item}}"
+        mode="compact"
+        showActions="{{false}}"
+        bind:tap="onMatchCardTap">
+      </match-card>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:else class="empty-container">
+      <empty-state
+        icon="/static/images/empty-match.png"
+        text="{{filterType === 'all' ? '暂无比赛记录' : filterType === 'win' ? '暂无胜场记录' : filterType === 'draw' ? '暂无平局记录' : '暂无负场记录'}}">
+      </empty-state>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-space"></view>
+  </scroll-view>
+</view>

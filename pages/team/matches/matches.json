@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "比赛列表",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "match-card": "/components/match-card/match-card",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}
