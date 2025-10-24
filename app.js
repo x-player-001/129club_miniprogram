@@ -188,7 +188,10 @@ App({
     const requiredFields = ['nickname', 'realName', 'phone', 'position', 'jerseyNumber'];
 
     for (const field of requiredFields) {
-      if (!userInfo[field] || (typeof userInfo[field] === 'string' && userInfo[field].trim() === '')) {
+      const value = userInfo[field];
+      const isEmpty = !value || (typeof value === 'string' && value.trim() === '');
+
+      if (isEmpty) {
         console.log(`用户信息不完整，缺少字段: ${field}`);
         return false;
       }
@@ -248,8 +251,6 @@ App({
     isLogin: false,
     userInfo: null,
     systemInfo: null,
-    apiBaseUrl: 'http://localhost:3000/api',
-    version: '1.0.0',
     // 球员列表全局缓存
     allPlayers: null,
     playersLastUpdate: null,

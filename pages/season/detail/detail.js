@@ -15,13 +15,16 @@ Page({
     team1Data: {},
     team2Data: {},
     formattedStartDate: '',
-    loading: false
+    loading: false,
+    isAdmin: false
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
+    this.checkAdminRole();
+
     if (options.id) {
       this.setData({ seasonId: options.id });
       this.loadSeasonDetail();
@@ -34,6 +37,19 @@ Page({
         wx.navigateBack();
       }, 1500);
     }
+  },
+
+  /**
+   * 检查管理员权限（超级管理员或队长）
+   */
+  checkAdminRole() {
+    const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
+    const isSuperAdmin = userInfo && userInfo.role === 'super_admin';
+    const isCaptain = userInfo && userInfo.role === 'captain';
+
+    this.setData({
+      isAdmin: isSuperAdmin || isCaptain
+    });
   },
 
   /**
@@ -61,13 +77,32 @@ Page({
         // 格式化日期
         const formattedStartDate = this.formatDate(seasonInfo.startDate);
 
-        // 处理比赛列表，添加格式化日期
-        const formattedMatches = matches.map(match => ({
-          ...match,
-          formattedDate: this.formatDate(match.matchDate),
-          team1Goals: match.result?.team1Goals || 0,
-          team2Goals: match.result?.team2Goals || 0
-        }));
+        // 处理比赛列表，添加格式化日期和比分
+        const formattedMatches = matches.map(match => {
+          // 后端字段：finalTeam1Score / finalTeam2Score（顶层字段）
+          // 备用字段：result.team1FinalScore / team1Score
+          const team1Score = match.finalTeam1Score !== undefined
+            ? match.finalTeam1Score
+            : (match.result?.team1FinalScore !== undefined
+              ? match.result.team1FinalScore
+              : (match.team1Score !== undefined ? match.team1Score : 0));
+
+          const team2Score = match.finalTeam2Score !== undefined
+            ? match.finalTeam2Score
+            : (match.result?.team2FinalScore !== undefined
+              ? match.result.team2FinalScore
+              : (match.team2Score !== undefined ? match.team2Score : 0));
+
+          return {
+            ...match,
+            formattedDate: this.formatDate(match.matchDate),
+            team1FinalScore: team1Score,
+            team2FinalScore: team2Score,
+            // 保留进球数用于其他显示
+            team1TotalGoals: match.result?.team1TotalGoals,
+            team2TotalGoals: match.result?.team2TotalGoals
+          };
+        });
 
         // 计算赛季总比分
         const { team1Wins, team2Wins } = this.calculateSeasonScore(formattedMatches);
@@ -161,15 +196,10 @@ Page({
     let team2Wins = 0;
 
     matches.forEach(match => {
-      if (match.status === 'completed' && match.result) {
-        // 4节制：使用 finalScore
-        const team1Score = match.result.team1FinalScore !== undefined
-          ? match.result.team1FinalScore
-          : match.result.team1Goals || 0;
-
-        const team2Score = match.result.team2FinalScore !== undefined
-          ? match.result.team2FinalScore
-          : match.result.team2Goals || 0;
+      if (match.status === 'completed') {
+        // 使用已经处理好的 team1FinalScore 和 team2FinalScore
+        const team1Score = match.team1FinalScore || 0;
+        const team2Score = match.team2FinalScore || 0;
 
         if (team1Score > team2Score) {
           team1Wins++;
@@ -215,6 +245,14 @@ Page({
    */
   onMatchTap(e) {
     const matchId = e.currentTarget.dataset.id;
+    console.log('[Season Detail] onMatchTap 被调用, matchId:', matchId);
+
+    // 防御性检查：确保 matchId 存在且有效
+    if (!matchId || matchId === 'undefined' || typeof matchId === 'undefined') {
+      console.error('[Season Detail] matchId 无效，取消导航');
+      return;
+    }
+
     wx.navigateTo({
       url: `/pages/match/detail/detail?id=${matchId}`
     });

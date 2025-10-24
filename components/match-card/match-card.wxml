@@ -23,7 +23,8 @@
         </view>
         <!-- 进行中/已结束：显示比分 -->
         <view class="team-score" wx:if="{{matchData.status !== 'upcoming'}}">
-          <text class="score-number">{{matchData.team1Score}}</text>
+          <text class="score-number">{{matchData.team1FinalScore !== undefined ? matchData.team1FinalScore : matchData.team1Score}}</text>
+          <text class="goal-number" wx:if="{{matchData.team1TotalGoals !== undefined}}">({{matchData.team1TotalGoals}}球)</text>
         </view>
       </view>
 
@@ -43,7 +44,8 @@
         </view>
         <!-- 进行中/已结束：显示比分 -->
         <view class="team-score" wx:if="{{matchData.status !== 'upcoming'}}">
-          <text class="score-number">{{matchData.team2Score}}</text>
+          <text class="score-number">{{matchData.team2FinalScore !== undefined ? matchData.team2FinalScore : matchData.team2Score}}</text>
+          <text class="goal-number" wx:if="{{matchData.team2TotalGoals !== undefined}}">({{matchData.team2TotalGoals}}球)</text>
         </view>
       </view>
     </view>
@@ -97,16 +99,13 @@
         <view class="team">
           <image class="team-logo" src="{{matchData.team1.logo}}" mode="aspectFit"></image>
           <text class="team-name">{{matchData.team1.name}}</text>
+          <text class="team-score-inline" wx:if="{{matchData.status !== 'upcoming' && matchData.team1FinalScore !== undefined}}">{{matchData.team1FinalScore}}</text>
         </view>
         <view class="match-vs-compact">
-          <text class="vs-text" wx:if="{{matchData.status === 'upcoming'}}">VS</text>
-          <view class="score" wx:else>
-            <text class="score-value">{{matchData.team1Score}}</text>
-            <text class="score-divider">:</text>
-            <text class="score-value">{{matchData.team2Score}}</text>
-          </view>
+          <text class="vs-text">VS</text>
         </view>
         <view class="team">
+          <text class="team-score-inline" wx:if="{{matchData.status !== 'upcoming' && matchData.team2FinalScore !== undefined}}">{{matchData.team2FinalScore}}</text>
           <text class="team-name">{{matchData.team2.name}}</text>
           <image class="team-logo" src="{{matchData.team2.logo}}" mode="aspectFit"></image>
         </view>

@@ -35,18 +35,6 @@
             <text class="team-name-big">{{matchInfo.team2.name}}</text>
           </view>
         </view>
-
-        <view class="quarter-switch">
-          <view class="switch-row">
-            <text class="switch-label">🏀 使用4节制计分</text>
-            <switch
-              checked="{{quarterSystem}}"
-              bindchange="onToggleQuarterSystem"
-              color="{{matchInfo.team1.color || '#f20810'}}"
-            />
-          </view>
-          <text class="switch-desc">开启后将按4节分别录入，前2节胜者各得1分，后2节胜者各得2分</text>
-        </view>
       </view>
 
       <view class="info-tip">
@@ -214,6 +202,27 @@
         <view class="mvp-empty-compact" wx:else bindtap="onShowMvpPicker">
           <text class="empty-trophy">🏆</text>
           <text class="empty-hint">选择MVP</text>
+        </view>
+      </view>
+
+      <!-- 比赛简报 -->
+      <view class="section-card summary-section">
+        <view class="section-header">
+          <text class="section-title">📝 比赛简报</text>
+          <text class="section-desc">选填</text>
+        </view>
+
+        <view class="summary-input-wrapper">
+          <textarea
+            class="summary-textarea"
+            placeholder="粘贴或输入比赛简报（如：比分情况、精彩瞬间、技术统计等）"
+            value="{{summary}}"
+            bindinput="onSummaryInput"
+            maxlength="1000"
+            auto-height
+            show-confirm-bar="{{false}}"
+          />
+          <view class="summary-counter">{{summary.length}}/1000</view>
         </view>
       </view>
 

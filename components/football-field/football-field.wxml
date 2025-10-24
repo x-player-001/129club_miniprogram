@@ -1,0 +1,55 @@
+<!-- 足球场组件 -->
+<view class="football-field-container">
+  <!-- 使用纯CSS绘制球场背景 -->
+  <view class="football-field">
+    <!-- 草坪条纹 -->
+    <view class="grass-stripes">
+      <view class="stripe"></view>
+      <view class="stripe"></view>
+      <view class="stripe"></view>
+      <view class="stripe"></view>
+      <view class="stripe"></view>
+      <view class="stripe"></view>
+      <view class="stripe"></view>
+      <view class="stripe"></view>
+    </view>
+
+    <!-- 球场线条 -->
+    <view class="field-lines">
+      <!-- 外边线 -->
+      <view class="outer-box"></view>
+
+      <!-- 中线 -->
+      <view class="center-line"></view>
+
+      <!-- 中圈 -->
+      <view class="center-circle"></view>
+
+      <!-- 上方禁区 -->
+      <view class="penalty-area top">
+        <view class="goal-area"></view>
+        <view class="penalty-dot"></view>
+      </view>
+
+      <!-- 下方禁区 -->
+      <view class="penalty-area bottom">
+        <view class="goal-area"></view>
+        <view class="penalty-dot"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 位置标记点 -->
+  <view class="position-markers">
+    <view
+      wx:for="{{positions}}"
+      wx:key="code"
+      class="position-marker {{item.isPrimary ? 'primary' : 'secondary'}}"
+      style="left: {{item.x}}%; top: {{item.y}}%;"
+      bindtap="onMarkerTap"
+      data-position="{{item}}">
+      <view class="marker-pulse"></view>
+      <position-tag code="{{item.code}}" mode="code" size="small"></position-tag>
+    </view>
+  </view>
+</view>

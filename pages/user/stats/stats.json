@@ -4,10 +4,6 @@
   "backgroundColor": "#f5f6f8",
   "backgroundTextStyle": "dark",
   "usingComponents": {
-    "stats-grid": "/components/stats-grid/stats-grid",
-    "team-stats-bar": "/components/team-stats-bar/team-stats-bar",
-    "match-card": "/components/match-card/match-card",
-    "achievement-badge": "/components/achievement-badge/achievement-badge",
-    "position-tag": "/components/position-tag/position-tag"
+    "football-field": "/components/football-field/football-field"
   }
 }

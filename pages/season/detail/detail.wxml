@@ -53,7 +53,7 @@
     <view wx:if="{{matches.length > 0}}" class="match-list">
       <view class="match-item" wx:for="{{matches}}" wx:key="id" bindtap="onMatchTap" data-id="{{item.id}}">
         <view class="match-header">
-          <text class="match-number">第{{index + 1}}场</text>
+          <text class="match-title">{{item.title || '比赛' + (index + 1)}}</text>
           <text class="match-date">{{item.formattedDate}}</text>
         </view>
         <view class="match-teams">
@@ -62,9 +62,9 @@
             <text class="team-name">{{item.team1.name}}</text>
           </view>
           <view class="match-score">
-            <text class="score">{{item.team1Goals || 0}}</text>
+            <text class="score">{{item.team1FinalScore !== undefined ? item.team1FinalScore : 0}}</text>
             <text class="separator">:</text>
-            <text class="score">{{item.team2Goals || 0}}</text>
+            <text class="score">{{item.team2FinalScore !== undefined ? item.team2FinalScore : 0}}</text>
           </view>
           <view class="team">
             <text class="team-name">{{item.team2.name}}</text>
@@ -90,8 +90,8 @@
     <text class="loading-text">加载中...</text>
   </view>
 
-  <!-- 底部操作按钮 -->
-  <view class="bottom-actions">
+  <!-- 底部操作按钮（仅管理员可见） -->
+  <view class="bottom-actions" wx:if="{{isAdmin}}">
     <view class="action-btn secondary" bindtap="onEdit">编辑</view>
     <view wx:if="{{seasonInfo.status === 'active'}}" class="action-btn primary" bindtap="onComplete">完成赛季</view>
   </view>

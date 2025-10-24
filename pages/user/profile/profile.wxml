@@ -6,9 +6,12 @@
 
     <!-- 用户信息 -->
     <view class="user-card">
-      <image class="avatar" src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill" bindtap="onAvatarTap"></image>
-      <view class="user-info" bindtap="onAvatarTap">
-        <view class="user-name">{{userInfo.realName || userInfo.nickname || '点击获取授权'}}</view>
+      <image class="avatar" src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+      <view class="user-info">
+        <view class="user-name-row">
+          <text class="user-name">{{userInfo.realName || userInfo.nickname || '未设置'}}</text>
+          <text class="user-nickname" wx:if="{{userInfo.nickname && userInfo.realName}}"> -- {{userInfo.nickname}}</text>
+        </view>
         <view class="user-meta">
           <text class="jersey-number" wx:if="{{userInfo.jerseyNumber}}">{{userInfo.jerseyNumber}}号</text>
           <position-tag wx:if="{{userInfo.position}}" code="{{userInfo.position}}" size="small"></position-tag>

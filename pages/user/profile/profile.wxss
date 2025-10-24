@@ -47,11 +47,23 @@
   flex: 1;
 }
 
+.user-name-row {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 12rpx;
+}
+
 .user-name {
   font-size: 40rpx;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 12rpx;
+}
+
+.user-nickname {
+  font-size: 26rpx;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  margin-left: 8rpx;
 }
 
 .user-meta {

@@ -14,9 +14,20 @@ Component({
   },
 
   methods: {
-    // 点击卡片
+    // 点击卡片 - 防止重复触发
     onCardTap() {
+      // 防抖：防止短时间内重复点击
+      if (this._tapping) {
+        console.log('[team-card] 防抖：忽略重复点击');
+        return;
+      }
+      this._tapping = true;
+      setTimeout(() => {
+        this._tapping = false;
+      }, 500); // 500ms 内不响应重复点击
+
       const { teamData } = this.data;
+      console.log('[team-card] onCardTap 触发，teamId:', teamData.id);
       this.triggerEvent('tap', { teamId: teamData.id, teamData });
     }
   }

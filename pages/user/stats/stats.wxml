@@ -1,107 +1,88 @@
-<!-- pages/user/stats/stats.wxml -->
+<!-- pages/user/stats/stats.wxml - 重构版 -->
 <view class="page-container">
-  <!-- 用户信息头部 -->
-  <view class="user-header" wx:if="{{userInfo}}">
-    <view class="bg-gradient" style="background: linear-gradient(135deg, {{userInfo.teamColor}} 0%, {{userInfo.teamColor}}dd 100%);"></view>
-    <view class="user-info">
-      <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
-      <view class="info-text">
-        <text class="name">{{userInfo.name}}</text>
-        <view class="meta">
-          <text class="number">{{userInfo.jerseyNumber}}号</text>
-          <position-tag wx:if="{{userInfo.position}}" code="{{userInfo.position}}" size="small"></position-tag>
+  <!-- 顶部个人信息卡片（金黄色背景 + 球场可视化） -->
+  <view class="profile-hero-card">
+    <!-- 左侧：用户信息 -->
+    <view class="profile-info">
+      <image class="profile-avatar" src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+      <view class="profile-text">
+        <text class="profile-name">{{userInfo.realName || userInfo.nickname || '未设置'}}</text>
+        <text class="profile-nickname" wx:if="{{userInfo.nickname && userInfo.realName}}">{{userInfo.nickname}}</text>
+        <view class="profile-badge">
+          <text class="badge-number">{{userInfo.jerseyNumber || '0'}}号</text>
         </view>
-        <text class="team" style="color: {{userInfo.teamColor}}">{{userInfo.team}}</text>
+      </view>
+    </view>
+
+    <!-- 右侧：足球场位置可视化 -->
+    <view class="field-wrapper">
+      <football-field
+        jerseyNumber="{{userInfo.jerseyNumber}}"
+        positionCodes="{{userPositionCodes}}"
+        bind:markerTap="onPositionMarkerTap">
+      </football-field>
+    </view>
+  </view>
+
+  <!-- 核心数据卡片（4宫格） -->
+  <view class="core-stats-section">
+    <view class="core-stats-grid">
+      <view class="core-stat-item" wx:for="{{coreStats}}" wx:key="label" bindtap="onStatTap" data-type="{{item.type}}">
+        <image class="stat-icon" src="{{item.icon}}" mode="aspectFit"></image>
+        <text class="stat-value">{{item.value}}</text>
+        <text class="stat-label">{{item.label}}</text>
       </view>
     </view>
   </view>
 
-  <!-- 总体数据卡片 - 使用 stats-grid 组件 -->
-  <view class="section">
-    <view class="section-title">
-      <text class="title-text">总体数据</text>
-    </view>
-    <stats-grid stats="{{statsGridData}}" columns="3"></stats-grid>
-
-    <!-- 战绩 - 使用 team-stats-bar 组件 -->
-    <team-stats-bar stats="{{recordStats}}" mode="full"></team-stats-bar>
-  </view>
-
-  <!-- 当前队伍数据 - 使用 stats-grid 和 team-stats-bar 组件 -->
-  <view class="section" wx:if="{{currentTeamStats}}">
-    <view class="section-title">
-      <text class="title-text">本队贡献</text>
-      <view class="more" bindtap="onCurrentTeamTap">
-        <text class="more-text">查看详情</text>
-        <text class="arrow">›</text>
+  <!-- 次要数据（2列网格 + 进度条） -->
+  <view class="secondary-stats-section">
+    <view class="stat-card" wx:for="{{secondaryStats}}" wx:key="label">
+      <view class="stat-header">
+        <text class="stat-label">{{item.label}}</text>
+        <text class="stat-value">{{item.value}}{{item.unit}}</text>
       </view>
-    </view>
-    <view class="team-stats-card" bindtap="onCurrentTeamTap">
-      <view class="team-header">
-        <image class="team-logo" src="{{currentTeamStats.teamLogo}}" mode="aspectFill"></image>
-        <text class="team-name" style="color: {{currentTeamStats.teamColor}}">{{currentTeamStats.teamName}}</text>
+      <view class="stat-progress-bar" wx:if="{{item.showProgress}}">
+        <view class="progress-fill" style="width: {{item.percent}}%; background: {{item.color}};"></view>
       </view>
-      <stats-grid stats="{{currentTeamStatsGrid}}" columns="4"></stats-grid>
-      <team-stats-bar stats="{{currentTeamStatsBar}}" mode="compact"></team-stats-bar>
     </view>
   </view>
 
-  <!-- 历史队伍 -->
-  <view class="section" wx:if="{{teamHistory.length > 0}}">
-    <view class="section-title">
-      <text class="title-text">效力历史</text>
+  <!-- 排名荣誉（横向滚动） -->
+  <view class="rankings-section" wx:if="{{rankings.length > 0}}">
+    <view class="section-title-bar">
+      <text class="section-title-text">排名荣誉</text>
     </view>
-    <view class="team-history-list">
-      <view
-        wx:for="{{teamHistory}}"
-        wx:key="id"
-        class="history-item"
-        bindtap="onTeamTap"
-        data-id="{{item.id}}"
-      >
-        <image class="team-logo" src="{{item.teamLogo}}" mode="aspectFill"></image>
-        <view class="team-info">
-          <text class="team-name" style="color: {{item.teamColor}}">{{item.teamName}}</text>
-          <text class="season">{{item.season}}赛季</text>
+    <scroll-view class="rankings-scroll" scroll-x>
+      <view class="rankings-list">
+        <view class="ranking-badge {{item.medal}}" wx:for="{{rankings}}" wx:key="type">
+          <text class="ranking-icon">{{item.icon}}</text>
+          <text class="ranking-type">{{item.type}}</text>
+          <text class="ranking-rank">第{{item.rank}}名</text>
         </view>
-        <view class="team-stats">
-          <text class="stat">{{item.matches}}场</text>
-          <text class="stat">{{item.goals}}球</text>
-          <text class="stat">{{item.assists}}助</text>
-        </view>
-        <view class="arrow">›</view>
       </view>
-    </view>
+    </scroll-view>
   </view>
 
-  <!-- 成就徽章 - 使用 achievement-badge 组件 -->
-  <view class="section">
-    <view class="section-title">
-      <text class="title-text">成就徽章</text>
-      <text class="subtitle">已解锁 {{unlockedCount}}/{{achievements.length}}</text>
+  <!-- 成就徽章区（保留优化） -->
+  <view class="achievements-section" wx:if="{{achievements.length > 0}}">
+    <view class="section-title-bar">
+      <text class="section-title-text">我的成就</text>
+      <text class="achievement-count">{{unlockedCount}}/{{achievements.length}}</text>
     </view>
-    <view class="achievements-grid">
-      <achievement-badge
-        wx:for="{{achievements}}"
-        wx:key="id"
-        achievement="{{item}}">
-      </achievement-badge>
-    </view>
+    <scroll-view class="achievements-scroll" scroll-x>
+      <view class="achievements-list">
+        <view class="achievement-item {{item.unlocked ? 'unlocked' : 'locked'}}" wx:for="{{achievements}}" wx:key="id">
+          <view class="achievement-icon">
+            <image wx:if="{{item.isImageIcon}}" class="icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+            <text wx:else class="icon-emoji">{{item.icon}}</text>
+          </view>
+          <text class="achievement-name">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 
-  <!-- 近期比赛 - 使用 match-card 组件 -->
-  <view class="section">
-    <view class="section-title">
-      <text class="title-text">近期比赛</text>
-    </view>
-    <view class="match-list">
-      <match-card
-        wx:for="{{recentMatchesData}}"
-        wx:key="id"
-        matchData="{{item}}"
-        mode="compact"
-        bind:tap="onMatchCardTap">
-      </match-card>
-    </view>
-  </view>
+  <!-- 底部占位 -->
+  <view class="bottom-space"></view>
 </view>

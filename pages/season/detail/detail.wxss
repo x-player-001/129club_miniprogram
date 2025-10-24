@@ -134,10 +134,14 @@
   margin-bottom: 16rpx;
 }
 
-.match-number {
-  font-size: 24rpx;
+.match-title {
+  font-size: 26rpx;
   font-weight: 600;
-  color: var(--theme-color, #f20810);
+  color: #2c3e50;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .match-date {

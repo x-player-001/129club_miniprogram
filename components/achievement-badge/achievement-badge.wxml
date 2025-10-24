@@ -1,7 +1,9 @@
 <!-- components/achievement-badge/achievement-badge.wxml -->
 <view class="achievement-badge {{achievementData.unlocked ? 'unlocked' : 'locked'}}" bindtap="onBadgeTap">
   <view class="badge-icon">
-    <text class="icon-emoji">{{achievementData.icon}}</text>
+    <!-- 判断是图片路径还是 emoji -->
+    <image wx:if="{{isImageIcon}}" class="icon-image" src="{{achievementData.icon}}" mode="aspectFit"></image>
+    <text wx:else class="icon-emoji">{{achievementData.icon}}</text>
   </view>
   <text class="badge-name">{{achievementData.name}}</text>
   <view wx:if="{{achievementData.unlocked}}" class="unlocked-tag">

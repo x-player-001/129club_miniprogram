@@ -59,6 +59,11 @@
   font-size: 56rpx;
 }
 
+.icon-image {
+  width: 56rpx;
+  height: 56rpx;
+}
+
 /* ========== 名称 ========== */
 .badge-name {
   font-size: 24rpx;

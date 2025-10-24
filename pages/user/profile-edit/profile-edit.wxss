@@ -15,8 +15,12 @@
   box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.05);
 }
 
+.status-bar {
+  width: 100%;
+}
+
 .navbar-inner {
-  height: 88rpx;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -44,8 +48,7 @@
 
 /* 内容区域 */
 .content {
-  padding-top: 88rpx;
-  height: calc(100vh - 88rpx);
+  /* padding-top 和 height 通过内联样式动态设置 */
 }
 
 /* 头像区域 */
@@ -206,9 +209,17 @@
   margin-top: 16rpx;
 }
 
-/* 提交按钮 */
-.submit-section {
-  padding: 0 32rpx;
+/* 固定在底部的提交按钮 */
+.submit-section-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+  z-index: 99;
 }
 
 .submit-btn {
@@ -219,24 +230,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  box-shadow: 0 12rpx 32rpx rgba(102, 126, 234, 0.3);
   font-size: 32rpx;
   font-weight: 600;
   color: #ffffff;
-}
-
-.submit-btn::after {
-  border: none;
+  transition: all 0.3s;
 }
 
 .submit-btn-hover {
   transform: scale(0.98);
-  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.2);
+  opacity: 0.9;
 }
 
 .bottom-space {
-  height: 40rpx;
+  height: 160rpx; /* 为固定按钮留出空间 */
 }
 
 /* 位置选择器弹出层 */

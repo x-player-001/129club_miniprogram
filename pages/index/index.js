@@ -95,7 +95,12 @@ Page({
 
         // 设置当前队伍信息（从 userInfo.currentTeam）
         if (userInfo.currentTeam) {
-          this.setData({ currentTeam: userInfo.currentTeam });
+          // 处理队长信息，使用 realName
+          const currentTeam = {
+            ...userInfo.currentTeam,
+            captainName: userInfo.currentTeam.captain?.realName || userInfo.currentTeam.captain?.nickname || '未知'
+          };
+          this.setData({ currentTeam });
           // 加载队伍统计数据
           if (userInfo.currentTeam.id) {
             this.loadTeamStats(userInfo.currentTeam.id);
@@ -235,6 +240,10 @@ Page({
           team2: match.team2 || { name: match.team2Name, logo: match.team2Logo },
           team1Score: match.team1Score,
           team2Score: match.team2Score,
+          team1FinalScore: match.result?.team1FinalScore || match.team1Score,
+          team2FinalScore: match.result?.team2FinalScore || match.team2Score,
+          team1TotalGoals: match.result?.team1TotalGoals,
+          team2TotalGoals: match.result?.team2TotalGoals,
           team1RegisteredCount: match.team1RegisterCount || 0,
           team2RegisteredCount: match.team2RegisterCount || 0,
           maxPlayersPerTeam: match.maxPlayersPerTeam || 11,
@@ -260,10 +269,39 @@ Page({
     });
   },
 
+  // 跳转到队伍详情 - 防止重复跳转
   onGoToTeamDetail() {
     if (!this.data.currentTeam) return;
+
+    const teamId = this.data.currentTeam.id;
+    console.log('[Index] onGoToTeamDetail 被调用, teamId:', teamId);
+
+    // 防御性检查：确保 teamId 存在且有效
+    if (!teamId || teamId === 'undefined' || typeof teamId === 'undefined') {
+      console.error('[Index] teamId 无效，取消导航');
+      return;
+    }
+
+    // 防止重复跳转（真机上可能因为性能问题导致重复触发）
+    if (this._navigatingToTeam) {
+      console.log('[Index] 防抖：忽略重复跳转到队伍详情');
+      return;
+    }
+    this._navigatingToTeam = true;
+
+    console.log('[Index] 正在跳转到队伍详情:', teamId);
     wx.navigateTo({
-      url: `/pages/team/detail/detail?id=${this.data.currentTeam.id}`
+      url: `/pages/team/detail/detail?id=${teamId}`,
+      success: () => {
+        console.log('[Index] 跳转成功');
+        setTimeout(() => {
+          this._navigatingToTeam = false;
+        }, 500);
+      },
+      fail: (err) => {
+        console.error('[Index] 跳转失败:', err);
+        this._navigatingToTeam = false;
+      }
     });
   },
 
@@ -300,11 +338,37 @@ Page({
     });
   },
 
-  // match-card组件事件处理
+  // match-card组件事件处理 - 防止重复跳转
   onMatchCardTap(e) {
     const { matchId } = e.detail;
+    console.log('[Index] onMatchCardTap 被调用, matchId:', matchId);
+
+    // 防御性检查：确保 matchId 存在且有效
+    if (!matchId || matchId === 'undefined' || typeof matchId === 'undefined') {
+      console.error('[Index] matchId 无效，取消导航');
+      return;
+    }
+
+    // 防止重复跳转（真机上可能因为性能问题导致重复触发）
+    if (this._navigating) {
+      console.log('[Index] 防抖：忽略重复跳转');
+      return;
+    }
+    this._navigating = true;
+
+    console.log('[Index] 正在跳转到比赛详情:', matchId);
     wx.navigateTo({
-      url: `/pages/match/detail/detail?id=${matchId}`
+      url: `/pages/match/detail/detail?id=${matchId}`,
+      success: () => {
+        console.log('[Index] 跳转成功');
+        setTimeout(() => {
+          this._navigating = false;
+        }, 500);
+      },
+      fail: (err) => {
+        console.error('[Index] 跳转失败:', err);
+        this._navigating = false;
+      }
     });
   },
 

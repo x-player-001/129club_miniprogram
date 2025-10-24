@@ -14,21 +14,62 @@ Page({
     myTeamId: '',
     isRegistered: false,
     canRegister: true,
-    isAdmin: true // 管理员权限（测试用）
+    isAdmin: true, // 管理员权限（测试用）
+    _isFirstLoad: true // 标记是否首次加载
   },
 
   onLoad(options) {
+    console.log('[Match Detail] onLoad 被调用, options:', options);
     if (options.id) {
+      // 直接使用 this.data.matchId 赋值，不用 setData（避免异步问题）
+      this.data.matchId = options.id;
       this.setData({ matchId: options.id });
-      this.loadMatchDetail();
+
+      // 确保 app 初始化完成后再加载数据
+      this.ensureAppReady().then(() => {
+        console.log('[Match Detail] App ready, 准备加载数据');
+        this.data._isFirstLoad = false;
+        this.loadMatchDetail();
+      });
+    } else {
+      console.error('[Match Detail] onLoad 没有收到 id 参数!');
     }
   },
 
   onShow() {
-    // 每次显示时刷新数据
-    if (this.data.matchId) {
-      this.loadMatchDetail();
+    // 防止首次加载时重复调用
+    // onLoad 已经调用了 loadMatchDetail，不需要在这里再调用
+    if (this.data._isFirstLoad) {
+      console.log('[Match Detail] onShow: 首次加载，跳过');
+      return;
     }
+    // 如果需要刷新，用户可以使用下拉刷新
+  },
+
+  // 确保 App 初始化完成
+  ensureAppReady() {
+    return new Promise((resolve) => {
+      // 如果 app 已经初始化，直接resolve
+      if (app.globalData && app.globalData.userInfo) {
+        resolve();
+        return;
+      }
+
+      // 否则等待一小段时间让 app.onLaunch 完成
+      let checkCount = 0;
+      const checkInterval = setInterval(() => {
+        checkCount++;
+        if (app.globalData && app.globalData.userInfo) {
+          clearInterval(checkInterval);
+          resolve();
+        } else if (checkCount > 10) {
+          // 最多等待 1 秒（10 * 100ms）
+          clearInterval(checkInterval);
+          console.warn('[Match Detail] App 初始化超时，继续加载');
+          resolve();
+        }
+      }, 100);
+    });
   },
 
   onPullDownRefresh() {
@@ -39,12 +80,22 @@ Page({
 
   // 加载比赛详情
   loadMatchDetail() {
+    console.log('[Match Detail] 开始加载比赛详情, matchId:', this.data.matchId);
     wx.showLoading({ title: '加载中...' });
 
     // 调用真实 API
     return matchAPI.getMatchDetail(this.data.matchId).then(res => {
+      console.log('[Match Detail] API 返回成功:', res);
       const match = res.data;
-      const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
+
+      // 获取用户信息 - 增加容错处理
+      let userInfo = null;
+      try {
+        userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo') || {};
+      } catch (err) {
+        console.warn('[Match Detail] 获取用户信息失败:', err);
+        userInfo = {};
+      }
 
       // 检查管理员权限
       const isAdmin = userInfo?.role === 'super_admin' || userInfo?.role === 'captain';
@@ -75,6 +126,10 @@ Page({
         status: this.convertStatus(match.status),
         team1Score: match.team1Score || 0,
         team2Score: match.team2Score || 0,
+        team1FinalScore: match.result?.team1FinalScore,
+        team2FinalScore: match.result?.team2FinalScore,
+        team1TotalGoals: match.result?.team1TotalGoals,
+        team2TotalGoals: match.result?.team2TotalGoals,
         hasRecord: match.hasRecord,
         maxPlayersPerTeam: match.maxPlayersPerTeam || 11,
         maxPlayers: match.maxPlayersPerTeam || 11,
@@ -110,7 +165,8 @@ Page({
       // 加载报名列表
       return this.loadRegistrations(matchInfo, userInfo);
     }).catch(err => {
-      console.error('加载比赛详情失败:', err);
+      console.error('[Match Detail] 加载比赛详情失败:', err);
+      console.error('[Match Detail] 错误详情:', JSON.stringify(err));
       wx.hideLoading();
       wx.showToast({
         title: '加载失败',
@@ -305,19 +361,21 @@ Page({
         };
       });
 
-      // 判断当前用户所属队伍
-      const myTeamId = userInfo.teamId || app.globalData.currentTeam?.id;
+      // 判断当前用户所属队伍 - 增加安全检查
+      const myTeamId = userInfo?.teamId || userInfo?.currentTeam?.id || app.globalData.currentTeam?.id || '';
 
-      // 判断是否已报名（检查两个队伍的数据）
+      // 判断是否已报名（检查两个队伍的数据） - 增加安全检查
       const allPlayers = [...team1Players, ...team2Players];
-      const isRegistered = allPlayers.some(reg =>
-        (reg.userId || reg.user?.id) === userInfo.id
-      );
+      const userId = userInfo?.id || '';
+      const isRegistered = userId ? allPlayers.some(reg =>
+        (reg.userId || reg.user?.id) === userId
+      ) : false;
 
-      // 判断是否可以报名
+      // 判断是否可以报名 - 增加安全检查
       const myTeamPlayers = myTeamId === matchInfo.team1.id ? team1Players : team2Players;
       const canRegister = matchInfo.status === 'upcoming' &&
                          !isRegistered &&
+                         userId &&
                          myTeamPlayers.length < matchInfo.maxPlayers;
 
       // 更新比赛信息中的报名人数
@@ -418,11 +476,37 @@ Page({
     });
   },
 
-  // player-card 组件点击事件
+  // player-card 组件点击事件 - 防止重复跳转
   onPlayerCardTap(e) {
     const { playerId } = e.detail;
+    console.log('[Match Detail] onPlayerCardTap 被调用, playerId:', playerId);
+
+    // 防御性检查：确保 playerId 存在且有效
+    if (!playerId || playerId === 'undefined' || typeof playerId === 'undefined') {
+      console.error('[Match Detail] playerId 无效，取消导航');
+      return;
+    }
+
+    // 防止重复跳转（真机上可能因为性能问题导致重复触发）
+    if (this._navigating) {
+      console.log('[Match Detail] 防抖：忽略重复跳转');
+      return;
+    }
+    this._navigating = true;
+
+    console.log('[Match Detail] 正在跳转到球员统计:', playerId);
     wx.navigateTo({
-      url: `/pages/user/stats/stats?userId=${playerId}`
+      url: `/pages/user/stats/stats?userId=${playerId}`,
+      success: () => {
+        console.log('[Match Detail] 跳转成功');
+        setTimeout(() => {
+          this._navigating = false;
+        }, 500);
+      },
+      fail: (err) => {
+        console.error('[Match Detail] 跳转失败:', err);
+        this._navigating = false;
+      }
     });
   },
 

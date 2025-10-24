@@ -12,11 +12,11 @@ Page({
     ],
     matchList: [],
     loading: false,
-    isAdmin: true
+    isAdmin: false
   },
 
   onLoad(options) {
-    // this.checkAdminRole(); // 临时注释，方便测试
+    this.checkAdminRole();
     this.loadMatchData();
   },
 
@@ -31,11 +31,14 @@ Page({
     });
   },
 
-  // 检查管理员权限
+  // 检查管理员权限（超级管理员或队长）
   checkAdminRole() {
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
+    const isSuperAdmin = userInfo && userInfo.role === 'super_admin';
+    const isCaptain = userInfo && userInfo.role === 'captain';
+
     this.setData({
-      isAdmin: userInfo && userInfo.role === 'super_admin'
+      isAdmin: isSuperAdmin || isCaptain
     });
   },
 
@@ -96,6 +99,10 @@ Page({
       status: this.convertStatus(match.status),
       team1Score: match.team1Score || 0,
       team2Score: match.team2Score || 0,
+      team1FinalScore: match.result?.team1FinalScore,
+      team2FinalScore: match.result?.team2FinalScore,
+      team1TotalGoals: match.result?.team1TotalGoals,
+      team2TotalGoals: match.result?.team2TotalGoals,
       team1RegisteredCount: match.team1RegisterCount || 0,
       team2RegisteredCount: match.team2RegisterCount || 0,
       maxPlayersPerTeam: match.maxPlayersPerTeam || 11,
@@ -137,16 +144,51 @@ Page({
   // 跳转到比赛详情
   onGoToMatchDetail(e) {
     const id = e.currentTarget.dataset.id || e.detail.matchId;
+    console.log('[Match List] onGoToMatchDetail 被调用, id:', id);
+
+    // 防御性检查：确保 id 存在且有效
+    if (!id || id === 'undefined' || typeof id === 'undefined') {
+      console.error('[Match List] id 无效，取消导航');
+      return;
+    }
+
     wx.navigateTo({
       url: `/pages/match/detail/detail?id=${id}`
     });
   },
 
-  // match-card组件事件
+  // match-card组件事件 - 防止重复跳转
   onMatchCardTap(e) {
     const { matchId } = e.detail;
+    console.log('[Match List] onMatchCardTap 被调用, matchId:', matchId);
+
+    // 防御性检查：确保 matchId 存在且有效
+    if (!matchId || matchId === 'undefined' || typeof matchId === 'undefined') {
+      console.error('[Match List] matchId 无效，取消导航');
+      return;
+    }
+
+    // 防止重复跳转（真机上可能因为性能问题导致重复触发）
+    if (this._navigating) {
+      console.log('[Match List] 防抖：忽略重复跳转');
+      return;
+    }
+    this._navigating = true;
+
+    console.log('[Match List] 正在跳转到比赛详情:', matchId);
     wx.navigateTo({
-      url: `/pages/match/detail/detail?id=${matchId}`
+      url: `/pages/match/detail/detail?id=${matchId}`,
+      success: () => {
+        console.log('[Match List] 跳转成功');
+        // 跳转成功后 500ms 后解锁
+        setTimeout(() => {
+          this._navigating = false;
+        }, 500);
+      },
+      fail: (err) => {
+        console.error('[Match List] 跳转失败:', err);
+        this._navigating = false;
+      }
     });
   },
 

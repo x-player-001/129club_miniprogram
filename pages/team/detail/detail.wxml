@@ -27,7 +27,7 @@
       <text>队伍战绩</text>
     </view>
 
-    <team-stats-bar stats="{{teamStatsBarData}}" mode="full"></team-stats-bar>
+    <team-stats-bar stats="{{teamStatsBarData}}" mode="full" bind:stattap="onStatTap"></team-stats-bar>
 
     <!-- 近期战绩 -->
     <view class="recent-results" wx:if="{{teamStats.recentResults && teamStats.recentResults.length > 0}}">
@@ -62,47 +62,6 @@
         bind:tap="onPlayerCardTap">
       </player-card>
     </view>
-  </view>
-
-  <!-- 队内排行 -->
-  <view class="ranking-section">
-    <view class="section-title">
-      <view class="title-line"></view>
-      <text>队内排行</text>
-    </view>
-
-    <view class="ranking-tabs">
-      <view class="rank-tab {{rankType === 'goals' ? 'active' : ''}}" bindtap="onSwitchRankType" data-type="goals">
-        <text>射手榜</text>
-      </view>
-      <view class="rank-tab {{rankType === 'assists' ? 'active' : ''}}" bindtap="onSwitchRankType" data-type="assists">
-        <text>助攻榜</text>
-      </view>
-      <view class="rank-tab {{rankType === 'mvp' ? 'active' : ''}}" bindtap="onSwitchRankType" data-type="mvp">
-        <text>MVP榜</text>
-      </view>
-    </view>
-
-    <view class="ranking-list">
-      <view class="rank-item {{index < 3 ? 'top' + (index + 1) : ''}}" wx:for="{{rankingList}}" wx:key="id">
-        <view class="rank-number">{{index + 1}}</view>
-        <image class="rank-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
-        <text class="rank-name">{{item.realName}}</text>
-        <text class="rank-value">{{item.value}}</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 快捷操作 -->
-  <view class="quick-actions">
-    <button class="quick-btn" bindtap="onViewMatches">
-      <image src="/static/icons/football-white.png" mode="aspectFit"></image>
-      <text>比赛记录</text>
-    </button>
-    <button class="quick-btn" bindtap="onViewVsHistory" wx:if="{{teamInfo.opponentId}}">
-      <image src="/static/icons/vs.png" mode="aspectFit"></image>
-      <text>对战历史</text>
-    </button>
   </view>
 
   <!-- 底部占位 -->

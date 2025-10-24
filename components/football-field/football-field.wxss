@@ -1,0 +1,206 @@
+/* 足球场组件样式 */
+.football-field-container {
+  position: relative;
+  width: 100%;
+  height: 100%; /* 填充父容器高度 */
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.3);
+}
+
+.football-field {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #1a7a3a; /* 深绿色草地 */
+  overflow: hidden;
+}
+
+/* 草坪条纹 */
+.grass-stripes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.stripe {
+  flex: 1;
+  background: rgba(30, 100, 50, 0.15);
+}
+
+.stripe:nth-child(even) {
+  background: transparent;
+}
+
+/* 球场线条容器 */
+.field-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 外边线 */
+.outer-box {
+  position: absolute;
+  top: 4%;
+  left: 6%;
+  width: 88%;
+  height: 92%;
+  border: 2rpx solid rgba(255, 255, 255, 0.8);
+  box-sizing: border-box;
+}
+
+/* 中线 */
+.center-line {
+  position: absolute;
+  top: 50%;
+  left: 6%;
+  width: 88%;
+  height: 2rpx;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* 中圈 */
+.center-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28%;
+  height: 18.7%;
+  border: 2rpx solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.center-circle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8rpx;
+  height: 8rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+}
+
+/* 禁区 */
+.penalty-area {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 16.7%;
+  border: 2rpx solid rgba(255, 255, 255, 0.8);
+  border-top: none;
+  box-sizing: border-box;
+}
+
+.penalty-area.top {
+  top: 4%;
+  border-bottom: 2rpx solid rgba(255, 255, 255, 0.8);
+}
+
+.penalty-area.bottom {
+  bottom: 4%;
+  border-top: 2rpx solid rgba(255, 255, 255, 0.8);
+  border-bottom: none;
+}
+
+/* 小禁区 */
+.goal-area {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 30%;
+  border: 2rpx solid rgba(255, 255, 255, 0.8);
+  box-sizing: border-box;
+}
+
+.penalty-area.top .goal-area {
+  top: 0;
+  border-top: none;
+}
+
+.penalty-area.bottom .goal-area {
+  bottom: 0;
+  border-bottom: none;
+}
+
+/* 点球点 */
+.penalty-dot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8rpx;
+  height: 8rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+}
+
+.penalty-area.top .penalty-dot {
+  bottom: 35%;
+}
+
+.penalty-area.bottom .penalty-dot {
+  top: 35%;
+}
+
+/* 位置标记容器 */
+.position-markers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+/* 位置标记点 */
+.position-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+/* 脉冲动画背景 */
+.marker-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60rpx;
+  height: 60rpx;
+  background: radial-gradient(circle, rgba(30, 122, 58, 0.5) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.2;
+  }
+}
+
+/* 点击效果 */
+.position-marker:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}

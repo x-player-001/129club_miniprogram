@@ -15,7 +15,8 @@
           <text class="team-name-hero">{{matchInfo.team1.name}}</text>
           <!-- 已结束/进行中：显示比分 -->
           <view class="team-score-badge" wx:if="{{matchInfo.status === 'finished' || matchInfo.status === 'ongoing'}}">
-            <text class="score-number">{{matchInfo.team1Score || 0}}</text>
+            <text class="score-number">{{matchInfo.team1FinalScore !== undefined ? matchInfo.team1FinalScore : (matchInfo.team1Score || 0)}}</text>
+            <text class="goal-number" wx:if="{{matchInfo.team1TotalGoals !== undefined}}">({{matchInfo.team1TotalGoals}}球)</text>
           </view>
         </view>
 
@@ -33,7 +34,8 @@
           <text class="team-name-hero">{{matchInfo.team2.name}}</text>
           <!-- 已结束/进行中：显示比分 -->
           <view class="team-score-badge" wx:if="{{matchInfo.status === 'finished' || matchInfo.status === 'ongoing'}}">
-            <text class="score-number">{{matchInfo.team2Score || 0}}</text>
+            <text class="score-number">{{matchInfo.team2FinalScore !== undefined ? matchInfo.team2FinalScore : (matchInfo.team2Score || 0)}}</text>
+            <text class="goal-number" wx:if="{{matchInfo.team2TotalGoals !== undefined}}">({{matchInfo.team2TotalGoals}}球)</text>
           </view>
         </view>
       </view>
@@ -94,6 +96,16 @@
           <text class="mvp-name">{{matchInfo.result.mvp.name}}</text>
         </view>
         <image class="mvp-avatar" src="{{matchInfo.result.mvp.avatar}}" mode="aspectFill"></image>
+      </view>
+
+      <!-- 比赛简报（已完成的比赛且有简报内容） -->
+      <view class="summary-card" wx:if="{{matchInfo.status === 'finished' && matchInfo.result && matchInfo.result.summary}}">
+        <view class="summary-header">
+          <text class="summary-title">📝 比赛简报</text>
+        </view>
+        <view class="summary-content">
+          <text class="summary-text">{{matchInfo.result.summary}}</text>
+        </view>
       </view>
     </view>
 
@@ -162,15 +174,15 @@
     </view>
   </view>
 
-  <!-- 底部操作栏（已结束的比赛 - 管理员） -->
-  <view class="action-bar" wx:if="{{matchInfo.status === 'finished' && isAdmin && !matchInfo.hasRecord}}">
+  <!-- 底部操作栏（已结束的比赛 - 所有人可见） -->
+  <view class="action-bar" wx:if="{{matchInfo.status === 'finished' && !matchInfo.hasRecord}}">
     <view class="action-btn record-btn" bindtap="onManualRecord">
       <text class="btn-text">录入比赛记录</text>
     </view>
   </view>
 
-  <!-- 底部操作栏（进行中的比赛 - 管理员） -->
-  <view class="action-bar" wx:if="{{matchInfo.status === 'ongoing' && isAdmin}}">
+  <!-- 底部操作栏（进行中的比赛 - 所有人可见） -->
+  <view class="action-bar" wx:if="{{matchInfo.status === 'ongoing'}}">
     <view class="action-btn record-btn" bindtap="onManualRecord">
       <text class="btn-text">录入比赛记录</text>
     </view>

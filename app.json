@@ -6,6 +6,7 @@
     "pages/user/profile-edit/profile-edit",
     "pages/team/list/list",
     "pages/team/detail/detail",
+    "pages/team/matches/matches",
     "pages/team/create/create",
     "pages/team/reshuffle/reshuffle",
     "pages/team/vs/vs",

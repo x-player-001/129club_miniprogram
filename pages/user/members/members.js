@@ -199,11 +199,37 @@ Page({
     });
   },
 
-  // player-card组件事件
+  // player-card组件事件 - 防止重复跳转
   onPlayerCardTap(e) {
     const { playerId } = e.detail;
+    console.log('[Members] onPlayerCardTap 被调用, playerId:', playerId);
+
+    // 防御性检查：确保 playerId 存在且有效
+    if (!playerId || playerId === 'undefined' || typeof playerId === 'undefined') {
+      console.error('[Members] playerId 无效，取消导航');
+      return;
+    }
+
+    // 防止重复跳转（真机上可能因为性能问题导致重复触发）
+    if (this._navigating) {
+      console.log('[Members] 防抖：忽略重复跳转');
+      return;
+    }
+    this._navigating = true;
+
+    console.log('[Members] 正在跳转到球员统计:', playerId);
     wx.navigateTo({
-      url: `/pages/user/stats/stats?userId=${playerId}`
+      url: `/pages/user/stats/stats?userId=${playerId}`,
+      success: () => {
+        console.log('[Members] 跳转成功');
+        setTimeout(() => {
+          this._navigating = false;
+        }, 500);
+      },
+      fail: (err) => {
+        console.error('[Members] 跳转失败:', err);
+        this._navigating = false;
+      }
     });
   }
 });

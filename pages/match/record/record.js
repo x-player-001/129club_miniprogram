@@ -63,6 +63,9 @@ Page({
     mvpPlayerNames: '',
     showMvpPicker: false,
 
+    // 比赛简报
+    summary: '',
+
     // 照片
     photos: [],
     maxPhotos: 9,
@@ -243,6 +246,13 @@ Page({
         console.log(`[Record] 已加载 ${savedPhotos.length} 张照片`);
       }
 
+      // 处理已保存的简报数据
+      let savedSummary = '';
+      if (match.result && match.result.summary) {
+        savedSummary = match.result.summary;
+        console.log(`[Record] 已加载比赛简报`);
+      }
+
       // 处理已录入的节次数据，并决定当前步骤
       const { quarters: savedQuarters, currentStep } = this.processQuarterData(quarterData, allPlayers, matchInfo, hasParticipants);
 
@@ -265,6 +275,8 @@ Page({
         mvpPlayers: mvpPlayers,
         mvpUserIds: mvpUserIds,
         mvpPlayerNames: mvpPlayerNames,
+        // 设置简报数据
+        summary: savedSummary,
         // 设置照片数据
         photos: savedPhotos
       }, () => {
@@ -803,6 +815,11 @@ Page({
     this.setData({ showMvpPicker: false });
   },
 
+  // 简报输入
+  onSummaryInput(e) {
+    this.setData({ summary: e.detail.value });
+  },
+
   // 选择照片
   onChoosePhoto() {
     const remainCount = this.data.maxPhotos - this.data.photos.length;
@@ -1003,7 +1020,7 @@ Page({
     // 注意：photos 字段已移除，照片通过上传接口自动关联
     const supplementData = {
       mvpUserIds: this.data.mvpUserIds, // MVP球员ID数组（支持多个）
-      summary: this.buildMatchSummary() // 比赛总结
+      summary: this.data.summary || this.buildMatchSummary() // 优先使用用户输入的简报，否则使用自动生成的
     };
 
     console.log('[Record] 提交补充信息:', supplementData);

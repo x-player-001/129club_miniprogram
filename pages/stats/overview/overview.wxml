@@ -104,7 +104,10 @@
       <scroll-view class="achievements-scroll" scroll-x>
         <view class="achievements-list">
           <view class="achievement-item {{item.unlocked ? 'unlocked' : 'locked'}}" wx:for="{{achievements}}" wx:key="id">
-            <view class="achievement-icon">{{item.icon}}</view>
+            <view class="achievement-icon">
+              <image wx:if="{{item.isImageIcon}}" class="icon-image" src="{{item.icon}}" mode="aspectFit"></image>
+              <text wx:else class="icon-emoji">{{item.icon}}</text>
+            </view>
             <text class="achievement-name">{{item.name}}</text>
             <text class="achievement-desc" wx:if="{{item.unlocked}}">{{item.description}}</text>
           </view>
@@ -124,34 +127,7 @@
       ></radar-chart>
     </view> -->
 
-    <!-- 近期战绩 -->
-    <view class="recent-card">
-      <view class="card-title">近期战绩</view>
-      <view class="recent-list" wx:if="{{recentMatches.length > 0}}">
-        <view class="recent-item" wx:for="{{recentMatches}}" wx:key="id" bindtap="onMatchTap" data-id="{{item.id}}">
-          <view class="recent-left">
-            <view class="recent-date">{{item.date}}</view>
-            <view class="recent-match-info">
-              <view class="recent-result {{item.result}}">
-                <text class="result-text">{{item.result === 'win' ? '胜' : item.result === 'draw' ? '平' : '负'}}</text>
-              </view>
-              <view class="recent-score">{{item.score}}</view>
-              <view class="recent-opponent">vs {{item.opponent}}</view>
-            </view>
-          </view>
-          <view class="recent-my-performance" wx:if="{{item.myGoals !== undefined || item.myAssists !== undefined}}">
-            <text class="my-perf-label">我的表现</text>
-            <view class="my-perf-stats">
-              <text class="perf-item" wx:if="{{item.myGoals > 0}}">{{item.myGoals}}球</text>
-              <text class="perf-item" wx:if="{{item.myAssists > 0}}">{{item.myAssists}}助攻</text>
-              <text class="perf-item mvp-badge" wx:if="{{item.isMVP}}">⭐MVP</text>
-              <text class="perf-item no-data" wx:if="{{item.myGoals === 0 && item.myAssists === 0 && !item.isMVP}}">无数据</text>
-            </view>
-          </view>
-        </view>
-      </view>
-      <empty-state wx:else icon="/static/images/empty-match.png" text="暂无比赛记录"></empty-state>
-    </view>
+    <!-- 近期战绩 - 已移除 -->
 
     <!-- 赛季总览 -->
     <view class="season-overview-card">

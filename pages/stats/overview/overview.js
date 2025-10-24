@@ -285,16 +285,26 @@ Page({
       };
 
       // 处理近期战绩(增加个人表现)
-      const recentMatches = (data.recentMatches || []).map(match => ({
-        id: match.id,
-        date: this.formatDate(match.matchDate || match.date),
-        result: this.getMatchResult(match, userInfo.id),
-        score: `${match.team1?.finalScore || match.team1Goals || 0}:${match.team2?.finalScore || match.team2Goals || 0}`,
-        opponent: this.getOpponentName(match, userInfo.teamId),
-        myGoals: match.myStats?.goals || 0,
-        myAssists: match.myStats?.assists || 0,
-        isMVP: (match.mvpUserIds || []).includes(userInfo.id)
-      }));
+      const recentMatches = (data.recentMatches || []).map(match => {
+        // 优先使用 result 对象中的 finalScore，其次使用顶层的 team1Score/team2Score
+        const team1Score = match.result?.team1FinalScore !== undefined
+          ? match.result.team1FinalScore
+          : (match.team1Score !== undefined ? match.team1Score : 0);
+        const team2Score = match.result?.team2FinalScore !== undefined
+          ? match.result.team2FinalScore
+          : (match.team2Score !== undefined ? match.team2Score : 0);
+
+        return {
+          id: match.id,
+          date: this.formatDate(match.matchDate || match.date),
+          result: this.getMatchResult(match, userInfo.id),
+          score: `${team1Score}:${team2Score}`,
+          opponent: this.getOpponentName(match, userInfo.teamId),
+          myGoals: match.myStats?.goals || 0,
+          myAssists: match.myStats?.assists || 0,
+          isMVP: (match.mvpUserIds || []).includes(userInfo.id)
+        };
+      });
 
       // 加载成就数据（从API）
       this.loadAchievements();
@@ -491,17 +501,25 @@ Page({
     achievementAPI.getMyProgress(params).then(res => {
       const achievementsData = res.data || [];
 
-      // 转换成页面需要的格式（后端返回的icon暂时无效，直接使用emoji）
-      const achievements = achievementsData.map(ach => ({
-        id: ach.code || ach.id,
-        icon: this.getAchievementEmoji(ach.code), // 使用 emoji 替代后端返回的无效 icon
-        name: ach.name || '',
-        description: ach.unlockCount > 0
-          ? `已解锁${ach.unlockCount}次`
-          : (ach.description || '未解锁'),
-        unlocked: ach.unlocked || false,
-        unlockCount: ach.unlockCount || 0
-      }));
+      // 转换成页面需要的格式（使用后端返回的图片路径）
+      const achievements = achievementsData.map(ach => {
+        // 优先使用后端返回的 icon，如果无效则使用 emoji 作为降级方案
+        const icon = ach.icon || this.getAchievementEmoji(ach.code);
+        // 判断是否为图片路径
+        const isImageIcon = icon && (icon.includes('/') || icon.startsWith('http'));
+
+        return {
+          id: ach.code || ach.id,
+          icon: icon,
+          isImageIcon: isImageIcon, // 添加图片标识
+          name: ach.name || '',
+          description: ach.unlockCount > 0
+            ? `已解锁${ach.unlockCount}次`
+            : (ach.description || '未解锁'),
+          unlocked: ach.unlocked || false,
+          unlockCount: ach.unlockCount || 0
+        };
+      });
 
       // 计算已解锁成就数量
       const unlockedAchievementCount = achievements.filter(ach => ach.unlocked).length;

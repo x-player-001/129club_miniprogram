@@ -1,4 +1,5 @@
 // 网络请求封装
+const config = require('./config');
 
 /**
  * 发起网络请求
@@ -8,6 +9,24 @@ function request(options) {
   const { url, method = 'GET', data = {}, header = {} } = options;
 
   return new Promise((resolve, reject) => {
+    // ========== Mock 模式 ==========
+    if (config.useMock) {
+      console.log(`[Mock] ${method} ${url}`, data);
+      // 模拟网络延迟
+      setTimeout(() => {
+        try {
+          const mockData = getMockData(url, method, data);
+          console.log('[Mock] 返回数据:', mockData);
+          resolve(mockData);
+        } catch (err) {
+          console.error('[Mock] 错误:', err);
+          reject({ message: 'Mock数据错误' });
+        }
+      }, 300); // 模拟300ms延迟
+      return;
+    }
+
+    // ========== API 模式 ==========
     // 获取app实例（在函数内部获取，避免循环依赖）
     const app = getApp();
 
@@ -15,7 +34,7 @@ function request(options) {
     const token = wx.getStorageSync('token');
 
     // 构建完整URL
-    const fullUrl = url.startsWith('http') ? url : `${app.globalData.apiBaseUrl}${url}`;
+    const fullUrl = url.startsWith('http') ? url : `${config.apiBaseUrl}${url}`;
 
     // 发起请求
     wx.request({
@@ -160,6 +179,17 @@ function uploadFile(url, filePath, name = 'file', formData = {}) {
       }
     });
   });
+}
+
+/**
+ * 获取Mock数据
+ * @param {string} url - 请求URL
+ * @param {string} method - 请求方法
+ * @param {Object} data - 请求参数
+ */
+function getMockData(url, method, data) {
+  const mockModule = require('../mock/index');
+  return mockModule.getMockResponse(url, method, data);
 }
 
 module.exports = {

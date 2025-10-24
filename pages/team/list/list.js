@@ -132,7 +132,7 @@ Page({
 
   loadHistoryTeams() {
     // 根据选中的赛季筛选历史队伍
-    const params = { status: 'archived' };
+    const params = { status: 'active' };
     if (this.data.selectedSeasonId) {
       params.seasonId = this.data.selectedSeasonId;
     }
@@ -211,11 +211,37 @@ Page({
     this.setData({ currentTab: tabId });
   },
 
-  // team-card组件事件处理
+  // team-card组件事件处理 - 防止重复跳转
   onTeamCardTap(e) {
     const { teamId } = e.detail;
+    console.log('[Team List] onTeamCardTap 被调用, teamId:', teamId);
+
+    // 防御性检查：确保 teamId 存在且有效
+    if (!teamId || teamId === 'undefined' || typeof teamId === 'undefined') {
+      console.error('[Team List] teamId 无效，取消导航');
+      return;
+    }
+
+    // 防止重复跳转（真机上可能因为性能问题导致重复触发）
+    if (this._navigating) {
+      console.log('[Team List] 防抖：忽略重复跳转');
+      return;
+    }
+    this._navigating = true;
+
+    console.log('[Team List] 正在跳转到队伍详情:', teamId);
     wx.navigateTo({
-      url: `/pages/team/detail/detail?id=${teamId}`
+      url: `/pages/team/detail/detail?id=${teamId}`,
+      success: () => {
+        console.log('[Team List] 跳转成功');
+        setTimeout(() => {
+          this._navigating = false;
+        }, 500);
+      },
+      fail: (err) => {
+        console.error('[Team List] 跳转失败:', err);
+        this._navigating = false;
+      }
     });
   },
 

@@ -1,7 +1,10 @@
 <!-- 用户信息完善页面 -->
 <view class="profile-edit-container">
   <!-- 自定义导航栏 -->
-  <view class="custom-navbar">
+  <view class="custom-navbar" style="height: {{navBarHeight}}px;">
+    <!-- 状态栏占位 -->
+    <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+    <!-- 导航栏内容 -->
     <view class="navbar-inner">
       <view class="navbar-left" wx:if="{{type !== 'complete'}}" bindtap="onBack">
         <image class="back-icon" src="/static/icons/back.png" mode="aspectFit"></image>
@@ -12,7 +15,7 @@
   </view>
 
   <!-- 内容区域 -->
-  <scroll-view class="content" scroll-y>
+  <scroll-view class="content" scroll-y style="padding-top: {{navBarHeight}}px; height: calc(100vh - {{navBarHeight}}px);">
     <!-- 头像上传 -->
     <view class="avatar-section">
       <view class="section-label">头像</view>
@@ -145,16 +148,16 @@
       </view>
     </view>
 
-    <!-- 提交按钮 -->
-    <view class="submit-section">
-      <button class="submit-btn" bindtap="onSubmit" hover-class="submit-btn-hover">
-        {{type === 'complete' ? '完成' : '保存'}}
-      </button>
-    </view>
-
-    <!-- 占位空间 -->
+    <!-- 占位空间（为底部固定按钮留出空间） -->
     <view class="bottom-space"></view>
   </scroll-view>
+
+  <!-- 固定在底部的提交按钮 -->
+  <view class="submit-section-fixed">
+    <view class="submit-btn" bindtap="onSubmit" hover-class="submit-btn-hover">
+      {{type === 'complete' ? '完成' : '保存'}}
+    </view>
+  </view>
 
   <!-- WXS 辅助函数 -->
   <wxs module="tools">

@@ -6,6 +6,8 @@ const positionAPI = require('../../../api/position.js');
 Page({
   data: {
     type: 'edit', // complete: 首次完善信息, edit: 编辑资料
+    statusBarHeight: 0, // 状态栏高度
+    navBarHeight: 0, // 导航栏总高度
     formData: {
       avatar: '',
       nickname: '',
@@ -28,6 +30,15 @@ Page({
   },
 
   onLoad(options) {
+    // 获取系统信息，计算导航栏高度
+    const systemInfo = wx.getSystemInfoSync();
+    const statusBarHeight = systemInfo.statusBarHeight || 0;
+    const navBarHeight = statusBarHeight + 44; // 44px 是导航栏内容区域的标准高度
+
+    this.setData({
+      statusBarHeight,
+      navBarHeight
+    });
     // 判断是完善信息还是编辑资料
     const isComplete = options.type === 'complete';
     const isRequired = options.required === 'true'; // 标记是否为强制完善（必须完成）

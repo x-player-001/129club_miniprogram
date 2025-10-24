@@ -107,14 +107,22 @@
 
 .team-score {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4rpx;
 }
 
 .score-number {
   font-size: 56rpx;
   font-weight: 700;
   color: var(--theme-color, #f20810);
+}
+
+.goal-number {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #95a5a6;
 }
 
 .vs-divider {
@@ -303,8 +311,14 @@
   gap: 12rpx;
 }
 
+/* 队伍1 左对齐 */
+.team:first-child {
+  justify-content: flex-start;
+}
+
+/* 队伍2 右对齐 */
 .team:last-child {
-  flex-direction: row-reverse;
+  justify-content: flex-end;
 }
 
 .compact .team-logo {
@@ -319,8 +333,19 @@
   font-weight: 600;
 }
 
+.team-score-inline {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--theme-color, #f20810);
+  margin: 0 8rpx;
+}
+
 .match-vs-compact {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12rpx;
 }
 
 .compact .vs-text {
@@ -329,6 +354,13 @@
 }
 
 .score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.score-main {
   display: flex;
   align-items: center;
   gap: 8rpx;
@@ -343,6 +375,17 @@
 .score-divider {
   font-size: 28rpx;
   color: #bdc3c7;
+}
+
+.score-goals {
+  display: flex;
+  align-items: center;
+}
+
+.goals-text {
+  font-size: 20rpx;
+  font-weight: 500;
+  color: #95a5a6;
 }
 
 .match-meta {

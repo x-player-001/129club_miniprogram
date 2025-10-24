@@ -16,5 +16,14 @@ Component({
       type: String,
       value: ''
     }
+  },
+
+  methods: {
+    // 点击统计项
+    onStatTap(e) {
+      const type = e.currentTarget.dataset.type; // win, draw, loss
+      console.log('[team-stats-bar] 点击统计项:', type);
+      this.triggerEvent('stattap', { type });
+    }
   }
 });

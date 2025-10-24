@@ -1,16 +1,16 @@
 <!-- components/team-stats-bar/team-stats-bar.wxml -->
 <view class="team-stats-bar {{mode}} {{customClass}}">
-  <view class="stat-item">
+  <view class="stat-item clickable" bindtap="onStatTap" data-type="win">
     <text class="stat-value win">{{stats.wins || 0}}</text>
     <text class="stat-label">胜</text>
   </view>
   <view class="stat-divider"></view>
-  <view class="stat-item">
+  <view class="stat-item clickable" bindtap="onStatTap" data-type="draw">
     <text class="stat-value draw">{{stats.draws || 0}}</text>
     <text class="stat-label">平</text>
   </view>
   <view class="stat-divider"></view>
-  <view class="stat-item">
+  <view class="stat-item clickable" bindtap="onStatTap" data-type="loss">
     <text class="stat-value loss">{{stats.losses || 0}}</text>
     <text class="stat-label">负</text>
   </view>
