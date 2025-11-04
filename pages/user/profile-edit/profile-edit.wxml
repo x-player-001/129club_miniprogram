@@ -95,6 +95,46 @@
         </view>
       </view>
 
+      <!-- 惯用脚熟练度 -->
+      <view class="form-item foot-skill-item required">
+        <view class="item-label">惯用脚</view>
+        <view class="foot-skill-container">
+          <!-- 左脚 -->
+          <view class="foot-section">
+            <!-- 加减控制（横向布局：减号 - 脚印+数字 - 加号） -->
+            <view class="level-control">
+              <view class="control-btn minus" bindtap="onDecreaseLeftFoot">－</view>
+              <view class="footprint-wrapper">
+                <image
+                  class="footprint-image left-foot"
+                  src="/static/icons/foot-print-{{formData.leftFootLevel < 5 ? 0 : 5}}.png"
+                  mode="aspectFit">
+                </image>
+                <view class="level-value">{{formData.leftFootLevel}}</view>
+              </view>
+              <view class="control-btn plus" bindtap="onIncreaseLeftFoot">＋</view>
+            </view>
+          </view>
+
+          <!-- 右脚 -->
+          <view class="foot-section">
+            <!-- 加减控制（横向布局：减号 - 脚印+数字 - 加号） -->
+            <view class="level-control">
+              <view class="control-btn minus" bindtap="onDecreaseRightFoot">－</view>
+              <view class="footprint-wrapper">
+                <image
+                  class="footprint-image"
+                  src="/static/icons/foot-print-{{formData.rightFootLevel < 5 ? 0 : 5}}.png"
+                  mode="aspectFit">
+                </image>
+                <view class="level-value">{{formData.rightFootLevel}}</view>
+              </view>
+              <view class="control-btn plus" bindtap="onIncreaseRightFoot">＋</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
       <!-- 身高 -->
       <view class="form-item">
         <view class="item-label">身高(cm)</view>
@@ -121,15 +161,6 @@
           data-field="weight"
           maxlength="3"
         />
-      </view>
-
-      <!-- 擅长脚 -->
-      <view class="form-item" bindtap="onShowFootPicker">
-        <view class="item-label">擅长脚</view>
-        <view class="item-picker {{formData.preferredFoot ? '' : 'placeholder'}}">
-          <text>{{formData.preferredFoot || '选填'}}</text>
-          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
-        </view>
       </view>
 
       <!-- 技术特点 -->
@@ -256,14 +287,4 @@
       </view>
     </view>
   </view>
-
-  <!-- 擅长脚选择器 -->
-  <picker
-    hidden
-    id="footPicker"
-    mode="selector"
-    range="{{footList}}"
-    value="{{footIndex}}"
-    bindchange="onFootChange">
-  </picker>
 </view>

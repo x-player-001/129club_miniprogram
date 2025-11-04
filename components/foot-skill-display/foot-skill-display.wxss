@@ -1,0 +1,45 @@
+/* 惯用脚展示组件样式 */
+.foot-skill-display {
+  display: flex;
+  align-items: center;
+  gap: 0rpx;
+}
+
+.foot-item {
+  display: flex;
+  align-items: center;
+}
+
+.foot-icon-wrapper {
+  position: relative;
+  width: 28rpx;
+  height: 35rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.foot-icon {
+  width: 100%;
+  height: 139%;
+}
+
+.foot-icon.left-foot {
+  transform: none;
+}
+
+.foot-icon.right-foot {
+  transform: scaleX(-1);
+}
+
+.foot-level {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16rpx;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.8);
+  z-index: 10;
+}

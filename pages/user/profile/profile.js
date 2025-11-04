@@ -34,8 +34,14 @@ Page({
     // 先从本地加载用户信息（快速显示）
     const localUserInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
     if (localUserInfo) {
+      // 确保惯用脚数据为数字类型
+      if (localUserInfo.leftFootSkill !== undefined) {
+        localUserInfo.leftFootSkill = Number(localUserInfo.leftFootSkill || 0);
+      }
+      if (localUserInfo.rightFootSkill !== undefined) {
+        localUserInfo.rightFootSkill = Number(localUserInfo.rightFootSkill || 0);
+      }
       this.setData({ userInfo: localUserInfo });
-      console.log('从本地加载用户信息:', localUserInfo);
     }
 
     // 真实API调用
@@ -56,12 +62,51 @@ Page({
   loadUserInfo() {
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
     if (userInfo) {
+      // 确保惯用脚数据为数字类型
+      if (userInfo.leftFootSkill !== undefined) {
+        userInfo.leftFootSkill = Number(userInfo.leftFootSkill || 0);
+      }
+      if (userInfo.rightFootSkill !== undefined) {
+        userInfo.rightFootSkill = Number(userInfo.rightFootSkill || 0);
+      }
       this.setData({ userInfo });
     }
 
     // 从服务器获取最新信息（包含统计数据）
     return userAPI.getUserInfo().then(res => {
       const userData = res.data;
+
+      // 处理位置数据（如果是数组中包含逗号分隔字符串）
+      if (userData.position && Array.isArray(userData.position)) {
+        let selectedPositions = [];
+        userData.position.forEach(item => {
+          if (typeof item === 'string') {
+            if (item.includes(',')) {
+              const positions = item.split(',').map(p => p.trim()).filter(p => /^[A-Z]{2,3}$/.test(p));
+              selectedPositions.push(...positions);
+            } else if (/^[A-Z]{2,3}$/.test(item)) {
+              selectedPositions.push(item);
+            }
+          }
+        });
+        // 保留所有位置代码用于显示
+        userData.positions = selectedPositions;
+      } else if (typeof userData.position === 'string') {
+        // 如果是逗号分隔的字符串，分割成数组
+        if (userData.position.includes(',')) {
+          userData.positions = userData.position.split(',').map(p => p.trim()).filter(p => /^[A-Z]{2,3}$/.test(p));
+        } else if (/^[A-Z]{2,3}$/.test(userData.position)) {
+          userData.positions = [userData.position];
+        }
+      }
+
+      // 确保惯用脚数据为数字类型
+      if (userData.leftFootSkill !== undefined) {
+        userData.leftFootSkill = Number(userData.leftFootSkill || 0);
+      }
+      if (userData.rightFootSkill !== undefined) {
+        userData.rightFootSkill = Number(userData.rightFootSkill || 0);
+      }
 
       this.setData({
         userInfo: userData
@@ -129,19 +174,15 @@ Page({
   onAvatarTap() {
     const userInfo = this.data.userInfo;
 
-    console.log('点击头像/昵称，当前用户信息:', userInfo);
-
     // 弹出选择菜单，让用户选择操作
     wx.showActionSheet({
       itemList: ['获取微信头像昵称', '从相册选择头像', '拍照上传头像'],
       success: (res) => {
         if (res.tapIndex === 0) {
           // 获取微信授权（昵称+头像）
-          console.log('用户选择：获取微信授权');
           this.getUserProfile();
         } else {
           // 上传自定义头像（不改昵称）
-          console.log('用户选择：上传自定义头像');
           const sourceType = res.tapIndex === 1 ? ['album'] : ['camera'];
           wx.chooseImage({
             count: 1,
@@ -173,8 +214,6 @@ Page({
             desc: '用于完善用户资料',
             success: (profileRes) => {
               const { nickName, avatarUrl } = profileRes.userInfo;
-
-              console.log('获取到用户信息:', nickName, avatarUrl);
 
               // 更新到服务器
               this.updateUserProfile({

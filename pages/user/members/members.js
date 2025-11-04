@@ -14,7 +14,6 @@ Page({
   },
 
   onLoad(options) {
-    console.log('成员列表页面加载，参数:', options);
     // 如果有传入 teamId，则默认筛选该队伍
     if (options.teamId) {
       this.setData({ currentTeam: options.teamId });
@@ -100,6 +99,12 @@ Page({
           position = '';
         }
 
+        // 处理惯用脚数据，确保是有效的数字
+        const leftFootSkillRaw = member.user?.leftFootSkill ?? member.leftFootSkill ?? 0;
+        const rightFootSkillRaw = member.user?.rightFootSkill ?? member.rightFootSkill ?? 0;
+        const leftFootSkill = Number(leftFootSkillRaw);
+        const rightFootSkill = Number(rightFootSkillRaw);
+
         return {
           id: member.user?.id || member.id,
           realName: member.user?.realName || member.realName,
@@ -107,13 +112,15 @@ Page({
           avatar: member.user?.avatar || member.avatar || '/static/images/default-avatar.png',
           jerseyNumber: member.user?.jerseyNumber || member.jerseyNumber,
           position: position,
-          teamId: member.teamId,
+          teamId: member.currentTeamId || member.teamId,  // API返回的是 currentTeamId
           teamName: member.team?.name || member.teamName,
           teamColor: member.team?.color || member.teamColor,
           isCaptain: member.role === 'captain' || member.isCaptain || false,
           totalGoals: member.user?.stats?.goals || member.stats?.goals || 0,
           totalAssists: member.user?.stats?.assists || member.stats?.assists || 0,
-          totalMatches: member.user?.stats?.matchesPlayed || member.stats?.matchesPlayed || 0
+          totalMatches: member.user?.stats?.matchesPlayed || member.stats?.matchesPlayed || 0,
+          leftFootSkill: isNaN(leftFootSkill) ? 0 : leftFootSkill,
+          rightFootSkill: isNaN(rightFootSkill) ? 0 : rightFootSkill
         };
       });
 
@@ -130,7 +137,10 @@ Page({
 
     // 按队伍筛选
     if (this.data.currentTeam !== 'all') {
-      filtered = filtered.filter(member => member.teamId === this.data.currentTeam);
+      filtered = filtered.filter(member => {
+        // 类型转换：统一转为字符串进行比较，避免 number vs string 导致的不匹配
+        return String(member.teamId) === String(this.data.currentTeam);
+      });
     }
 
     // 按关键词搜索
@@ -143,11 +153,16 @@ Page({
       });
     }
 
+    // 确保惯用脚数据为数字类型（防止 setData 序列化后类型丢失）
+    filtered = filtered.map(member => ({
+      ...member,
+      leftFootSkill: Number(member.leftFootSkill || 0),
+      rightFootSkill: Number(member.rightFootSkill || 0)
+    }));
+
     this.setData({
       filteredMembers: filtered
     });
-
-    console.log(`筛选结果: ${filtered.length} 名队员`);
   },
 
   // 搜索输入
@@ -202,7 +217,6 @@ Page({
   // player-card组件事件 - 防止重复跳转
   onPlayerCardTap(e) {
     const { playerId } = e.detail;
-    console.log('[Members] onPlayerCardTap 被调用, playerId:', playerId);
 
     // 防御性检查：确保 playerId 存在且有效
     if (!playerId || playerId === 'undefined' || typeof playerId === 'undefined') {
@@ -212,16 +226,13 @@ Page({
 
     // 防止重复跳转（真机上可能因为性能问题导致重复触发）
     if (this._navigating) {
-      console.log('[Members] 防抖：忽略重复跳转');
       return;
     }
     this._navigating = true;
 
-    console.log('[Members] 正在跳转到球员统计:', playerId);
     wx.navigateTo({
       url: `/pages/user/stats/stats?userId=${playerId}`,
       success: () => {
-        console.log('[Members] 跳转成功');
         setTimeout(() => {
           this._navigating = false;
         }, 500);

@@ -1,0 +1,26 @@
+<!-- 惯用脚展示组件 -->
+<view class="foot-skill-display" wx:if="{{_leftFootSkill >= 0 || _rightFootSkill >= 0}}">
+  <!-- 左脚 -->
+  <view class="foot-item">
+    <view class="foot-icon-wrapper">
+      <image
+        class="foot-icon left-foot"
+        src="/static/icons/foot-print-{{_leftFootSkill < 5 ? 0 : 5}}.png"
+        mode="aspectFit">
+      </image>
+      <text class="foot-level">{{_leftFootSkill}}</text>
+    </view>
+  </view>
+
+  <!-- 右脚 -->
+  <view class="foot-item">
+    <view class="foot-icon-wrapper">
+      <image
+        class="foot-icon right-foot"
+        src="/static/icons/foot-print-{{_rightFootSkill < 5 ? 0 : 5}}.png"
+        mode="aspectFit">
+      </image>
+      <text class="foot-level">{{_rightFootSkill}}</text>
+    </view>
+  </view>
+</view>

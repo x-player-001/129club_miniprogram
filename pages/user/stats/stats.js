@@ -14,7 +14,10 @@ Page({
       realName: '',
       nickname: '',
       avatar: '',
-      jerseyNumber: 0
+      jerseyNumber: 0,
+      leftFootSkill: 0,
+      rightFootSkill: 0,
+      teamName: ''
     },
 
     // 用户位置代码数组
@@ -60,51 +63,9 @@ Page({
     this.setData({ loading: true });
     wx.showLoading({ title: '加载中...' });
 
-    // Mock数据（开发阶段）
-    const mockData = {
-      user: {
-        id: '1',
-        realName: '张三',
-        nickname: '小张',
-        avatar: '/static/images/default-avatar.png',
-        jerseyNumber: 10,
-        position: ['LW,RW,LB,RB'] // 左边锋、右边锋、左后卫、右后卫
-      },
-      totalMatches: 45,
-      totalGoals: 28,
-      totalAssists: 15,
-      totalMVP: 8,
-      totalWins: 30,
-      totalDraws: 8,
-      totalLosses: 7,
-      winRate: 67,
-      attendance: 85,
-      yellowCards: 3,
-      redCards: 0,
-      rankings: {
-        goals: 1,      // 射手榜第1名
-        assists: 3,    // 助攻榜第3名
-        mvp: 2,        // MVP榜第2名
-        attendance: 5  // 出勤榜第5名
-      },
-      achievements: [
-        { code: 'hat_trick', name: '帽子戏法', unlocked: true },
-        { code: 'goal_machine', name: '进球机器', unlocked: true },
-        { code: 'sharp_shooter', name: '神射手', unlocked: true },
-        { code: 'assist_king', icon: '/static/images/hat-trick.png', name: '助攻王', unlocked: true },
-        { code: 'mvp_master', name: 'MVP大师', unlocked: true },
-        { code: 'iron_man', name: '铁人', unlocked: false },
-        { code: 'team_player', name: '团队球员', unlocked: true },
-        { code: 'veteran', name: '老将', unlocked: false }
-      ]
-    };
-
-    setTimeout(() => {
-      const data = mockData;
-
-      // 调用真实 API（暂时注释，待后端接口完成后启用）
-      // return statsAPI.getPlayerStats(this.data.userId).then(res => {
-      //   const data = res.data;
+    // 调用真实 API
+    return statsAPI.getPlayerStats(this.data.userId).then(res => {
+      const data = res.data;
 
       // 处理用户信息
       const userInfo = {
@@ -112,35 +73,29 @@ Page({
         realName: data.user?.realName || '',
         nickname: data.user?.nickname || '',
         avatar: data.user?.avatar || '/static/images/default-avatar.png',
-        jerseyNumber: data.user?.jerseyNumber || 0
+        jerseyNumber: data.user?.jerseyNumber || 0,
+        leftFootSkill: data.user?.leftFootSkill || 0,
+        rightFootSkill: data.user?.rightFootSkill || 0,
+        teamName: data.user?.currentTeam?.name || ''
       };
 
-      // 处理用户位置代码数组
-      // 后端可能返回 ["LB,RB,LW,RW"] 或 "LB,RB,LW,RW" 或 ["LB", "RB", "LW", "RW"]
-      let userPositionCodes = [];
-      if (data.user?.position) {
-        if (Array.isArray(data.user.position)) {
-          // 如果是数组，取第一个元素并按逗号分割
-          userPositionCodes = data.user.position[0] ? data.user.position[0].split(',').map(p => p.trim()) : data.user.position;
-        } else if (typeof data.user.position === 'string') {
-          // 如果是字符串，直接按逗号分割
-          userPositionCodes = data.user.position.split(',').map(p => p.trim());
-        }
-      }
+      // 处理用户位置代码数组（后端直接返回数组）
+      let userPositionCodes = data.user?.position || [];
 
-      // 处理总体统计
+      // 处理总体统计（数据在 stats 对象下）
+      const stats = data.stats || {};
       const totalStats = {
-        matches: data.totalMatches || 0,
-        goals: data.totalGoals || 0,
-        assists: data.totalAssists || 0,
-        mvp: data.totalMVP || 0,
-        wins: data.totalWins || 0,
-        draws: data.totalDraws || 0,
-        losses: data.totalLosses || 0,
-        winRate: data.winRate || 0,
-        attendance: data.attendance || 0,
-        yellowCards: data.yellowCards || 0,
-        redCards: data.redCards || 0
+        matches: stats.totalMatches || 0,
+        goals: stats.totalGoals || 0,
+        assists: stats.totalAssists || 0,
+        mvp: stats.totalMVP || 0,
+        wins: stats.totalWins || 0,
+        draws: stats.totalDraws || 0,
+        losses: stats.totalLosses || 0,
+        winRate: stats.winRate || 0,
+        attendance: stats.attendance || 0,
+        yellowCards: stats.yellowCards || 0,
+        redCards: stats.redCards || 0
       };
 
       // 核心数据（4宫格）
@@ -263,18 +218,15 @@ Page({
       });
 
       wx.hideLoading();
-    }, 500); // 模拟网络延迟
-
-    // 真实API调用（暂时注释）
-    // }).catch(err => {
-    //   console.error('加载用户统计失败:', err);
-    //   wx.hideLoading();
-    //   this.setData({ loading: false });
-    //   wx.showToast({
-    //     title: '加载失败',
-    //     icon: 'none'
-    //   });
-    // });
+    }).catch(err => {
+      console.error('加载用户统计失败:', err);
+      wx.hideLoading();
+      this.setData({ loading: false });
+      wx.showToast({
+        title: err.message || '加载失败',
+        icon: 'none'
+      });
+    });
   },
 
   // 获取成就emoji图标（复用数据总览页的映射逻辑）

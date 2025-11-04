@@ -4,6 +4,7 @@
   "backgroundColor": "#f5f6f8",
   "backgroundTextStyle": "dark",
   "usingComponents": {
-    "football-field": "/components/football-field/football-field"
+    "football-field": "/components/football-field/football-field",
+    "foot-skill-display": "/components/foot-skill-display/foot-skill-display"
   }
 }

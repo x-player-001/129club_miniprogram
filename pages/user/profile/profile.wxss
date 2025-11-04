@@ -71,13 +71,14 @@
   align-items: center;
   font-size: 26rpx;
   color: rgba(255, 255, 255, 0.9);
+  flex-wrap: wrap;
+  gap: 12rpx;
 }
 
 .jersey-number {
   padding: 6rpx 16rpx;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 16rpx;
-  margin-right: 16rpx;
 }
 
 .position {

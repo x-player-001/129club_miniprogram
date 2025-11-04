@@ -17,7 +17,7 @@ Page({
 
   onLoad(options) {
     this.checkAdminRole();
-    this.loadMatchData();
+    this.determineDefaultTab();
   },
 
   onShow() {
@@ -39,6 +39,49 @@ Page({
 
     this.setData({
       isAdmin: isSuperAdmin || isCaptain
+    });
+  },
+
+  // 智能确定默认Tab（优先级：进行中 > 未开始 > 已结束）
+  determineDefaultTab() {
+    wx.showLoading({ title: '加载中...' });
+
+    // 获取所有比赛（不传status参数）
+    matchAPI.getMatchList().then(res => {
+      const allMatches = res.data?.list || res.data || [];
+
+      // 统计各状态的比赛数量
+      const statusCount = {
+        'in_progress': 0,    // 进行中
+        'registration': 0,   // 未开始（报名中）
+        'completed': 0       // 已结束
+      };
+
+      allMatches.forEach(match => {
+        const status = match.status;
+        if (statusCount.hasOwnProperty(status)) {
+          statusCount[status]++;
+        }
+      });
+
+      // 按优先级确定默认tab
+      let defaultTab = '2'; // 默认"已结束"
+
+      if (statusCount['in_progress'] > 0) {
+        defaultTab = '1'; // 进行中
+      } else if (statusCount['registration'] > 0) {
+        defaultTab = '0'; // 未开始
+      }
+
+      // 设置默认tab并加载数据
+      this.setData({ currentTab: defaultTab });
+      wx.hideLoading();
+      this.loadMatchData();
+    }).catch(err => {
+      console.error('确定默认Tab失败:', err);
+      wx.hideLoading();
+      // 出错时使用默认tab（未开始）
+      this.loadMatchData();
     });
   },
 

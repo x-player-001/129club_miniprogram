@@ -33,7 +33,7 @@ Page({
     remainingList: [], // 第4名及以后（列表展示）
 
     // 当前用户ID
-    myUserId: '3', // 模拟当前用户ID为3
+    myUserId: null,
 
     // 加载状态
     loading: false
@@ -47,7 +47,7 @@ Page({
 
     // 获取当前用户ID（从全局数据）
     const userInfo = app.globalData.userInfo;
-    if (userInfo) {
+    if (userInfo && userInfo.id) {
       this.setData({ myUserId: userInfo.id });
     }
 
@@ -63,36 +63,72 @@ Page({
   loadRankingData() {
     this.setData({ loading: true });
 
-    // 使用模拟数据
-    const mockData = this.getMockRankingData();
-    this.processRankingData(mockData);
-    this.setData({ loading: false });
+    // 构建请求参数
+    const params = {
+      scope: this.data.scope,
+      page: 1,
+      pageSize: 50
+    };
 
-    // 真实API调用（待后端接口完成后启用）
-    // const params = {
-    //   scope: this.data.scope,
-    //   season: this.data.season !== 'all' ? this.data.season : undefined
-    // };
-    //
-    // statsAPI.getRanking(this.data.rankType, params).then(res => {
-    //   const data = res.data;
-    //   const rankingList = (data.list || data || []).map((item, index) => ({
-    //     rank: item.rank || index + 1,
-    //     id: item.userId || item.user?.id,
-    //     name: item.user?.realName || item.user?.nickname || item.name,
-    //     avatar: item.user?.avatar || '/static/images/default-avatar.png',
-    //     team: item.user?.team?.name || item.teamName,
-    //     teamColor: item.user?.team?.color || item.teamColor || '#667eea',
-    //     value: item.goals || item.assists || item.mvpCount || item.attendance || 0,
-    //     matches: item.matches || item.matchesPlayed || 0
-    //   }));
-    //
-    //   this.processRankingData(rankingList);
-    //   this.setData({ loading: false });
-    // }).catch(err => {
-    //   console.error('加载排行榜失败:', err);
-    //   this.setData({ loading: false });
-    // });
+    // 如果是队内排名，需要传 teamId
+    if (this.data.scope === 'team') {
+      const userInfo = app.globalData.userInfo;
+      if (userInfo && userInfo.currentTeamId) {
+        params.teamId = userInfo.currentTeamId;
+      } else {
+        wx.showToast({
+          title: '请先加入队伍',
+          icon: 'none'
+        });
+        this.setData({ loading: false });
+        return;
+      }
+    }
+
+    // 赛季筛选（预留，后端暂未实现）
+    if (this.data.season !== 'all') {
+      params.season = this.data.season;
+    }
+
+    // 调用API
+    statsAPI.getRanking(this.data.rankType, params).then(res => {
+      // 响应格式: { code, success, data: { list: [] }, message }
+      const data = res.data?.list || res.data || [];
+      const rankingList = data.map((item, index) => {
+        // 根据排行榜类型获取对应的值
+        let value = 0;
+        if (this.data.rankType === 'goals') {
+          value = item.goals || 0;
+        } else if (this.data.rankType === 'assists') {
+          value = item.assists || 0;
+        } else if (this.data.rankType === 'mvp') {
+          value = item.mvpCount || 0;
+        } else if (this.data.rankType === 'attendance') {
+          value = item.attendanceRate || 0;
+        }
+
+        return {
+          rank: item.rank || index + 1,
+          id: item.userId || item.user?.id,
+          name: item.user?.realName || item.user?.nickname || '未知',
+          avatar: item.user?.avatar || '/static/images/default-avatar.png',
+          team: item.user?.teams?.[0]?.team?.name || item.user?.currentTeam?.name || '无队伍',
+          teamColor: item.user?.teams?.[0]?.team?.color || item.user?.currentTeam?.color || '#667eea',
+          value: value,
+          matches: item.matchesPlayed || 0
+        };
+      });
+
+      this.processRankingData(rankingList);
+      this.setData({ loading: false });
+    }).catch(err => {
+      console.error('加载排行榜失败:', err);
+      wx.showToast({
+        title: err.message || '加载失败',
+        icon: 'none'
+      });
+      this.setData({ loading: false, rankingList: [], topThree: [], remainingList: [] });
+    });
   },
 
   // 处理排行榜数据（拆分前三名和剩余）
@@ -113,153 +149,6 @@ Page({
       topThree,
       remainingList
     });
-  },
-
-  // 获取模拟数据
-  getMockRankingData() {
-    const { rankType } = this.data;
-
-    // 模拟球员数据
-    const mockPlayers = [
-      {
-        rank: 1,
-        id: '1',
-        name: '张三',
-        avatar: '/static/images/default-avatar.png',
-        team: '嘉陵摩托',
-        teamColor: '#f20810',
-        goals: 25,
-        assists: 18,
-        mvpCount: 12,
-        attendance: 95,
-        matches: 20
-      },
-      {
-        rank: 2,
-        id: '2',
-        name: '李四',
-        avatar: '/static/images/default-avatar.png',
-        team: '长江黄河',
-        teamColor: '#924ab0',
-        goals: 22,
-        assists: 15,
-        mvpCount: 10,
-        attendance: 92,
-        matches: 19
-      },
-      {
-        rank: 3,
-        id: '3',
-        name: '王五',
-        avatar: '/static/images/default-avatar.png',
-        team: '嘉陵摩托',
-        teamColor: '#f20810',
-        goals: 20,
-        assists: 20,
-        mvpCount: 8,
-        attendance: 88,
-        matches: 18
-      },
-      {
-        rank: 4,
-        id: '4',
-        name: '赵六',
-        avatar: '/static/images/default-avatar.png',
-        team: '长江黄河',
-        teamColor: '#924ab0',
-        goals: 18,
-        assists: 12,
-        mvpCount: 7,
-        attendance: 85,
-        matches: 17
-      },
-      {
-        rank: 5,
-        id: '5',
-        name: '钱七',
-        avatar: '/static/images/default-avatar.png',
-        team: '嘉陵摩托',
-        teamColor: '#f20810',
-        goals: 16,
-        assists: 14,
-        mvpCount: 6,
-        attendance: 82,
-        matches: 16
-      },
-      {
-        rank: 6,
-        id: '6',
-        name: '孙八',
-        avatar: '/static/images/default-avatar.png',
-        team: '长江黄河',
-        teamColor: '#924ab0',
-        goals: 15,
-        assists: 10,
-        mvpCount: 5,
-        attendance: 80,
-        matches: 15
-      },
-      {
-        rank: 7,
-        id: '7',
-        name: '周九',
-        avatar: '/static/images/default-avatar.png',
-        team: '嘉陵摩托',
-        teamColor: '#f20810',
-        goals: 14,
-        assists: 11,
-        mvpCount: 5,
-        attendance: 78,
-        matches: 14
-      },
-      {
-        rank: 8,
-        id: '8',
-        name: '吴十',
-        avatar: '/static/images/default-avatar.png',
-        team: '长江黄河',
-        teamColor: '#924ab0',
-        goals: 12,
-        assists: 9,
-        mvpCount: 4,
-        attendance: 75,
-        matches: 13
-      },
-      {
-        rank: 9,
-        id: '9',
-        name: '郑十一',
-        avatar: '/static/images/default-avatar.png',
-        team: '嘉陵摩托',
-        teamColor: '#f20810',
-        goals: 10,
-        assists: 8,
-        mvpCount: 3,
-        attendance: 72,
-        matches: 12
-      },
-      {
-        rank: 10,
-        id: '10',
-        name: '冯十二',
-        avatar: '/static/images/default-avatar.png',
-        team: '长江黄河',
-        teamColor: '#924ab0',
-        goals: 8,
-        assists: 7,
-        mvpCount: 2,
-        attendance: 70,
-        matches: 11
-      }
-    ];
-
-    // 根据排行榜类型返回对应数据
-    return mockPlayers.map(player => ({
-      ...player,
-      value: player[rankType === 'goals' ? 'goals' :
-                    rankType === 'assists' ? 'assists' :
-                    rankType === 'mvp' ? 'mvpCount' : 'attendance']
-    })).sort((a, b) => b.value - a.value);
   },
 
   // 切换排行榜类型

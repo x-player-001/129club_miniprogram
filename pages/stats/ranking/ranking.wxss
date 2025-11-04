@@ -1,7 +1,7 @@
 /* pages/stats/ranking/ranking.wxss */
 .page-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #3d3d5c 0%, #2f2f4a 50%, #252538 100%);
+  background: linear-gradient(180deg, #fef5f1 0%, #fff8f5 50%, #ffffff 100%);
   position: relative;
   overflow: hidden;
   padding-bottom: 40rpx;
@@ -64,11 +64,12 @@
 .tabs-wrapper {
   position: relative;
   z-index: 10;
-  background: rgba(61, 61, 92, 0.6);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20rpx);
   padding: 20rpx 24rpx;
   margin-bottom: 16rpx;
-  border-bottom: 1rpx solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .tabs {
@@ -84,7 +85,7 @@
   gap: 12rpx;
   padding: 20rpx 0;
   border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.05);
+  background: #f8f9fa;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -131,7 +132,7 @@
 
 .tab-name {
   font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.5);
+  color: #95a5a6;
   font-weight: 500;
   transition: all 0.3s;
   position: relative;
@@ -166,9 +167,9 @@
   padding: 12rpx 24rpx;
   border-radius: 32rpx;
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  color: #636e72;
+  background: #f8f9fa;
+  border: 1rpx solid #e9ecef;
   transition: all 0.3s;
 }
 
@@ -181,14 +182,14 @@
 
 .season-picker {
   padding: 12rpx 20rpx;
-  background: rgba(255, 255, 255, 0.08);
+  background: #f8f9fa;
   border-radius: 32rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  border: 1rpx solid #e9ecef;
 }
 
 .picker-text {
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.8);
+  color: #2c3e50;
   display: flex;
   align-items: center;
   gap: 8rpx;
@@ -204,11 +205,11 @@
 .podium-container {
   margin: 24rpx 24rpx 40rpx;
   padding: 40rpx 24rpx 60rpx;
-  background: rgba(61, 61, 92, 0.5);
+  background: #ffffff;
   backdrop-filter: blur(30rpx);
   border-radius: 32rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3);
+  border: 1rpx solid #f0f0f0;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
   position: relative;
   z-index: 10;
 }
@@ -239,8 +240,8 @@
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  border: 4rpx solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.4);
+  border: 4rpx solid #f5f6f8;
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.1);
 }
 
 .rank-1 .player-avatar {
@@ -289,7 +290,7 @@
 .player-name {
   font-size: 28rpx;
   font-weight: 700;
-  color: #ffffff;
+  color: #2c3e50;
   text-align: center;
   max-width: 160rpx;
   overflow: hidden;
@@ -331,7 +332,7 @@
 
 .value-unit {
   font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.7);
+  color: #95a5a6;
   font-weight: 600;
 }
 
@@ -372,10 +373,10 @@
   justify-content: center;
   font-size: 56rpx;
   padding: 24rpx 0;
-  background: rgba(255, 255, 255, 0.05);
+  background: #f8f9fa;
   backdrop-filter: blur(10rpx);
   border-radius: 0 0 16rpx 16rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  border: 1rpx solid #e9ecef;
   border-top: none;
 }
 
@@ -411,13 +412,13 @@
 .header-line {
   flex: 1;
   height: 2rpx;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, #e9ecef 50%, transparent 100%);
 }
 
 .header-text {
   font-size: 28rpx;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: #2c3e50;
   letter-spacing: 2rpx;
 }
 
@@ -433,23 +434,23 @@
   align-items: center;
   gap: 20rpx;
   padding: 24rpx;
-  background: rgba(61, 61, 92, 0.4);
+  background: #ffffff;
   backdrop-filter: blur(20rpx);
   border-radius: 24rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
+  border: 1rpx solid #f0f0f0;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .ranking-item:active {
   transform: scale(0.98);
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
 }
 
 .ranking-item.highlight {
-  background: linear-gradient(135deg, rgba(255, 154, 98, 0.2) 0%, rgba(255, 123, 84, 0.2) 100%);
-  border-color: rgba(255, 154, 98, 0.5);
-  box-shadow: 0 6rpx 20rpx rgba(255, 154, 98, 0.3);
+  background: linear-gradient(135deg, rgba(255, 154, 98, 0.1) 0%, rgba(255, 123, 84, 0.1) 100%);
+  border-color: rgba(255, 154, 98, 0.3);
+  box-shadow: 0 6rpx 20rpx rgba(255, 154, 98, 0.2);
 }
 
 /* 排名数字 */
@@ -463,7 +464,7 @@
 .rank-text {
   font-size: 32rpx;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.4);
+  color: #bdc3c7;
 }
 
 /* 小头像 */
@@ -471,8 +472,8 @@
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
-  border: 3rpx solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
+  border: 3rpx solid #f5f6f8;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
   flex-shrink: 0;
 }
 
@@ -494,7 +495,7 @@
 .player-info .name {
   font-size: 30rpx;
   font-weight: 600;
-  color: #ffffff;
+  color: #2c3e50;
 }
 
 .current-tag {
@@ -520,7 +521,7 @@
 
 .matches {
   font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.5);
+  color: #95a5a6;
 }
 
 /* 数据值 */
@@ -548,7 +549,7 @@
 
 .value-container .label {
   font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.5);
+  color: #95a5a6;
 }
 
 /* ========== 空状态 ========== */
@@ -567,7 +568,7 @@
 
 .empty-text {
   font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.5);
+  color: #95a5a6;
 }
 
 /* ========== 底部占位 ========== */

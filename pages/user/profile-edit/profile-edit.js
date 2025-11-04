@@ -17,16 +17,14 @@ Page({
       position: '',
       height: '',
       weight: '',
-      preferredFoot: '',
+      leftFootLevel: 0,    // 左脚熟练度 0-5，0表示未选择
+      rightFootLevel: 0,   // 右脚熟练度 0-5，0表示未选择
       skillDescription: ''
     },
     // 位置数据
     positionGroups: {}, // 分组的位置数据 {GK: [...], DF: [...], MF: [...], FW: [...]}
     selectedPositions: [], // 已选择的位置code数组
-    showPositionPicker: false, // 是否显示位置选择器
-
-    footList: ['右脚', '左脚', '双脚'],
-    footIndex: -1
+    showPositionPicker: false // 是否显示位置选择器
   },
 
   onLoad(options) {
@@ -90,45 +88,54 @@ Page({
       wx.hideLoading();
       const userInfo = res.data;
 
-      // 设置表单数据
+      // 设置位置选择（后端数组 → 前端数组）
+      let selectedPositions = [];
+      let positionDisplay = '';
+
+      if (userInfo.position) {
+        // 如果是数组
+        if (Array.isArray(userInfo.position)) {
+          selectedPositions = [];
+          userInfo.position.forEach(item => {
+            if (typeof item === 'string') {
+              // 数组元素可能是逗号分隔的字符串（如 "LB,RB,LW,RW"）
+              if (item.includes(',')) {
+                const positions = item.split(',').map(p => p.trim()).filter(p => /^[A-Z]{2,3}$/.test(p));
+                selectedPositions.push(...positions);
+              } else if (/^[A-Z]{2,3}$/.test(item)) {
+                // 或者是单个位置代码（如 "LB"）
+                selectedPositions.push(item);
+              }
+            }
+          });
+        } else if (typeof userInfo.position === 'string') {
+          // 如果是字符串，先分割再过滤（兼容旧数据）
+          selectedPositions = userInfo.position.split(',').map(p => p.trim()).filter(p => {
+            return /^[A-Z]{2,3}$/.test(p);
+          });
+        }
+
+        // 生成显示用的字符串
+        positionDisplay = selectedPositions.join(',');
+      }
+
+      // 设置表单数据（后端字段映射）
       this.setData({
+        selectedPositions,
         formData: {
           avatar: userInfo.avatar || '',
           nickname: userInfo.nickname || '',
           realName: userInfo.realName || '',
           phone: userInfo.phone || '',
           jerseyNumber: userInfo.jerseyNumber || '',
-          position: userInfo.position || '',
+          position: positionDisplay,  // 用于显示的字符串
           height: userInfo.height || '',
           weight: userInfo.weight || '',
-          preferredFoot: userInfo.preferredFoot || '',
+          leftFootLevel: userInfo.leftFootSkill || 0,   // 后端字段: leftFootSkill
+          rightFootLevel: userInfo.rightFootSkill || 0, // 后端字段: rightFootSkill
           skillDescription: userInfo.skillDescription || ''
         }
       });
-
-      // 设置位置选择（支持多选，兼容字符串和数组格式）
-      if (userInfo.position) {
-        let selectedPositions = [];
-
-        // 如果是数组，直接过滤
-        if (Array.isArray(userInfo.position)) {
-          selectedPositions = userInfo.position.filter(p => {
-            return p && /^[A-Z]{2,3}$/.test(p);
-          });
-        } else if (typeof userInfo.position === 'string') {
-          // 如果是字符串，先分割再过滤
-          selectedPositions = userInfo.position.split(',').map(p => p.trim()).filter(p => {
-            return /^[A-Z]{2,3}$/.test(p);
-          });
-        }
-
-        this.setData({ selectedPositions });
-      }
-
-      if (userInfo.preferredFoot) {
-        const footIndex = this.data.footList.indexOf(userInfo.preferredFoot);
-        this.setData({ footIndex });
-      }
     }).catch(err => {
       wx.hideLoading();
       wx.showToast({
@@ -318,40 +325,57 @@ Page({
       return;
     }
 
-    // 更新表单数据（使用逗号分隔的位置code）
+    // 更新表单数据（用于显示，逗号分隔）
     const positionValue = this.data.selectedPositions.join(',');
     this.setData({
-      'formData.position': positionValue,
+      'formData.position': positionValue, // 仅用于显示
       showPositionPicker: false
     });
   },
 
-  // 显示擅长脚选择器
-  onShowFootPicker() {
-    wx.showActionSheet({
-      itemList: this.data.footList,
-      success: (res) => {
-        this.onFootChange({
-          detail: {
-            value: res.tapIndex
-          }
-        });
-      }
-    });
+  // 增加左脚熟练度
+  onIncreaseLeftFoot() {
+    const current = this.data.formData.leftFootLevel;
+    if (current < 5) {
+      this.setData({
+        'formData.leftFootLevel': current + 1
+      });
+    }
   },
 
-  // 擅长脚选择变化
-  onFootChange(e) {
-    const index = e.detail.value;
-    this.setData({
-      footIndex: index,
-      'formData.preferredFoot': this.data.footList[index]
-    });
+  // 减少左脚熟练度
+  onDecreaseLeftFoot() {
+    const current = this.data.formData.leftFootLevel;
+    if (current > 0) {
+      this.setData({
+        'formData.leftFootLevel': current - 1
+      });
+    }
+  },
+
+  // 增加右脚熟练度
+  onIncreaseRightFoot() {
+    const current = this.data.formData.rightFootLevel;
+    if (current < 5) {
+      this.setData({
+        'formData.rightFootLevel': current + 1
+      });
+    }
+  },
+
+  // 减少右脚熟练度
+  onDecreaseRightFoot() {
+    const current = this.data.formData.rightFootLevel;
+    if (current > 0) {
+      this.setData({
+        'formData.rightFootLevel': current - 1
+      });
+    }
   },
 
   // 表单验证
   validateForm() {
-    const { nickname, realName, phone, jerseyNumber, position } = this.data.formData;
+    const { nickname, realName, phone, jerseyNumber, position, leftFootLevel, rightFootLevel } = this.data.formData;
 
     if (!nickname || !nickname.trim()) {
       wx.showToast({
@@ -393,6 +417,14 @@ Page({
       return false;
     }
 
+    if (leftFootLevel === 0 && rightFootLevel === 0) {
+      wx.showToast({
+        title: '请选择惯用脚',
+        icon: 'none'
+      });
+      return false;
+    }
+
     return true;
   },
 
@@ -407,8 +439,19 @@ Page({
       title: '提交中...'
     });
 
+    // 准备提交数据，映射前端字段到后端字段
+    const submitData = {
+      ...this.data.formData,
+      leftFootSkill: this.data.formData.leftFootLevel,   // 前端 leftFootLevel → 后端 leftFootSkill
+      rightFootSkill: this.data.formData.rightFootLevel, // 前端 rightFootLevel → 后端 rightFootSkill
+      position: this.data.selectedPositions,              // 后端需要数组格式
+    };
+    // 删除前端字段
+    delete submitData.leftFootLevel;
+    delete submitData.rightFootLevel;
+
     // 调用更新接口
-    userAPI.updateUserInfo(this.data.formData).then(res => {
+    userAPI.updateUserInfo(submitData).then(res => {
       wx.hideLoading();
 
       // 更新本地存储

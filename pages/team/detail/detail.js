@@ -58,12 +58,10 @@ Page({
 
   // 加载队伍数据
   loadTeamData() {
-    console.log('[Team Detail] 开始加载队伍数据, teamId:', this.data.teamId);
     wx.showLoading({ title: '加载中...' });
 
     // 只需要调用一个接口，teamInfo已经包含stats和members数据
     return this.loadTeamInfo().then(() => {
-      console.log('[Team Detail] 队伍数据加载成功');
       wx.hideLoading();
     }).catch(err => {
       console.error('[Team Detail] 加载队伍数据失败:', err);
@@ -179,7 +177,9 @@ Page({
         isCaptain: member.role === 'captain',
         totalGoals: member.user?.stats?.goals || 0,
         totalAssists: member.user?.stats?.assists || 0,
-        totalMatches: member.user?.stats?.matchesPlayed || 0
+        totalMatches: member.user?.stats?.matchesPlayed || 0,
+        leftFootSkill: Number(member.user?.leftFootSkill || 0),
+        rightFootSkill: Number(member.user?.rightFootSkill || 0)
       };
     });
   },
@@ -351,7 +351,6 @@ Page({
   onPlayerCardTap(e) {
     // 兼容组件事件和直接点击事件
     const playerId = e.detail?.playerId || e.currentTarget?.dataset?.playerId;
-    console.log('[Team Detail] onPlayerCardTap 被调用, playerId:', playerId);
 
     // 防御性检查：确保 playerId 存在且有效
     if (!playerId || playerId === 'undefined' || typeof playerId === 'undefined') {
@@ -361,16 +360,13 @@ Page({
 
     // 防止重复跳转（真机上可能因为性能问题导致重复触发）
     if (this._navigating) {
-      console.log('[Team Detail] 防抖：忽略重复跳转');
       return;
     }
     this._navigating = true;
 
-    console.log('[Team Detail] 正在跳转到球员统计:', playerId);
     wx.navigateTo({
       url: `/pages/user/stats/stats?userId=${playerId}`,
       success: () => {
-        console.log('[Team Detail] 跳转成功');
         setTimeout(() => {
           this._navigating = false;
         }, 500);
@@ -410,11 +406,8 @@ Page({
       || app.getCurrentSeason()?.name
       || '2024-2025赛季';
 
-    console.log('[Team Detail] 点击战绩统计:', type, '赛季:', seasonName, '颜色:', teamColor);
-
     // 防止重复跳转
     if (this._navigatingToMatches) {
-      console.log('[Team Detail] 防抖：忽略重复跳转到比赛列表');
       return;
     }
     this._navigatingToMatches = true;
@@ -422,7 +415,6 @@ Page({
     wx.navigateTo({
       url: `/pages/team/matches/matches?teamId=${teamId}&teamName=${encodeURIComponent(teamName)}&seasonName=${encodeURIComponent(seasonName)}&teamColor=${encodeURIComponent(teamColor)}&filterType=${type}`,
       success: () => {
-        console.log('[Team Detail] 跳转到比赛列表成功');
         setTimeout(() => {
           this._navigatingToMatches = false;
         }, 500);

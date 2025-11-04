@@ -72,6 +72,13 @@ Page({
       myAssists: 0,
       teamAssists: 0,
       assistsPercent: 0
+    },
+
+    // 场均数据
+    averageStats: {
+      goalsPerMatch: '0.0',
+      assistsPerMatch: '0.0',
+      contributionPerMatch: '0.0'
     }
   },
 
@@ -306,6 +313,12 @@ Page({
         };
       });
 
+      // 计算队内贡献
+      const contribution = this.calculateContribution(myStats, teamStats);
+
+      // 计算场均数据
+      const averageStats = this.calculateAverageStats(myStats);
+
       // 加载成就数据（从API）
       this.loadAchievements();
 
@@ -322,7 +335,9 @@ Page({
         myRankings,
         teamStats,
         teamStatsBar,
-        recentMatches
+        recentMatches,
+        contribution,
+        averageStats
       });
 
       wx.hideLoading();
@@ -557,6 +572,30 @@ Page({
       myAssists,
       teamAssists,
       assistsPercent: Math.min(assistsPercent, 100)
+    };
+  },
+
+  /**
+   * 计算场均数据
+   */
+  calculateAverageStats(myStats) {
+    const matches = myStats.matches || 0;
+    if (matches === 0) {
+      return {
+        goalsPerMatch: '0.0',
+        assistsPerMatch: '0.0',
+        contributionPerMatch: '0.0'
+      };
+    }
+
+    const goalsPerMatch = (myStats.goals / matches).toFixed(1);
+    const assistsPerMatch = (myStats.assists / matches).toFixed(1);
+    const contributionPerMatch = ((myStats.goals + myStats.assists) / matches).toFixed(1);
+
+    return {
+      goalsPerMatch,
+      assistsPerMatch,
+      contributionPerMatch
     };
   },
 

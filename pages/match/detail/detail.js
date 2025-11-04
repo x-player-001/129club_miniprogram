@@ -339,7 +339,9 @@ Page({
           teamName: matchInfo.team1.name,
           teamColor: matchInfo.team1.color,
           isAttended: matchInfo.status === 'finished' ? attendanceIds.includes(playerId) : true,
-          isMvp: matchInfo.status === 'finished' ? mvpIds.includes(playerId) : false
+          isMvp: matchInfo.status === 'finished' ? mvpIds.includes(playerId) : false,
+          leftFootSkill: Number(player.user?.leftFootSkill || player.leftFootSkill || 0),
+          rightFootSkill: Number(player.user?.rightFootSkill || player.rightFootSkill || 0)
         };
       });
 
@@ -357,7 +359,9 @@ Page({
           teamName: matchInfo.team2.name,
           teamColor: matchInfo.team2.color,
           isAttended: matchInfo.status === 'finished' ? attendanceIds.includes(playerId) : true,
-          isMvp: matchInfo.status === 'finished' ? mvpIds.includes(playerId) : false
+          isMvp: matchInfo.status === 'finished' ? mvpIds.includes(playerId) : false,
+          leftFootSkill: Number(player.user?.leftFootSkill || player.leftFootSkill || 0),
+          rightFootSkill: Number(player.user?.rightFootSkill || player.rightFootSkill || 0)
         };
       });
 
@@ -519,10 +523,49 @@ Page({
 
   // 分享比赛
   onShareAppMessage() {
+    const matchInfo = this.data.matchInfo;
+
+    // 根据比赛状态生成不同的分享标题
+    let title = '';
+    if (matchInfo.status === 'upcoming') {
+      // 报名中的比赛
+      const team1Count = matchInfo.team1RegisteredCount || 0;
+      const team2Count = matchInfo.team2RegisteredCount || 0;
+      const totalRegistered = team1Count + team2Count;
+      const maxTotal = (matchInfo.maxPlayersPerTeam || 11) * 2;
+      const stillNeed = maxTotal - totalRegistered;
+
+      if (stillNeed > 0) {
+        title = `⚽ ${matchInfo.title} | 还差${stillNeed}人，快来报名！`;
+      } else {
+        title = `⚽ ${matchInfo.title} | 报名已满，等你来战！`;
+      }
+    } else if (matchInfo.status === 'ongoing') {
+      // 进行中
+      title = `🔥 ${matchInfo.title} 正在激烈进行中！`;
+    } else if (matchInfo.status === 'finished') {
+      // 已结束
+      const score1 = matchInfo.team1FinalScore || matchInfo.team1Score || 0;
+      const score2 = matchInfo.team2FinalScore || matchInfo.team2Score || 0;
+      title = `📊 ${matchInfo.title} | 比分 ${score1}:${score2}`;
+    } else {
+      title = `⚽ ${matchInfo.title} | 129俱乐部`;
+    }
+
     return {
-      title: this.data.matchInfo.title || '比赛邀请',
+      title: title,
       path: `/pages/match/detail/detail?id=${this.data.matchId}`,
-      imageUrl: '/static/images/logo.png'
+      imageUrl: matchInfo.shareImage || '/static/images/share-match.png'
+    };
+  },
+
+  // 分享到朋友圈
+  onShareTimeline() {
+    const matchInfo = this.data.matchInfo;
+    return {
+      title: `${matchInfo.title} | 129俱乐部`,
+      query: `id=${this.data.matchId}`,
+      imageUrl: matchInfo.shareImage || '/static/images/share-match.png'
     };
   }
 });

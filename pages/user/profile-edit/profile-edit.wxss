@@ -401,3 +401,113 @@
 .confirm-btn::after {
   border: none;
 }
+
+/* 惯用脚选择器 */
+.foot-skill-item {
+  display: flex;
+  align-items: center;
+  padding: 32rpx 40rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  position: relative;
+}
+
+.foot-skill-item.required .item-label::before {
+  content: '*';
+  color: #e74c3c;
+  margin-right: 8rpx;
+  font-size: 32rpx;
+}
+
+.foot-skill-item .item-label {
+  width: 180rpx;
+  font-size: 30rpx;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.foot-skill-container {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 32rpx;
+}
+
+.foot-section {
+  display: flex;
+  align-items: center;
+}
+
+/* 加减控制器（横向布局：减号 - 脚印 - 加号） */
+.level-control {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+/* 脚印容器（用于包裹图片和数字） */
+.footprint-wrapper {
+  position: relative;
+  width: 47rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* PNG脚印图片 */
+.footprint-image {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s ease;
+}
+
+/* 左脚不翻转 */
+.footprint-image.left-foot {
+  transform: none;
+}
+
+/* 右脚翻转（没有left-foot class的图片） */
+.footprint-image:not(.left-foot) {
+  transform: scaleX(-1);
+}
+
+/* 数字（叠加在脚印中间，无背景） */
+.level-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
+
+/* 加减按钮 */
+.control-btn {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: #f5f6f8;
+  color: #7f8c8d;
+  font-size: 28rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.control-btn:active {
+  transform: scale(0.9);
+  background: #e8e8e8;
+}
+
+.control-btn.minus {
+  color: #95a5a6;
+}
+
+.control-btn.plus {
+  color: #52c41a;
+}

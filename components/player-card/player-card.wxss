@@ -34,21 +34,34 @@
 .player-info {
   flex: 1;
   display: flex;
-  flex-direction: column;
-  gap: 12rpx;
+  align-items: center;
+  gap: 16rpx;
   min-width: 0;
+}
+
+/* 左列：姓名 + 号码（两行） */
+.info-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  /* flex: 1 1 auto; */
+  min-width: 120rpx;  /* 确保左列有足够空间显示名字和号码 */
 }
 
 .player-name-row {
   display: flex;
   align-items: center;
   gap: 8rpx;
+  flex-wrap: nowrap;
 }
 
 .player-name {
   font-size: 30rpx;
   font-weight: 700;
   color: #2c3e50;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .captain-badge {
@@ -57,16 +70,8 @@
   flex-shrink: 0;
 }
 
-.player-meta {
+.player-number-row {
   display: flex;
-  align-items: center;
-  gap: 16rpx;
-  flex-wrap: wrap;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
 }
 
 .jersey-number {
@@ -76,6 +81,25 @@
   padding: 4rpx 12rpx;
   background: #f1f3f5;
   border-radius: 8rpx;
+  white-space: nowrap;  /* 号码不换行 */
+}
+
+/* 中列：位置（垂直居中，允许多个位置换行） */
+.info-middle-col {
+  display: flex;
+  align-items: center;
+  flex: 0 1 auto;  /* 允许收缩但不扩展 */
+  flex-wrap: wrap;  /* 允许多个位置标签换行 */
+  gap: 4rpx;  /* 位置标签之间的间距 */
+  max-width: 160rpx;  /* 限制最大宽度，超出则换行 */
+}
+
+/* 右列：惯用脚（垂直居中） */
+.info-right-col {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;  /* 推到最右边 */
 }
 
 .position {

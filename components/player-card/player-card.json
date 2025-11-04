@@ -1,6 +1,7 @@
 {
   "component": true,
   "usingComponents": {
-    "position-tag": "/components/position-tag/position-tag"
+    "position-tag": "/components/position-tag/position-tag",
+    "foot-skill-display": "/components/foot-skill-display/foot-skill-display"
   }
 }

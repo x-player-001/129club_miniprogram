@@ -4,6 +4,7 @@
   flex-wrap: wrap;
   gap: 8rpx;
   align-items: center;
+  /* justify-content: flex-end; */
 }
 
 .position-tag {
@@ -18,8 +19,8 @@
 
 /* 尺寸 */
 .position-tag.size-small {
-  padding: 4rpx 10rpx;
-  font-size: 20rpx;
+  padding: 2rpx 8rpx;
+  font-size: 18rpx;
   border-radius: 4rpx;
 }
 

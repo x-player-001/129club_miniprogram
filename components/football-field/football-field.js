@@ -22,7 +22,6 @@ Component({
 
   lifetimes: {
     attached() {
-      console.log('足球场组件加载', this.data);
       this.updatePositions(this.data.positionCodes);
     }
   },
@@ -30,9 +29,7 @@ Component({
   methods: {
     // 更新位置标记点
     updatePositions(positionCodes) {
-      console.log('更新位置标记', positionCodes);
       if (!positionCodes || positionCodes.length === 0) {
-        console.log('位置代码为空');
         this.setData({ positions: [] });
         return;
       }
@@ -92,7 +89,6 @@ Component({
         };
       });
 
-      console.log('生成的位置数据', positions);
       this.setData({ positions });
     },
 

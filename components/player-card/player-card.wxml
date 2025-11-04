@@ -1,46 +1,49 @@
 <!-- components/player-card/player-card.wxml -->
 <view class="player-card {{mode}} {{selected ? 'selected' : ''}} {{disabled ? 'disabled' : ''}}" bindtap="onCardTap">
   <!-- 球员头像 -->
-  <image class="player-avatar" src="{{playerData.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+  <image class="player-avatar" src="{{_processedPlayerData.avatar || playerData.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
 
   <!-- 球员信息 -->
   <view class="player-info">
-    <view class="player-name-row">
-      <text class="player-name">{{playerData.realName || playerData.nickname}}</text>
-      <!-- 队长标识 -->
-      <image wx:if="{{playerData.isCaptain}}" class="captain-badge" src="/static/icons/crown-small.png" mode="aspectFit"></image>
+    <!-- 左列：姓名 + 号码 -->
+    <view class="info-left-col">
+      <!-- 第一行：姓名 + 队长标识 -->
+      <view class="player-name-row">
+        <text class="player-name">{{_processedPlayerData.realName || _processedPlayerData.nickname || playerData.realName || playerData.nickname}}</text>
+        <image wx:if="{{_processedPlayerData.isCaptain || playerData.isCaptain}}" class="captain-badge" src="/static/icons/crown-small.png" mode="aspectFit"></image>
+      </view>
+      <!-- 第二行：号码 -->
+      <view class="player-number-row">
+        <text class="jersey-number">{{_processedPlayerData.jerseyNumber || playerData.jerseyNumber}}号</text>
+      </view>
     </view>
 
-    <view class="player-meta">
-      <!-- 球衣号码 -->
-      <view class="meta-item">
-        <text class="jersey-number">{{playerData.jerseyNumber}}号</text>
-      </view>
-      <!-- 位置 -->
-      <view class="meta-item" wx:if="{{playerData.position}}">
-        <position-tag code="{{playerData.position}}" size="small"></position-tag>
-      </view>
-      <!-- 队伍标签 -->
-      <view class="meta-item" wx:if="{{playerData.teamName}}">
-        <view class="team-tag" style="border-color: {{playerData.teamColor}}; color: {{playerData.teamColor}};">
-          <text>{{playerData.teamName}}</text>
-        </view>
-      </view>
+    <!-- 中列：位置（垂直居中） -->
+    <view class="info-middle-col" wx:if="{{_processedPlayerData.position || playerData.position}}">
+      <position-tag code="{{_processedPlayerData.position || playerData.position}}" size="small"></position-tag>
+    </view>
+
+    <!-- 右列：惯用脚（垂直居中） -->
+    <view class="info-right-col">
+      <foot-skill-display
+        leftFootSkill="{{_processedPlayerData.leftFootSkill}}"
+        rightFootSkill="{{_processedPlayerData.rightFootSkill}}">
+      </foot-skill-display>
     </view>
   </view>
 
   <!-- 球员数据（完整版和紧凑版） -->
   <view wx:if="{{mode !== 'draft'}}" class="player-stats">
     <view class="stat-mini">
-      <text class="value">{{playerData.totalGoals || 0}}</text>
+      <text class="value">{{_processedPlayerData.totalGoals || playerData.totalGoals || 0}}</text>
       <text class="label">进球</text>
     </view>
     <view class="stat-mini">
-      <text class="value">{{playerData.totalAssists || 0}}</text>
+      <text class="value">{{_processedPlayerData.totalAssists || playerData.totalAssists || 0}}</text>
       <text class="label">助攻</text>
     </view>
     <view class="stat-mini">
-      <text class="value">{{playerData.totalMatches || 0}}</text>
+      <text class="value">{{_processedPlayerData.totalMatches || playerData.totalMatches || 0}}</text>
       <text class="label">出场</text>
     </view>
   </view>

@@ -5,6 +5,7 @@
   "backgroundTextStyle": "dark",
   "usingComponents": {
     "menu-item": "/components/menu-item/menu-item",
-    "position-tag": "/components/position-tag/position-tag"
+    "position-tag": "/components/position-tag/position-tag",
+    "foot-skill-display": "/components/foot-skill-display/foot-skill-display"
   }
 }

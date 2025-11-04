@@ -21,6 +21,8 @@
     "pages/season/form/form",
     "pages/user/profile/profile",
     "pages/user/members/members",
+    "pages/user/message/message",
+    "pages/user/settings/settings",
     "pages/user/stats/stats",
     "pages/stats/overview/overview",
     "pages/stats/ranking/ranking",

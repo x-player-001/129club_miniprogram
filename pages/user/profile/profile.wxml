@@ -14,7 +14,17 @@
         </view>
         <view class="user-meta">
           <text class="jersey-number" wx:if="{{userInfo.jerseyNumber}}">{{userInfo.jerseyNumber}}号</text>
-          <position-tag wx:if="{{userInfo.position}}" code="{{userInfo.position}}" size="small"></position-tag>
+
+          <!-- 显示所有位置 -->
+          <block wx:if="{{userInfo.positions && userInfo.positions.length > 0}}">
+            <position-tag wx:for="{{userInfo.positions}}" wx:key="*this" code="{{item}}" size="small"></position-tag>
+          </block>
+
+          <!-- 惯用脚展示 -->
+          <foot-skill-display
+            leftFootSkill="{{userInfo.leftFootSkill}}"
+            rightFootSkill="{{userInfo.rightFootSkill}}">
+          </foot-skill-display>
         </view>
       </view>
       <view class="edit-btn" bindtap="onEditProfile">
@@ -70,13 +80,6 @@
         icon="/static/icons/setting.png"
         text="设置"
         type="settings"
-        bind:tap="onMenuItemTap">
-      </menu-item>
-
-      <menu-item
-        icon="/static/icons/info.png"
-        text="关于我们"
-        type="about"
         bind:tap="onMenuItemTap">
       </menu-item>
     </view>
