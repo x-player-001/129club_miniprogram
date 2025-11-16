@@ -119,6 +119,37 @@ Page({
   // 格式化比赛数据
   formatMatchData(match) {
     const date = new Date(match.matchDate || match.datetime);
+
+    // 处理点球大战数据
+    let penaltyShootout = {
+      enabled: false,
+      team1Score: 0,
+      team2Score: 0,
+      winner: ''
+    };
+
+    if (match.result && match.result.penaltyShootout) {
+      // 将 penaltyWinnerTeamId 转换为 'team1' 或 'team2'
+      let winner = '';
+      if (match.result.penaltyWinnerTeamId) {
+        const team1Id = match.team1?.id || match.team1Id;
+        const team2Id = match.team2?.id || match.team2Id;
+
+        if (match.result.penaltyWinnerTeamId === team1Id) {
+          winner = 'team1';
+        } else if (match.result.penaltyWinnerTeamId === team2Id) {
+          winner = 'team2';
+        }
+      }
+
+      penaltyShootout = {
+        enabled: true,
+        team1Score: match.result.team1PenaltyScore || 0,
+        team2Score: match.result.team2PenaltyScore || 0,
+        winner: winner
+      };
+    }
+
     return {
       id: match.id,
       title: match.title,
@@ -154,7 +185,8 @@ Page({
       isRegistered: match.isRegistered || false,
       myTeamId: match.myTeamId,
       currentMinute: match.currentMinute,
-      mvp: match.mvp
+      mvp: match.mvp,
+      penaltyShootout: penaltyShootout
     };
   },
 
