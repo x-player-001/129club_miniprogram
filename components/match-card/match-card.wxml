@@ -70,6 +70,23 @@
       </view>
     </view>
 
+    <!-- 点球大战比分（完整版） -->
+    <view class="penalty-shootout" wx:if="{{matchData.penaltyShootout.enabled}}">
+      <view class="penalty-label">⚽ 点球大战</view>
+      <view class="penalty-score">
+        <view class="penalty-team {{matchData.penaltyShootout.winner === 'team1' ? 'winner' : ''}}">
+          {{matchData.penaltyShootout.team1Score}}
+        </view>
+        <view class="penalty-separator">-</view>
+        <view class="penalty-team {{matchData.penaltyShootout.winner === 'team2' ? 'winner' : ''}}">
+          {{matchData.penaltyShootout.team2Score}}
+        </view>
+      </view>
+      <view class="penalty-winner">
+        🏆 {{matchData.penaltyShootout.winner === 'team1' ? matchData.team1.name : matchData.team2.name}} 点球获胜
+      </view>
+    </view>
+
     <!-- MVP显示（已结束的比赛） -->
     <view class="match-mvp" wx:if="{{matchData.status === 'finished' && matchData.mvp}}">
       <image class="mvp-icon" src="/static/icons/star.png" mode="aspectFit"></image>

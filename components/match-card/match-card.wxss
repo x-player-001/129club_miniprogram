@@ -190,6 +190,63 @@
   font-weight: 700;
 }
 
+/* 点球大战显示（完整版） */
+.penalty-shootout {
+  padding: 20rpx 24rpx;
+  background: linear-gradient(135deg, rgba(242, 8, 16, 0.08) 0%, rgba(242, 8, 16, 0.04) 100%);
+  border: 2rpx solid rgba(242, 8, 16, 0.15);
+  border-radius: 16rpx;
+  margin: 0 24rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.penalty-label {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: var(--theme-color, #f20810);
+  letter-spacing: 1rpx;
+}
+
+.penalty-score {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.penalty-team {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #636e72;
+  font-family: 'DIN Alternate', sans-serif;
+  min-width: 60rpx;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.penalty-team.winner {
+  color: var(--theme-color, #f20810);
+  font-size: 48rpx;
+}
+
+.penalty-separator {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #95a5a6;
+}
+
+.penalty-winner {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: var(--theme-color, #f20810);
+  background: rgba(242, 8, 16, 0.1);
+  padding: 8rpx 20rpx;
+  border-radius: 12rpx;
+  letter-spacing: 0.5rpx;
+}
+
 /* MVP显示 */
 .match-mvp {
   display: flex;
