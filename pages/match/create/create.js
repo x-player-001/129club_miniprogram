@@ -12,6 +12,8 @@ Page({
       matchTime: '',
       location: '',
       address: '',
+      latitude: null,
+      longitude: null,
       description: '',
       team1Id: '',
       team2Id: ''
@@ -20,7 +22,14 @@ Page({
     team1: null,
     team2: null,
     currentSeason: null,  // 当前活跃赛季
-    noActiveSeason: false  // 是否没有活跃赛季
+    noActiveSeason: false,  // 是否没有活跃赛季
+    // 默认比赛地点配置
+    defaultLocation: {
+      name: '重庆市两江新区轨道交通大竹林基地',
+      address: '重庆市轨道交通（集团）有限公司内部地下停车场',
+      latitude: 29.628999,
+      longitude: 106.496754
+    }
   },
 
   onLoad(options) {
@@ -31,9 +40,15 @@ Page({
     const day = String(now.getDate()).padStart(2, '0');
     const currentDate = `${year}-${month}-${day}`;
 
+    // 设置默认值（包括默认地点）
+    const { defaultLocation } = this.data;
     this.setData({
       currentDate: currentDate,
-      'formData.matchTime': '08:00'
+      'formData.matchTime': '08:00',
+      'formData.location': defaultLocation.name,
+      'formData.address': defaultLocation.address,
+      'formData.latitude': defaultLocation.latitude,
+      'formData.longitude': defaultLocation.longitude
     });
 
     // 加载当前赛季
@@ -162,11 +177,20 @@ Page({
 
   // 选择地点（地图）
   onChooseLocation() {
+    const { defaultLocation } = this.data;
+
     wx.chooseLocation({
+      // 设置默认定位到默认地点
+      latitude: defaultLocation.latitude,
+      longitude: defaultLocation.longitude,
+      name: defaultLocation.name,
+      address: defaultLocation.address,
       success: (res) => {
         this.setData({
           'formData.location': res.name,
-          'formData.address': res.address
+          'formData.address': res.address,
+          'formData.latitude': res.latitude,
+          'formData.longitude': res.longitude
         });
       },
       fail: (err) => {

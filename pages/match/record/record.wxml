@@ -152,10 +152,10 @@
 
         <!-- 获胜方提示 -->
         <view class="penalty-winner-tip" wx:if="{{penaltyShootout.winner}}">
-          <text class="winner-icon">🏆</text>
-          <text class="winner-text">
+          <view class="winner-icon">🏆</view>
+          <view class="winner-text">
             {{penaltyShootout.winner === 'team1' ? matchInfo.team1.name : matchInfo.team2.name}} 点球获胜
-          </text>
+          </view>
         </view>
       </view>
     </view>
@@ -238,6 +238,23 @@
             <text class="final-name">{{matchInfo.team2.name}}</text>
             <text class="final-score {{totalTeam2Score > totalTeam1Score ? 'winner' : ''}}">{{totalTeam2Score}}</text>
             <text class="final-goals">({{totalTeam2Goals}}球)</text>
+          </view>
+        </view>
+
+        <!-- 点球大战结果 -->
+        <view class="penalty-result" wx:if="{{penaltyShootout.enabled}}">
+          <view class="penalty-label">点球大战</view>
+          <view class="penalty-score-display">
+            <view class="penalty-team-score {{penaltyShootout.winner === 'team1' ? 'penalty-winner' : ''}}">
+              {{penaltyShootout.team1Score}}
+            </view>
+            <view class="penalty-separator">-</view>
+            <view class="penalty-team-score {{penaltyShootout.winner === 'team2' ? 'penalty-winner' : ''}}">
+              {{penaltyShootout.team2Score}}
+            </view>
+          </view>
+          <view class="penalty-winner-badge">
+            🏆 {{penaltyShootout.winner === 'team1' ? matchInfo.team1.name : matchInfo.team2.name}} 点球获胜
           </view>
         </view>
       </view>

@@ -117,6 +117,19 @@
           {{matchData.status === 'upcoming' ? '未开始' : matchData.status === 'ongoing' ? '进行中' : '已结束'}}
         </view>
       </view>
+      <!-- 点球大战比分（紧凑版） -->
+      <view class="penalty-compact" wx:if="{{matchData.penaltyShootout.enabled}}">
+        <view class="penalty-label-compact">点球大战</view>
+        <view class="penalty-score-compact">
+          <view class="penalty-team-compact {{matchData.penaltyShootout.winner === 'team1' ? 'winner' : ''}}">
+            {{matchData.penaltyShootout.team1Score}}
+          </view>
+          <view class="penalty-separator-compact">-</view>
+          <view class="penalty-team-compact {{matchData.penaltyShootout.winner === 'team2' ? 'winner' : ''}}">
+            {{matchData.penaltyShootout.team2Score}}
+          </view>
+        </view>
+      </view>
     </view>
   </block>
 </view>

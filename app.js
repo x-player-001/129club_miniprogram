@@ -319,6 +319,7 @@ App({
   },
 
   globalData: {
+    apiBaseUrl: require('./utils/config').apiBaseUrl, // API基础URL
     isLogin: false,
     userInfo: null,
     systemInfo: null,

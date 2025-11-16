@@ -158,16 +158,11 @@ Page({
   // 选择微信头像（open-type="chooseAvatar"）
   onChooseAvatar(e) {
     const { avatarUrl } = e.detail;
-    console.log('获取微信头像成功:', avatarUrl);
+    console.log('获取微信头像临时路径:', avatarUrl);
 
-    this.setData({
-      'formData.avatar': avatarUrl
-    });
-
-    wx.showToast({
-      title: '微信头像获取成功',
-      icon: 'success'
-    });
+    // avatarUrl 是 http://tmp/xxx 格式的临时路径
+    // 需要先将其上传到服务器，获取永久URL
+    this.uploadAvatarFile(avatarUrl);
   },
 
   // 从相册选择图片
@@ -180,19 +175,81 @@ Page({
         const tempFilePath = res.tempFilePaths[0];
         console.log('选择图片成功:', tempFilePath);
 
-        this.setData({
-          'formData.avatar': tempFilePath
-        });
-
-        wx.showToast({
-          title: '头像选择成功',
-          icon: 'success'
-        });
+        // 上传到服务器
+        this.uploadAvatarFile(tempFilePath);
       },
       fail: (err) => {
         console.error('选择图片失败:', err);
         wx.showToast({
           title: '选择图片失败',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  // 上传头像文件到服务器
+  uploadAvatarFile(filePath) {
+    wx.showLoading({
+      title: '上传中...',
+      mask: true
+    });
+
+    const token = wx.getStorageSync('token');
+    const apiBaseUrl = app.globalData.apiBaseUrl;
+
+    wx.uploadFile({
+      url: `${apiBaseUrl}/upload/avatar`,
+      filePath: filePath,
+      name: 'file',
+      header: {
+        'Authorization': `Bearer ${token}`
+      },
+      success: (uploadRes) => {
+        console.log('上传响应:', uploadRes);
+        wx.hideLoading();
+
+        try {
+          const data = JSON.parse(uploadRes.data);
+
+          if (data.code === 0 && data.data && data.data.url) {
+            // 上传成功，使用服务器返回的永久URL
+            let avatarUrl = data.data.url;
+
+            // 如果返回的是相对路径，拼接完整URL
+            if (avatarUrl.startsWith('/')) {
+              const apiBaseUrl = app.globalData.apiBaseUrl;
+              // 移除 /api 后缀（如果有）
+              const baseUrl = apiBaseUrl.replace(/\/api$/, '');
+              avatarUrl = `${baseUrl}${avatarUrl}`;
+            }
+
+            this.setData({
+              'formData.avatar': avatarUrl
+            });
+
+            wx.showToast({
+              title: '头像上传成功',
+              icon: 'success'
+            });
+
+            console.log('头像URL已更新为:', avatarUrl);
+          } else {
+            throw new Error(data.message || '上传失败');
+          }
+        } catch (err) {
+          console.error('解析上传结果失败:', err);
+          wx.showToast({
+            title: err.message || '上传失败',
+            icon: 'none'
+          });
+        }
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        console.error('上传头像失败:', err);
+        wx.showToast({
+          title: '上传失败，请重试',
           icon: 'none'
         });
       }
@@ -209,58 +266,6 @@ Page({
     });
   },
 
-  // 上传自定义头像
-  uploadCustomAvatar(sourceType) {
-    wx.chooseImage({
-      count: 1,
-      sizeType: ['compressed'],
-      sourceType: sourceType,
-      success: (res) => {
-        const tempFilePath = res.tempFilePaths[0];
-
-        // 显示加载
-        wx.showLoading({
-          title: '上传中...'
-        });
-
-        // 上传头像
-        wx.uploadFile({
-          url: app.globalData.apiBaseUrl + '/upload/avatar',
-          filePath: tempFilePath,
-          name: 'file',
-          header: {
-            'Authorization': 'Bearer ' + wx.getStorageSync('token')
-          },
-          success: (uploadRes) => {
-            wx.hideLoading();
-            const data = JSON.parse(uploadRes.data);
-
-            if (data.code === 0) {
-              this.setData({
-                'formData.avatar': data.data.url
-              });
-              wx.showToast({
-                title: '上传成功',
-                icon: 'success'
-              });
-            } else {
-              wx.showToast({
-                title: data.message || '上传失败',
-                icon: 'none'
-              });
-            }
-          },
-          fail: () => {
-            wx.hideLoading();
-            wx.showToast({
-              title: '上传失败',
-              icon: 'none'
-            });
-          }
-        });
-      }
-    });
-  },
 
   // 输入框变化
   onInputChange(e) {

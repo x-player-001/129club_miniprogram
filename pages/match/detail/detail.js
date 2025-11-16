@@ -100,6 +100,36 @@ Page({
       // 检查管理员权限
       const isAdmin = userInfo?.role === 'super_admin' || userInfo?.role === 'captain';
 
+      // 处理点球大战数据
+      let penaltyShootout = {
+        enabled: false,
+        team1Score: 0,
+        team2Score: 0,
+        winner: ''
+      };
+
+      if (match.result && match.result.penaltyShootout) {
+        // 将 penaltyWinnerTeamId 转换为 'team1' 或 'team2'
+        let winner = '';
+        if (match.result.penaltyWinnerTeamId) {
+          const team1Id = match.team1?.id || match.team1Id;
+          const team2Id = match.team2?.id || match.team2Id;
+
+          if (match.result.penaltyWinnerTeamId === team1Id) {
+            winner = 'team1';
+          } else if (match.result.penaltyWinnerTeamId === team2Id) {
+            winner = 'team2';
+          }
+        }
+
+        penaltyShootout = {
+          enabled: true,
+          team1Score: match.result.team1PenaltyScore || 0,
+          team2Score: match.result.team2PenaltyScore || 0,
+          winner: winner
+        };
+      }
+
       // 格式化比赛信息
       const date = new Date(match.matchDate || match.datetime);
       const matchInfo = {
@@ -144,7 +174,9 @@ Page({
         // 比赛结果数据（已完成的比赛）
         result: match.result || null,
         // 比赛事件（已完成的比赛）
-        events: match.events || []
+        events: match.events || [],
+        // 点球大战数据
+        penaltyShootout: penaltyShootout
       };
 
       // 更新标题
@@ -225,17 +257,6 @@ Page({
         quarterGroups[quarter].push(event);
       });
 
-      // 转换为数组格式，方便渲染
-      const quarterEvents = Object.keys(quarterGroups)
-        .sort((a, b) => a - b)
-        .map(quarter => ({
-          quarterNumber: parseInt(quarter),
-          quarterLabel: `第${quarter}节`,
-          events: quarterGroups[quarter],
-          team1Score: 0, // 这个节次的比分需要从后端数据计算
-          team2Score: 0
-        }));
-
       // 格式化比赛结果数据
       const result = data.result || {
         quarters: data.quarters || [],
@@ -244,16 +265,31 @@ Page({
         attendance: data.attendance || null
       };
 
-      // 如果有quarters数据，更新每节的比分
+      // 基于 quarters 数据创建 quarterEvents（即使没有事件也要显示节次）
+      const quarterEvents = [];
       if (data.quarters && data.quarters.length > 0) {
         data.quarters.forEach(q => {
-          const quarterData = quarterEvents.find(qe => qe.quarterNumber === q.quarterNumber);
-          if (quarterData) {
-            // 后端返回的字段是 team1Goals/team2Goals 或 team1Points/team2Points
-            quarterData.team1Score = q.team1Goals || q.team1Points || 0;
-            quarterData.team2Score = q.team2Goals || q.team2Points || 0;
-          }
+          quarterEvents.push({
+            quarterNumber: q.quarterNumber,
+            quarterLabel: `第${q.quarterNumber}节`,
+            events: quarterGroups[q.quarterNumber] || [], // 该节次的事件（可能为空）
+            team1Score: q.team1Goals || q.team1Points || 0,
+            team2Score: q.team2Goals || q.team2Points || 0
+          });
         });
+      } else {
+        // 如果没有 quarters 数据，但有事件，则根据事件创建（兼容旧数据）
+        Object.keys(quarterGroups)
+          .sort((a, b) => a - b)
+          .forEach(quarter => {
+            quarterEvents.push({
+              quarterNumber: parseInt(quarter),
+              quarterLabel: `第${quarter}节`,
+              events: quarterGroups[quarter],
+              team1Score: 0,
+              team2Score: 0
+            });
+          });
       }
 
       // 计算总进球数（如果后端没有返回totalGoals，则从quarters累加）

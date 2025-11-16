@@ -28,9 +28,8 @@ Page({
     // 检查用户信息完整性（防止从其他tab切换过来时绕过检查）
     this.checkUserInfo();
 
-    // 只在首次加载或需要刷新时加载数据
-    // 避免每次切换Tab都重新加载，防止无限重试
-    if (!this.data.hasLoaded && !this.data.isLoading) {
+    // 每次onShow都刷新数据（确保数据实时性）
+    if (!this.data.isLoading) {
       this.loadPageData();
     }
   },
@@ -247,6 +246,36 @@ Page({
           'cancelled': 'finished'      // 已取消 -> 已结束
         };
 
+        // 处理点球大战数据
+        let penaltyShootout = {
+          enabled: false,
+          team1Score: 0,
+          team2Score: 0,
+          winner: ''
+        };
+
+        if (match.result && match.result.penaltyShootout) {
+          // 将 penaltyWinnerTeamId 转换为 'team1' 或 'team2'
+          let winner = '';
+          if (match.result.penaltyWinnerTeamId) {
+            const team1Id = match.team1?.id || match.team1Id;
+            const team2Id = match.team2?.id || match.team2Id;
+
+            if (match.result.penaltyWinnerTeamId === team1Id) {
+              winner = 'team1';
+            } else if (match.result.penaltyWinnerTeamId === team2Id) {
+              winner = 'team2';
+            }
+          }
+
+          penaltyShootout = {
+            enabled: true,
+            team1Score: match.result.team1PenaltyScore || 0,
+            team2Score: match.result.team2PenaltyScore || 0,
+            winner: winner
+          };
+        }
+
         // 格式化为match-card组件需要的数据格式
         return {
           id: match.id,
@@ -266,7 +295,8 @@ Page({
           team1RegisteredCount: match.team1RegisterCount || 0,
           team2RegisteredCount: match.team2RegisterCount || 0,
           maxPlayersPerTeam: match.maxPlayersPerTeam || 11,
-          mvpPlayer: match.mvpPlayer
+          mvpPlayer: match.mvpPlayer,
+          penaltyShootout: penaltyShootout
         };
       });
 

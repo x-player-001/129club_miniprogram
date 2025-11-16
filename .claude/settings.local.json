@@ -6,7 +6,8 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat: 添加 Mock 数据系统用于前端开发\n\n1. 新增 mock 文件夹，包含完整的 Mock 数据系统\n   - mock/index.js: Mock 路由统一入口\n   - mock/user.js: 用户相关 Mock 数据\n   - mock/match.js: 比赛相关 Mock 数据\n   - mock/team.js: 队伍相关 Mock 数据\n   - mock/stats.js: 统计相关 Mock 数据\n   - mock/season.js: 赛季相关 Mock 数据\n\n2. Mock 系统特性\n   - 统一的响应格式 (code, success, data, message)\n   - 支持所有主要接口的 Mock 数据\n   - 方便前端独立开发，不依赖后端接口\n   - 配合 MOCK_API_SWITCH.md 文档使用\n\n3. 更新 .gitignore\n   - 添加注释说明 mock 文件夹应该被提交\n   - 方便团队协作开发\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

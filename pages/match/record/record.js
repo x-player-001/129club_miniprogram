@@ -270,11 +270,21 @@ Page({
         winner: ''
       };
       if (match.result && match.result.penaltyShootout) {
+        // 将 penaltyWinnerTeamId 转换为 'team1' 或 'team2'
+        let winner = '';
+        if (match.result.penaltyWinnerTeamId) {
+          if (match.result.penaltyWinnerTeamId === matchInfo.team1.id) {
+            winner = 'team1';
+          } else if (match.result.penaltyWinnerTeamId === matchInfo.team2.id) {
+            winner = 'team2';
+          }
+        }
+
         savedPenaltyData = {
           enabled: true,
-          team1Score: match.result.penaltyShootout.team1Score || 0,
-          team2Score: match.result.penaltyShootout.team2Score || 0,
-          winner: match.result.penaltyShootout.winner || ''
+          team1Score: match.result.team1PenaltyScore || 0,
+          team2Score: match.result.team2PenaltyScore || 0,
+          winner: winner
         };
         console.log(`[Record] 已加载点球大战数据:`, savedPenaltyData);
       }
@@ -392,9 +402,15 @@ Page({
       }
     }
 
-    // 如果是点球大战步骤（步骤6且needPenalty为true），验证点球数据
+    // 如果是点球大战步骤（步骤6且needPenalty为true），验证并保存点球数据
     if (currentStep === 6 && needPenalty) {
       if (!this.validatePenaltyData()) {
+        return;
+      }
+      // 保存点球大战数据
+      const saved = await this.savePenaltyShootout();
+      if (!saved) {
+        // 保存失败，不跳转
         return;
       }
     }
@@ -405,11 +421,13 @@ Page({
   goNextStep() {
     const { currentStep, totalTeam1Score, totalTeam2Score, needPenalty } = this.data;
 
-    // 如果刚完成第4节（currentStep === 5），检查是否需要点球大战
-    if (currentStep === 5 && !needPenalty) {
+    // 如果刚完成第4节（currentStep === 5），重新检查是否需要点球大战
+    if (currentStep === 5) {
       // 检查是否平局
-      if (totalTeam1Score === totalTeam2Score) {
-        // 平局，需要点球大战
+      const isTie = totalTeam1Score === totalTeam2Score;
+
+      if (isTie && !needPenalty) {
+        // 平局且尚未设置点球大战，需要点球大战
         console.log('比分相同，需要点球大战');
 
         // 动态插入点球大战步骤
@@ -428,6 +446,42 @@ Page({
           needPenalty: true,
           currentStep: 6,  // 跳转到点球大战步骤
           steps: newSteps   // 更新步骤显示
+        });
+
+        // 滚动到顶部
+        wx.pageScrollTo({
+          scrollTop: 0,
+          duration: 300
+        });
+        return;
+      } else if (!isTie && needPenalty) {
+        // 不再平局但之前设置了点球大战，需要移除点球大战步骤
+        console.log('比分不再相同，取消点球大战');
+
+        // 移除点球大战步骤，恢复原始步骤
+        const newSteps = [
+          { id: 1, name: '基本信息' },
+          { id: 2, name: '第1节' },
+          { id: 3, name: '第2节' },
+          { id: 4, name: '第3节' },
+          { id: 5, name: '第4节' },
+          { id: 7, name: '到场人员' },
+          { id: 8, name: 'MVP' }
+        ];
+
+        // 清空点球大战数据
+        const clearedPenaltyData = {
+          enabled: false,
+          team1Score: 0,
+          team2Score: 0,
+          winner: ''
+        };
+
+        this.setData({
+          needPenalty: false,
+          steps: newSteps,
+          penaltyShootout: clearedPenaltyData,
+          currentStep: 7  // 直接跳到到场人员步骤
         });
 
         // 滚动到顶部
@@ -839,6 +893,34 @@ Page({
           steps: newSteps,
           currentStep: adjustedStep
         });
+      } else if (allQuartersCompleted && totalTeam1Score !== totalTeam2Score) {
+        // 不是平局，确保没有点球大战状态
+        console.log('[Record] 不是平局，调整步骤编号以匹配WXML');
+
+        // 确保步骤数组不包含点球大战
+        const newSteps = [
+          { id: 1, name: '基本信息' },
+          { id: 2, name: '第1节' },
+          { id: 3, name: '第2节' },
+          { id: 4, name: '第3节' },
+          { id: 5, name: '第4节' },
+          { id: 7, name: '到场人员' },
+          { id: 8, name: 'MVP' }
+        ];
+
+        // 调整步骤编号：原步骤6→步骤7，原步骤7→步骤8
+        let adjustedStep = currentStep;
+        if (currentStep === 6) {
+          adjustedStep = 7; // 到场人员
+        } else if (currentStep === 7) {
+          adjustedStep = 8; // MVP
+        }
+
+        this.setData({
+          needPenalty: false,
+          steps: newSteps,
+          currentStep: adjustedStep
+        });
       }
     }
   },
@@ -1168,6 +1250,15 @@ Page({
   onSubmit() {
     if (this.data.isSubmitting) return;
 
+    // 验证简报是否填写
+    if (!this.data.summary || !this.data.summary.trim()) {
+      wx.showToast({
+        title: '请填写比赛简报',
+        icon: 'none'
+      });
+      return;
+    }
+
     // 验证
     const hasAnyGoals = this.data.quarters.some(q => q.team1Goals > 0 || q.team2Goals > 0);
     if (!hasAnyGoals) {
@@ -1195,7 +1286,7 @@ Page({
     // 注意：photos 字段已移除，照片通过上传接口自动关联
     const supplementData = {
       mvpUserIds: this.data.mvpUserIds, // MVP球员ID数组（支持多个）
-      summary: this.data.summary || this.buildMatchSummary() // 优先使用用户输入的简报，否则使用自动生成的
+      summary: this.data.summary // 使用用户输入的简报（已在onSubmit中验证必填）
     };
 
     // 如果有点球大战数据，包含进去
@@ -1355,6 +1446,57 @@ Page({
     }
 
     return true;
+  },
+
+  // 保存点球大战数据
+  async savePenaltyShootout() {
+    const { matchId, penaltyShootout, matchInfo } = this.data;
+
+    if (!matchId) {
+      console.log('[Record] 无matchId，跳过保存点球大战');
+      return true;
+    }
+
+    try {
+      wx.showLoading({ title: '保存点球大战...' });
+
+      // 将 'team1'/'team2' 转换为实际的 teamId
+      let penaltyWinnerTeamId = '';
+      if (penaltyShootout.winner === 'team1') {
+        penaltyWinnerTeamId = matchInfo.team1.id;
+      } else if (penaltyShootout.winner === 'team2') {
+        penaltyWinnerTeamId = matchInfo.team2.id;
+      }
+
+      // 调用补充比赛结果接口，只传点球大战数据（使用后端字段名）
+      const res = await matchAPI.supplementResult(matchId, {
+        penaltyShootout: {
+          team1PenaltyScore: penaltyShootout.team1Score,
+          team2PenaltyScore: penaltyShootout.team2Score,
+          penaltyWinnerTeamId: penaltyWinnerTeamId
+        }
+      });
+
+      console.log('[Record] 点球大战保存成功', res.data);
+
+      wx.hideLoading();
+      wx.showToast({
+        title: '保存成功',
+        icon: 'success',
+        duration: 1000
+      });
+
+      return true;
+    } catch (err) {
+      console.error('[Record] 保存点球大战失败:', err);
+      wx.hideLoading();
+      wx.showToast({
+        title: err.message || '保存失败，请稍后重试',
+        icon: 'none',
+        duration: 2000
+      });
+      return false;
+    }
   },
 
   // 提交所有比赛事件

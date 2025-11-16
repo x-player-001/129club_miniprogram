@@ -43,6 +43,23 @@
       <!-- 比赛标题 -->
       <view class="match-title-hero">{{matchInfo.title}}</view>
 
+      <!-- 点球大战比分 -->
+      <view class="penalty-shootout-detail" wx:if="{{matchInfo.penaltyShootout.enabled}}">
+        <view class="penalty-detail-label">点球大战</view>
+        <view class="penalty-detail-score">
+          <view class="penalty-detail-team {{matchInfo.penaltyShootout.winner === 'team1' ? 'winner' : ''}}">
+            {{matchInfo.penaltyShootout.team1Score}}
+          </view>
+          <view class="penalty-detail-separator">-</view>
+          <view class="penalty-detail-team {{matchInfo.penaltyShootout.winner === 'team2' ? 'winner' : ''}}">
+            {{matchInfo.penaltyShootout.team2Score}}
+          </view>
+        </view>
+        <view class="penalty-winner-text">
+          🏆 {{matchInfo.penaltyShootout.winner === 'team1' ? matchInfo.team1.name : matchInfo.team2.name}} 点球获胜
+        </view>
+      </view>
+
       <!-- 基本信息 -->
       <view class="match-info-row">
         <text class="info-text">{{matchInfo.dateMonth}}{{matchInfo.dateDay}}日 {{matchInfo.time}}</text>
