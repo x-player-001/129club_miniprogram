@@ -71,7 +71,7 @@
     </view>
 
     <!-- 点球大战比分（完整版） -->
-    <view class="penalty-shootout" wx:if="{{matchData.penaltyShootout.enabled}}">
+    <view class="penalty-shootout" wx:if="{{matchData.penaltyShootout && matchData.penaltyShootout.enabled}}">
       <view class="penalty-label">⚽ 点球大战</view>
       <view class="penalty-score">
         <view class="penalty-team {{matchData.penaltyShootout.winner === 'team1' ? 'winner' : ''}}">
@@ -135,7 +135,7 @@
         </view>
       </view>
       <!-- 点球大战比分（紧凑版） -->
-      <view class="penalty-compact" wx:if="{{matchData.penaltyShootout.enabled}}">
+      <view class="penalty-compact" wx:if="{{matchData.penaltyShootout && matchData.penaltyShootout.enabled}}">
         <view class="penalty-label-compact">点球大战</view>
         <view class="penalty-score-compact">
           <view class="penalty-team-compact {{matchData.penaltyShootout.winner === 'team1' ? 'winner' : ''}}">

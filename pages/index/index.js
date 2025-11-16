@@ -254,12 +254,27 @@ Page({
           winner: ''
         };
 
+        console.log('[Index] 比赛数据:', match.id, 'result:', match.result);
+
         if (match.result && match.result.penaltyShootout) {
+          console.log('[Index] 检测到点球大战数据:', {
+            penaltyShootout: match.result.penaltyShootout,
+            team1PenaltyScore: match.result.team1PenaltyScore,
+            team2PenaltyScore: match.result.team2PenaltyScore,
+            penaltyWinnerTeamId: match.result.penaltyWinnerTeamId
+          });
+
           // 将 penaltyWinnerTeamId 转换为 'team1' 或 'team2'
           let winner = '';
           if (match.result.penaltyWinnerTeamId) {
             const team1Id = match.team1?.id || match.team1Id;
             const team2Id = match.team2?.id || match.team2Id;
+
+            console.log('[Index] 队伍ID对比:', {
+              team1Id,
+              team2Id,
+              penaltyWinnerTeamId: match.result.penaltyWinnerTeamId
+            });
 
             if (match.result.penaltyWinnerTeamId === team1Id) {
               winner = 'team1';
@@ -274,6 +289,10 @@ Page({
             team2Score: match.result.team2PenaltyScore || 0,
             winner: winner
           };
+
+          console.log('[Index] 点球大战数据处理完成:', penaltyShootout);
+        } else {
+          console.log('[Index] 无点球大战数据');
         }
 
         // 格式化为match-card组件需要的数据格式
