@@ -35,7 +35,7 @@
   width: 160rpx;
   height: 160rpx;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 50%;
+  border-radius: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,8 +44,9 @@
 }
 
 .logo {
-  width: 100rpx;
-  height: 100rpx;
+  width: 100%;
+  height: 100%;
+  border-radius: 24rpx;
 }
 
 .app-name {
@@ -83,8 +84,68 @@
 .card-subtitle {
   font-size: 26rpx;
   color: #95a5a6;
-  margin-bottom: 60rpx;
+  margin-bottom: 40rpx;
   line-height: 1.6;
+}
+
+/* 隐私协议勾选 */
+.privacy-agreement {
+  margin-bottom: 32rpx;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox {
+  width: 32rpx;
+  height: 32rpx;
+  border: 2rpx solid #d0d0d0;
+  border-radius: 4rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12rpx;
+  transition: all 0.3s;
+  background: #ffffff;
+  position: relative;
+}
+
+.checkbox.checked {
+  background: #ffffff;
+  border-color: #07c160;
+}
+
+/* CSS绘制的打勾符号 */
+.checkmark {
+  width: 16rpx;
+  height: 8rpx;
+  border-left: 3rpx solid #07c160;
+  border-bottom: 3rpx solid #07c160;
+  transform: rotate(-45deg);
+  margin-bottom: 4rpx;
+}
+
+.agreement-text {
+  font-size: 24rpx;
+  color: #636e72;
+  line-height: 1.6;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.agreement-text text {
+  font-size: 24rpx;
+}
+
+.agreement-text .link {
+  color: var(--theme-color);
+  text-decoration: underline;
+  margin-left: 0;
 }
 
 /* 登录按钮 */
@@ -98,12 +159,19 @@
   justify-content: center;
   border: none;
   box-shadow: 0 12rpx 32rpx rgba(7, 193, 96, 0.3);
-  margin-bottom: 40rpx;
+  margin: 0;
+  padding: 0;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .login-btn::after {
   border: none;
+}
+
+.login-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 8rpx 24rpx rgba(7, 193, 96, 0.2);
 }
 
 .login-btn-hover {
@@ -121,29 +189,6 @@
   font-size: 32rpx;
   font-weight: 600;
   color: #ffffff;
-}
-
-/* 协议区域 */
-.agreement {
-  display: flex;
-  align-items: flex-start;
-}
-
-.agreement-checkbox {
-  margin-right: 12rpx;
-  transform: scale(0.85);
-}
-
-.agreement-text {
-  font-size: 24rpx;
-  color: #7f8c8d;
-  line-height: 1.6;
-  flex: 1;
-}
-
-.link {
-  color: #ff6b6b;
-  font-weight: 500;
 }
 
 /* 底部装饰 */

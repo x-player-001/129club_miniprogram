@@ -17,9 +17,9 @@ const API_CONFIG = {
   // 开发环境
   dev: {
     // baseUrl: 'http://api.129club.cloud:3000/api',
-    baseUrl: 'http://106.53.217.216:3000/api',
+    // baseUrl: 'http://106.53.217.216:3000/api',
     // baseUrl: 'http://localhost:3000/api',
-    // baseUrl: 'https://api.129club.cloud/api',
+    baseUrl: 'https://api.129club.cloud/api',
     timeout: 10000
   },
   // 生产环境（需要HTTPS + 已备案域名）

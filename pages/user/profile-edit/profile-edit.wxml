@@ -19,26 +19,27 @@
     <!-- 头像上传 -->
     <view class="avatar-section">
       <view class="section-label">头像</view>
-      <view class="avatar-upload" bindtap="onChooseAvatar">
+      <button class="avatar-upload-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
         <image class="avatar" src="{{formData.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
         <view class="avatar-mask">
           <image class="camera-icon" src="/static/icons/camera.png" mode="aspectFit"></image>
-          <text>更换头像</text>
+          <text>点击修改</text>
         </view>
-      </view>
+      </button>
     </view>
 
     <!-- 表单区域 -->
     <view class="form-section">
-      <!-- 昵称 -->
-      <view class="form-item required" bindtap="onNicknameTap">
+      <!-- 昵称（使用 type="nickname" 获取微信昵称） -->
+      <view class="form-item required">
         <view class="item-label">昵称</view>
         <input
           class="item-input"
-          type="text"
+          type="nickname"
           placeholder="请输入昵称"
           value="{{formData.nickname}}"
           bindinput="onInputChange"
+          bindblur="onNicknameBlur"
           data-field="nickname"
           maxlength="20"
         />
@@ -135,48 +136,6 @@
         </view>
       </view>
 
-      <!-- 身高 -->
-      <view class="form-item">
-        <view class="item-label">身高(cm)</view>
-        <input
-          class="item-input"
-          type="number"
-          placeholder="选填"
-          value="{{formData.height}}"
-          bindinput="onInputChange"
-          data-field="height"
-          maxlength="3"
-        />
-      </view>
-
-      <!-- 体重 -->
-      <view class="form-item">
-        <view class="item-label">体重(kg)</view>
-        <input
-          class="item-input"
-          type="number"
-          placeholder="选填"
-          value="{{formData.weight}}"
-          bindinput="onInputChange"
-          data-field="weight"
-          maxlength="3"
-        />
-      </view>
-
-      <!-- 技术特点 -->
-      <view class="form-item textarea-item">
-        <view class="item-label">技术特点</view>
-        <textarea
-          class="item-textarea"
-          placeholder="介绍一下你的技术特点（选填）"
-          value="{{formData.skillDescription}}"
-          bindinput="onInputChange"
-          data-field="skillDescription"
-          maxlength="200"
-          show-confirm-bar="{{false}}"
-        />
-        <view class="textarea-counter">{{formData.skillDescription.length}}/200</view>
-      </view>
     </view>
 
     <!-- 占位空间（为底部固定按钮留出空间） -->

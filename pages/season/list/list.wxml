@@ -28,19 +28,33 @@
       wx:for="{{seasons}}"
       wx:key="id"
       season="{{item}}"
-      showActions="{{true}}"
+      showActions="{{isAdmin}}"
       showScore="{{true}}"
-      bindtap="onSeasonTap"
+      bindcardtap="onSeasonTap"
       bindedit="onEdit"
       bindcomplete="onComplete"
       binddelete="onDelete">
     </season-card>
 
-    <!-- 空状态 -->
+    <!-- 空状态 - 进行中 -->
     <empty-season
-      wx:if="{{seasons.length === 0 && !loading}}"
+      wx:if="{{seasons.length === 0 && !loading && currentTab === 'active'}}"
       type="no-season"
-      actionText="创建赛季"
+      actionText="{{isAdmin ? '创建赛季' : ''}}"
+      bindaction="onCreate">
+    </empty-season>
+
+    <!-- 空状态 - 已完成 -->
+    <empty-season
+      wx:if="{{seasons.length === 0 && !loading && currentTab === 'completed'}}"
+      type="no-completed-season">
+    </empty-season>
+
+    <!-- 空状态 - 全部 -->
+    <empty-season
+      wx:if="{{seasons.length === 0 && !loading && currentTab === ''}}"
+      type="no-all-season"
+      actionText="{{isAdmin ? '创建赛季' : ''}}"
       bindaction="onCreate">
     </empty-season>
   </view>
@@ -50,8 +64,8 @@
     <text class="loading-text">加载中...</text>
   </view>
 
-  <!-- 底部创建按钮 -->
-  <view class="bottom-actions">
+  <!-- 底部创建按钮（仅管理员可见） -->
+  <view class="bottom-actions" wx:if="{{isAdmin}}">
     <view class="create-btn" bindtap="onCreate">
       <text class="btn-text">+ 创建赛季</text>
     </view>

@@ -8,6 +8,9 @@ const config = require('./config');
 function request(options) {
   const { url, method = 'GET', data = {}, header = {} } = options;
 
+  // 检查是否为静默模式（不弹窗提示）
+  const isSilent = header['X-Silent'] === 'true';
+
   return new Promise((resolve, reject) => {
     // ========== Mock 模式 ==========
     if (config.useMock) {
@@ -52,40 +55,103 @@ function request(options) {
           if (res.data.code === 0 || res.data.success) {
             resolve(res.data);
           } else {
-            // 业务错误
-            wx.showToast({
-              title: res.data.message || '请求失败',
-              icon: 'none'
-            });
+            // 业务错误 - 检查是否需要重新登录
+            const needRelogin =
+              res.data.code === 401 ||
+              res.data.code === 40001 ||
+              res.data.code === 40002 ||
+              (res.data.message && (
+                res.data.message.includes('用户不存在') ||
+                res.data.message.includes('未登录') ||
+                res.data.message.includes('token') ||
+                res.data.message.includes('登录已过期')
+              ));
+
+            if (needRelogin) {
+              // 需要重新登录
+              console.log('[Request] 业务错误需要重新登录:', res.data.message);
+              wx.removeStorageSync('token');
+              wx.removeStorageSync('userInfo');
+
+              if (app) {
+                app.globalData.isLogin = false;
+                app.globalData.userInfo = null;
+              }
+
+              // 静默模式下不弹窗和跳转
+              if (!isSilent) {
+                wx.showToast({
+                  title: res.data.message || '请重新登录',
+                  icon: 'none',
+                  duration: 2000
+                });
+
+                setTimeout(() => {
+                  wx.reLaunch({
+                    url: '/pages/user/login/login?autoLogin=false'
+                  });
+                }, 1500);
+              }
+            } else {
+              // 普通业务错误（静默模式下不弹窗）
+              if (!isSilent) {
+                wx.showToast({
+                  title: res.data.message || '请求失败',
+                  icon: 'none'
+                });
+              }
+            }
+
             reject(res.data);
           }
         } else if (res.statusCode === 401) {
-          // 未授权，跳转登录
-          wx.showToast({
-            title: '请先登录',
-            icon: 'none'
-          });
-          setTimeout(() => {
-            wx.navigateTo({
-              url: '/pages/user/login/login'
+          // 未授权，清除本地登录信息并跳转登录页
+          console.log('[Request] 401 未授权，清除登录信息');
+          wx.removeStorageSync('token');
+          wx.removeStorageSync('userInfo');
+
+          // 清除全局状态（需要先获取app实例）
+          if (app) {
+            app.globalData.isLogin = false;
+            app.globalData.userInfo = null;
+          }
+
+          // 静默模式下不弹窗和跳转
+          if (!isSilent) {
+            wx.showToast({
+              title: '登录已过期，请重新登录',
+              icon: 'none',
+              duration: 2000
             });
-          }, 1500);
+
+            // 延迟跳转，让用户看到提示
+            setTimeout(() => {
+              // 使用 reLaunch 而非 navigateTo，因为可能在 tabBar 页面
+              wx.reLaunch({
+                url: '/pages/user/login/login?autoLogin=false'
+              });
+            }, 1500);
+          }
           reject(res);
         } else {
-          // 其他错误
-          wx.showToast({
-            title: '请求失败',
-            icon: 'none'
-          });
+          // 其他错误（静默模式下不弹窗）
+          if (!isSilent) {
+            wx.showToast({
+              title: '请求失败',
+              icon: 'none'
+            });
+          }
           reject(res);
         }
       },
       fail: (err) => {
-        // 网络错误
-        wx.showToast({
-          title: '网络请求失败',
-          icon: 'none'
-        });
+        // 网络错误（静默模式下不弹窗）
+        if (!isSilent) {
+          wx.showToast({
+            title: '网络请求失败',
+            icon: 'none'
+          });
+        }
         reject(err);
       }
     });

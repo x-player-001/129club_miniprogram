@@ -23,6 +23,7 @@
     "pages/user/members/members",
     "pages/user/message/message",
     "pages/user/settings/settings",
+    "pages/user/privacy/privacy",
     "pages/user/stats/stats",
     "pages/stats/overview/overview",
     "pages/stats/ranking/ranking",

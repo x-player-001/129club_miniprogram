@@ -67,12 +67,26 @@
   margin-bottom: 32rpx;
 }
 
-.avatar-upload {
+/* 头像上传按钮（重置 button 默认样式，解决椭圆问题） */
+.avatar-upload-btn {
   position: relative;
-  width: 160rpx;
-  height: 160rpx;
-  border-radius: 50%;
+  width: 160rpx !important;
+  height: 160rpx !important;
+  border-radius: 50% !important;
   overflow: hidden;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: none !important;
+  line-height: 1 !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;  /* 关键：覆盖 button 的 min-width */
+}
+
+.avatar-upload-btn::after {
+  border: none !important;
+  display: none !important;
 }
 
 .avatar {
@@ -95,7 +109,7 @@
   transition: opacity 0.3s;
 }
 
-.avatar-upload:active .avatar-mask {
+.avatar-upload-btn:active .avatar-mask {
   opacity: 1;
 }
 

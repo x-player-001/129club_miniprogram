@@ -112,6 +112,64 @@ Page({
     // 使用真实API数据
     this.loadOverviewData();
     // this.loadMockData(); // Mock数据已注释
+
+    // 启动成就滚动
+    this.startAchievementScroll();
+  },
+
+  onHide() {
+    // 停止成就滚动
+    this.stopAchievementScroll();
+  },
+
+  onUnload() {
+    // 停止成就滚动
+    this.stopAchievementScroll();
+  },
+
+  // 启动成就自动滚动
+  startAchievementScroll() {
+    this.stopAchievementScroll(); // 先清除旧的定时器
+
+    this.scrollTimer = setInterval(() => {
+      const query = wx.createSelectorQuery();
+      query.select('.achievements-scroll').scrollOffset();
+      query.select('.achievements-list').boundingClientRect();
+      query.exec((res) => {
+        if (res && res[0] && res[1]) {
+          const scrollLeft = res[0].scrollLeft;
+          const listWidth = res[1].width;
+          const halfWidth = listWidth / 2;
+
+          // 如果滚动到一半，重置到开始位置（无缝循环）
+          if (scrollLeft >= halfWidth) {
+            this.setData({ scrollLeft: 0 });
+          } else {
+            this.setData({ scrollLeft: scrollLeft + 2 });
+          }
+        }
+      });
+    }, 20); // 每20ms滚动2px，更快更流畅
+  },
+
+  // 停止成就自动滚动
+  stopAchievementScroll() {
+    if (this.scrollTimer) {
+      clearInterval(this.scrollTimer);
+      this.scrollTimer = null;
+    }
+  },
+
+  // 触摸开始 - 暂停滚动
+  onAchievementTouchStart() {
+    this.stopAchievementScroll();
+  },
+
+  // 触摸结束 - 恢复滚动
+  onAchievementTouchEnd() {
+    setTimeout(() => {
+      this.startAchievementScroll();
+    }, 2000); // 2秒后恢复滚动
   },
 
   onPullDownRefresh() {

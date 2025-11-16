@@ -17,7 +17,7 @@ Page({
       { id: 4, name: '第3节' },
       { id: 5, name: '第4节' },
       { id: 6, name: '到场人员' },
-      { id: 7, name: 'MVP与照片' }
+      { id: 7, name: 'MVP' }
     ],
 
     // 4节制开关
@@ -36,6 +36,15 @@ Page({
     totalTeam2Score: 0,
     totalTeam1Goals: 0,
     totalTeam2Goals: 0,
+
+    // 点球大战
+    penaltyShootout: {
+      enabled: false,        // 是否进行了点球大战
+      team1Score: 0,         // 队伍1点球比分
+      team2Score: 0,         // 队伍2点球比分
+      winner: ''             // 获胜方 ('team1' 或 'team2')
+    },
+    needPenalty: false,      // 是否需要点球大战（平局标志）
 
     // 到场人员
     participants: {
@@ -253,6 +262,23 @@ Page({
         console.log(`[Record] 已加载比赛简报`);
       }
 
+      // 处理已保存的点球大战数据
+      let savedPenaltyData = {
+        enabled: false,
+        team1Score: 0,
+        team2Score: 0,
+        winner: ''
+      };
+      if (match.result && match.result.penaltyShootout) {
+        savedPenaltyData = {
+          enabled: true,
+          team1Score: match.result.penaltyShootout.team1Score || 0,
+          team2Score: match.result.penaltyShootout.team2Score || 0,
+          winner: match.result.penaltyShootout.winner || ''
+        };
+        console.log(`[Record] 已加载点球大战数据:`, savedPenaltyData);
+      }
+
       // 处理已录入的节次数据，并决定当前步骤
       const { quarters: savedQuarters, currentStep } = this.processQuarterData(quarterData, allPlayers, matchInfo, hasParticipants);
 
@@ -278,10 +304,15 @@ Page({
         // 设置简报数据
         summary: savedSummary,
         // 设置照片数据
-        photos: savedPhotos
+        photos: savedPhotos,
+        // 设置点球大战数据
+        penaltyShootout: savedPenaltyData
       }, () => {
         // 重新计算累计得分
         this.calculateTotalScore();
+
+        // 检查是否需要点球大战（4节全部完成且比分相同）
+        this.checkAndUpdatePenaltyState();
       });
 
       console.log(`[Record] 已加载节次数据，自动跳转到步骤${currentStep}`);
@@ -319,14 +350,21 @@ Page({
       const quarterIndex = currentStep - 2;
       const quarter = this.data.quarters[quarterIndex];
 
-      // 验证节次数据
-      if (quarter.team1Goals === 0 && quarter.team2Goals === 0 && quarter.events.length === 0) {
+      // 检查节次数据是否为空
+      const isEmpty = quarter.team1Goals === 0 && quarter.team2Goals === 0 && quarter.events.length === 0;
+
+      if (isEmpty) {
+        // 即使是0:0也要保存，确保后端有完整的4个节次记录
         wx.showModal({
           title: '提示',
           content: '当前节次没有录入任何数据，确定继续吗？',
-          success: (res) => {
+          success: async (res) => {
             if (res.confirm) {
-              this.goNextStep();
+              // 保存0:0的节次到后端（确保有4个节次记录）
+              const saved = await this.saveCurrentQuarter(quarterIndex + 1, quarter);
+              if (saved) {
+                this.goNextStep();
+              }
             }
           }
         });
@@ -341,11 +379,22 @@ Page({
       }
     }
 
-    // 如果是到场人员选择步骤（步骤6），保存到场人员
-    if (currentStep === 6) {
+    // 如果是到场人员选择步骤，保存到场人员
+    // 步骤7（有点球大战）或步骤7（无点球大战，从5跳到7）
+    const { needPenalty } = this.data;
+    const isParticipantStep = (needPenalty && currentStep === 7) || (!needPenalty && currentStep === 7);
+
+    if (isParticipantStep) {
       const saved = await this.saveParticipants();
       if (!saved) {
         // 保存失败，不跳转
+        return;
+      }
+    }
+
+    // 如果是点球大战步骤（步骤6且needPenalty为true），验证点球数据
+    if (currentStep === 6 && needPenalty) {
+      if (!this.validatePenaltyData()) {
         return;
       }
     }
@@ -354,8 +403,53 @@ Page({
   },
 
   goNextStep() {
-    const nextStep = this.data.currentStep + 1;
-    if (nextStep <= 7) {
+    const { currentStep, totalTeam1Score, totalTeam2Score, needPenalty } = this.data;
+
+    // 如果刚完成第4节（currentStep === 5），检查是否需要点球大战
+    if (currentStep === 5 && !needPenalty) {
+      // 检查是否平局
+      if (totalTeam1Score === totalTeam2Score) {
+        // 平局，需要点球大战
+        console.log('比分相同，需要点球大战');
+
+        // 动态插入点球大战步骤
+        const newSteps = [
+          { id: 1, name: '基本信息' },
+          { id: 2, name: '第1节' },
+          { id: 3, name: '第2节' },
+          { id: 4, name: '第3节' },
+          { id: 5, name: '第4节' },
+          { id: 6, name: '点球大战' },  // 新增
+          { id: 7, name: '到场人员' },
+          { id: 8, name: 'MVP' }
+        ];
+
+        this.setData({
+          needPenalty: true,
+          currentStep: 6,  // 跳转到点球大战步骤
+          steps: newSteps   // 更新步骤显示
+        });
+
+        // 滚动到顶部
+        wx.pageScrollTo({
+          scrollTop: 0,
+          duration: 300
+        });
+        return;
+      }
+    }
+
+    // 如果当前在点球大战步骤（currentStep === 6 且 needPenalty === true），跳到步骤7
+    // 如果不需要点球大战，从步骤5直接跳到步骤7（原来的步骤6）
+    let nextStep;
+    if (currentStep === 5 && !needPenalty) {
+      // 不需要点球大战，跳过步骤6
+      nextStep = 7;
+    } else {
+      nextStep = currentStep + 1;
+    }
+
+    if (nextStep <= 8) {
       this.setData({ currentStep: nextStep });
 
       // 滚动到顶部
@@ -631,7 +725,7 @@ Page({
     const pointsRule = {
       1: { win: 1, draw: 0 },
       2: { win: 1, draw: 0 },
-      3: { win: 2, draw: 0 },
+      3: { win: 1, draw: 0 },
       4: { win: 2, draw: 0 }
     };
 
@@ -666,6 +760,87 @@ Page({
       totalTeam1Goals,
       totalTeam2Goals
     });
+  },
+
+  // 检查并更新点球大战状态（用于页面加载时恢复状态）
+  checkAndUpdatePenaltyState() {
+    const { totalTeam1Score, totalTeam2Score, currentStep, penaltyShootout } = this.data;
+
+    // 如果已经有点球大战数据（从后端加载），说明需要点球大战
+    if (penaltyShootout.enabled) {
+      console.log('[Record] 检测到已保存的点球大战数据，更新状态');
+
+      // 更新步骤数组，包含点球大战步骤
+      const newSteps = [
+        { id: 1, name: '基本信息' },
+        { id: 2, name: '第1节' },
+        { id: 3, name: '第2节' },
+        { id: 4, name: '第3节' },
+        { id: 5, name: '第4节' },
+        { id: 6, name: '点球大战' },
+        { id: 7, name: '到场人员' },
+        { id: 8, name: 'MVP' }
+      ];
+
+      // 调整当前步骤（如果在步骤6或7，需要向后移一位）
+      let adjustedStep = currentStep;
+      if (currentStep === 6) {
+        // 原本在"到场人员"（老的步骤6），插入点球大战后应该跳转到新的"到场人员"（步骤7）
+        adjustedStep = 7;
+      } else if (currentStep === 7) {
+        // 原本在"MVP"（老的步骤7），插入点球大战后应该跳转到新的"MVP"（步骤8）
+        adjustedStep = 8;
+      }
+
+      this.setData({
+        needPenalty: true,
+        steps: newSteps,
+        currentStep: adjustedStep
+      });
+
+      return;
+    }
+
+    // 如果当前在步骤6或7（4节已完成），检查是否需要点球大战
+    if (currentStep >= 6) {
+      // 检查4节是否都已录入（判断 team1Points 是否已计算）
+      const allQuartersCompleted = this.data.quarters.every(q =>
+        q.team1Points !== undefined || q.team2Points !== undefined || q.team1Goals > 0 || q.team2Goals > 0
+      );
+
+      if (allQuartersCompleted && totalTeam1Score === totalTeam2Score) {
+        console.log('[Record] 检测到平局，需要点球大战');
+
+        // 更新步骤数组，包含点球大战步骤
+        const newSteps = [
+          { id: 1, name: '基本信息' },
+          { id: 2, name: '第1节' },
+          { id: 3, name: '第2节' },
+          { id: 4, name: '第3节' },
+          { id: 5, name: '第4节' },
+          { id: 6, name: '点球大战' },
+          { id: 7, name: '到场人员' },
+          { id: 8, name: 'MVP' }
+        ];
+
+        // 根据当前步骤调整
+        // 由于插入了点球大战步骤，原来的步骤6（到场人员）变成步骤7，步骤7（MVP）变成步骤8
+        let adjustedStep = currentStep;
+        if (currentStep === 6) {
+          // 原本在"到场人员"（老的步骤6），插入点球大战后应该跳转到新的"到场人员"（步骤7）
+          adjustedStep = 7;
+        } else if (currentStep === 7) {
+          // 原本在"MVP"（老的步骤7），插入点球大战后应该跳转到新的"MVP"（步骤8）
+          adjustedStep = 8;
+        }
+
+        this.setData({
+          needPenalty: true,
+          steps: newSteps,
+          currentStep: adjustedStep
+        });
+      }
+    }
   },
 
   // 显示到场人员选择器
@@ -1023,6 +1198,16 @@ Page({
       summary: this.data.summary || this.buildMatchSummary() // 优先使用用户输入的简报，否则使用自动生成的
     };
 
+    // 如果有点球大战数据，包含进去
+    if (this.data.penaltyShootout.enabled) {
+      supplementData.penaltyShootout = {
+        team1Score: this.data.penaltyShootout.team1Score,
+        team2Score: this.data.penaltyShootout.team2Score,
+        winner: this.data.penaltyShootout.winner
+      };
+      console.log('[Record] 包含点球大战数据:', supplementData.penaltyShootout);
+    }
+
     console.log('[Record] 提交补充信息:', supplementData);
 
     // 调用补充比赛结果接口
@@ -1055,11 +1240,21 @@ Page({
 
   // 构建比赛总结（包含4节制信息）
   buildMatchSummary() {
-    const { matchInfo, quarters, totalTeam1Score, totalTeam2Score, totalTeam1Goals, totalTeam2Goals } = this.data;
+    const { matchInfo, quarters, totalTeam1Score, totalTeam2Score, totalTeam1Goals, totalTeam2Goals, penaltyShootout } = this.data;
 
     let summary = `【4节制比赛】\n`;
     summary += `最终得分：${matchInfo.team1.name} ${totalTeam1Score}-${totalTeam2Score} ${matchInfo.team2.name}\n`;
-    summary += `总进球：${totalTeam1Goals}-${totalTeam2Goals}\n\n`;
+    summary += `总进球：${totalTeam1Goals}-${totalTeam2Goals}\n`;
+
+    // 如果有点球大战，添加到总结中
+    if (penaltyShootout.enabled) {
+      summary += `\n【点球大战】\n`;
+      summary += `点球比分：${matchInfo.team1.name} ${penaltyShootout.team1Score}-${penaltyShootout.team2Score} ${matchInfo.team2.name}\n`;
+      const winnerName = penaltyShootout.winner === 'team1' ? matchInfo.team1.name : matchInfo.team2.name;
+      summary += `获胜方：${winnerName}\n`;
+    }
+
+    summary += `\n`;
 
     quarters.forEach((q, index) => {
       if (q.team1Goals > 0 || q.team2Goals > 0 || q.events.length > 0) {
@@ -1096,6 +1291,70 @@ Page({
       'substitution': '🔄换人'
     };
     return typeMap[eventType] || eventType;
+  },
+
+  // ========== 点球大战相关方法 ==========
+
+  // 点球比分输入（队伍1）
+  onPenaltyTeam1Input(e) {
+    const value = parseInt(e.detail.value) || 0;
+    this.setData({
+      'penaltyShootout.team1Score': value
+    }, () => {
+      this.updatePenaltyWinner();
+    });
+  },
+
+  // 点球比分输入（队伍2）
+  onPenaltyTeam2Input(e) {
+    const value = parseInt(e.detail.value) || 0;
+    this.setData({
+      'penaltyShootout.team2Score': value
+    }, () => {
+      this.updatePenaltyWinner();
+    });
+  },
+
+  // 更新点球大战获胜方
+  updatePenaltyWinner() {
+    const { team1Score, team2Score } = this.data.penaltyShootout;
+    let winner = '';
+
+    if (team1Score > team2Score) {
+      winner = 'team1';
+    } else if (team2Score > team1Score) {
+      winner = 'team2';
+    }
+
+    this.setData({
+      'penaltyShootout.winner': winner,
+      'penaltyShootout.enabled': true
+    });
+  },
+
+  // 验证点球大战数据
+  validatePenaltyData() {
+    const { team1Score, team2Score, winner } = this.data.penaltyShootout;
+
+    // 检查是否有获胜方
+    if (!winner) {
+      wx.showToast({
+        title: '点球比分不能相同',
+        icon: 'none'
+      });
+      return false;
+    }
+
+    // 检查比分是否合理（不能为负数）
+    if (team1Score < 0 || team2Score < 0) {
+      wx.showToast({
+        title: '点球比分不能为负数',
+        icon: 'none'
+      });
+      return false;
+    }
+
+    return true;
   },
 
   // 提交所有比赛事件

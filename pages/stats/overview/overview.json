@@ -4,7 +4,6 @@
     "stats-grid": "/components/stats-grid/stats-grid",
     "filter-bar": "/components/filter-bar/filter-bar",
     "team-stats-bar": "/components/team-stats-bar/team-stats-bar",
-    "ranking-item": "/components/ranking-item/ranking-item",
-    "radar-chart": "/components/radar-chart/radar-chart"
+    "ranking-item": "/components/ranking-item/ranking-item"
   }
 }

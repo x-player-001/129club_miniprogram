@@ -35,6 +35,15 @@ Component({
           title: '暂无赛季',
           description: '还没有创建任何赛季\n点击下方按钮创建第一个赛季'
         },
+        'no-completed-season': {
+          iconSrc: '/static/icons/empty-season.png',
+          description: '还没有已完成的赛季'
+        },
+        'no-all-season': {
+          iconSrc: '/static/icons/empty-season.png',
+          title: '暂无赛季',
+          description: '还没有任何赛季记录'
+        },
         'no-match': {
           iconSrc: '/static/images/empty-match.png',
           title: '暂无比赛',

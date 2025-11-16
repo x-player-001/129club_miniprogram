@@ -444,6 +444,14 @@
   padding-left: 36rpx;
 }
 
+/* 隐藏滚动条 */
+.achievements-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
+}
+
 .achievements-list {
   display: inline-flex;
   gap: 20rpx;
@@ -454,9 +462,11 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 10rpx;
   padding: 28rpx 24rpx;
   min-width: 180rpx;
+  height: 240rpx;
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   border-radius: 20rpx;
   border: 2rpx solid #e8ecf1;

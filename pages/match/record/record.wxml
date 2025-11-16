@@ -90,8 +90,78 @@
       </view>
     </view>
 
-    <!-- Step 6: 到场人员 -->
-    <view class="step-content" wx:if="{{currentStep === 6 && matchInfo}}">
+    <!-- Step 6: 点球大战（仅在平局时显示） -->
+    <view class="step-content" wx:if="{{currentStep === 6 && needPenalty && matchInfo}}">
+      <view class="section-card">
+        <view class="section-header">
+          <text class="section-title">⚽ 点球大战</text>
+          <text class="section-desc">常规时间比分相同，请录入点球大战结果</text>
+        </view>
+
+        <!-- 常规时间比分展示 -->
+        <view class="regular-time-score">
+          <text class="regular-label">常规时间</text>
+          <view class="score-row">
+            <view class="team-score-item">
+              <image class="team-logo-medium" src="{{matchInfo.team1.logo}}" mode="aspectFill"></image>
+              <text class="team-name-medium">{{matchInfo.team1.name}}</text>
+              <text class="score-number">{{totalTeam1Score}}</text>
+            </view>
+            <text class="vs-text">:</text>
+            <view class="team-score-item">
+              <image class="team-logo-medium" src="{{matchInfo.team2.logo}}" mode="aspectFill"></image>
+              <text class="team-name-medium">{{matchInfo.team2.name}}</text>
+              <text class="score-number">{{totalTeam2Score}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 点球比分输入 -->
+        <view class="penalty-score-input">
+          <text class="penalty-label">点球大战比分</text>
+          <view class="penalty-input-row">
+            <!-- 队伍1 -->
+            <view class="penalty-team-input">
+              <image class="penalty-logo" src="{{matchInfo.team1.logo}}" mode="aspectFill"></image>
+              <text class="penalty-team-name">{{matchInfo.team1.name}}</text>
+              <input
+                class="penalty-score-field"
+                type="number"
+                value="{{penaltyShootout.team1Score}}"
+                bindinput="onPenaltyTeam1Input"
+                placeholder="0"
+              />
+            </view>
+
+            <text class="penalty-vs">:</text>
+
+            <!-- 队伍2 -->
+            <view class="penalty-team-input">
+              <image class="penalty-logo" src="{{matchInfo.team2.logo}}" mode="aspectFill"></image>
+              <text class="penalty-team-name">{{matchInfo.team2.name}}</text>
+              <input
+                class="penalty-score-field"
+                type="number"
+                value="{{penaltyShootout.team2Score}}"
+                bindinput="onPenaltyTeam2Input"
+                placeholder="0"
+              />
+            </view>
+          </view>
+        </view>
+
+        <!-- 获胜方提示 -->
+        <view class="penalty-winner-tip" wx:if="{{penaltyShootout.winner}}">
+          <text class="winner-icon">🏆</text>
+          <text class="winner-text">
+            {{penaltyShootout.winner === 'team1' ? matchInfo.team1.name : matchInfo.team2.name}} 点球获胜
+          </text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Step 7: 到场人员（原Step 6，条件改为步骤7） -->
+    <view class="step-content" wx:if="{{currentStep === 7 && matchInfo}}">
       <view class="section-card">
         <view class="section-header">
           <text class="section-title">到场人员选择</text>
@@ -150,8 +220,8 @@
       </view>
     </view>
 
-    <!-- Step 7: MVP与照片 -->
-    <view class="step-content" wx:if="{{currentStep === 7 && matchInfo}}">
+    <!-- Step 8: MVP与照片（原Step 7，条件改为步骤8） -->
+    <view class="step-content" wx:if="{{currentStep === 8 && matchInfo}}">
       <!-- 最终得分展示 -->
       <view class="final-score-card">
         <text class="final-title">比赛结果</text>
@@ -266,7 +336,7 @@
 
     <button
       class="next-btn {{currentStep === 1 ? 'full-width' : ''}}"
-      wx:if="{{currentStep < 7}}"
+      wx:if="{{(currentStep < 7 && !needPenalty) || (currentStep < 8 && needPenalty)}}"
       bindtap="onNextStep"
     >
       下一步
@@ -274,7 +344,7 @@
 
     <button
       class="submit-btn full-width"
-      wx:if="{{currentStep === 7}}"
+      wx:if="{{(currentStep === 7 && !needPenalty) || (currentStep === 8 && needPenalty)}}"
       bindtap="onSubmit"
       disabled="{{isSubmitting}}"
     >

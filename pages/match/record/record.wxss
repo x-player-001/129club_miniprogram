@@ -935,3 +935,150 @@
 .submit-btn[disabled] {
   opacity: 0.6;
 }
+
+/* ========== 点球大战样式 ========== */
+
+/* 常规时间比分展示 */
+.regular-time-score {
+  background: linear-gradient(135deg, #ecf0f1 0%, #dfe6e9 100%);
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.regular-label {
+  display: block;
+  font-size: 24rpx;
+  color: #636e72;
+  text-align: center;
+  margin-bottom: 16rpx;
+}
+
+.score-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.team-score-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.team-logo-medium {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  border: 3rpx solid #ffffff;
+}
+
+.team-name-medium {
+  font-size: 24rpx;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.score-number {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.vs-text {
+  font-size: 32rpx;
+  color: #95a5a6;
+  font-weight: bold;
+}
+
+/* 点球比分输入 */
+.penalty-score-input {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.penalty-label {
+  display: block;
+  font-size: 28rpx;
+  color: #2c3e50;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 24rpx;
+}
+
+.penalty-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.penalty-team-input {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.penalty-logo {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  border: 4rpx solid var(--theme-color);
+}
+
+.penalty-team-name {
+  font-size: 24rpx;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.penalty-score-field {
+  width: 120rpx;
+  height: 88rpx;
+  background: #f8f9fa;
+  border: 2rpx solid #dfe6e9;
+  border-radius: 12rpx;
+  text-align: center;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: var(--theme-color);
+}
+
+.penalty-score-field:focus {
+  border-color: var(--theme-color);
+  background: #ffffff;
+}
+
+.penalty-vs {
+  font-size: 40rpx;
+  color: #95a5a6;
+  font-weight: bold;
+}
+
+/* 获胜方提示 */
+.penalty-winner-tip {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.winner-icon {
+  font-size: 40rpx;
+}
+
+.winner-text {
+  font-size: 28rpx;
+  color: #ffffff;
+  font-weight: 600;
+}

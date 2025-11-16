@@ -127,22 +127,8 @@ Component({
       // 初始化时不需要处理 allPlayers
     },
 
-    // 进球数输入
-    onTeam1GoalsInput(e) {
-      const value = parseInt(e.detail.value) || 0;
-      this.setData({
-        'form.team1Goals': Math.max(0, value)
-      });
-      this.triggerChange();
-    },
-
-    onTeam2GoalsInput(e) {
-      const value = parseInt(e.detail.value) || 0;
-      this.setData({
-        'form.team2Goals': Math.max(0, value)
-      });
-      this.triggerChange();
-    },
+    // 进球数输入方法已移除 - 比分现在完全由进球事件自动计算
+    // 使用 updateGoalsFromEvents() 方法在添加/编辑/删除进球事件时自动更新比分
 
     // 总结输入
     onSummaryInput(e) {

@@ -4,23 +4,20 @@ const userAPI = require('../../../api/user.js');
 
 Page({
   data: {
-    agreed: true // 默认已同意协议
+    privacyAgreed: false  // 是否同意隐私协议
   },
 
   onLoad(options) {
-    // 检查是否已登录
-    if (app.globalData.isLogin) {
-      // 已登录，跳转到首页
-      wx.switchTab({
-        url: '/pages/index/index'
-      });
-      return;
-    }
+    console.log('登录页加载，参数:', options);
 
-    // 如果是从其他页面跳转过来的（即token过期），尝试静默登录
+    // 自动尝试静默登录（除非明确指定不要自动登录）
+    // autoLogin=false 表示不要自动登录（如：token过期后显示登录界面）
     const autoLogin = options.autoLogin !== 'false';
     if (autoLogin) {
+      console.log('尝试静默登录');
       this.silentLogin();
+    } else {
+      console.log('跳过静默登录，等待用户手动登录');
     }
   },
 
@@ -100,18 +97,18 @@ Page({
       duration: 1500
     });
 
-    // 延迟跳转
+    // 延迟跳转，让用户看到登录成功提示
     setTimeout(() => {
-      const userInfo = res.data.user || res.data.userInfo;
+      const userInfo = wx.getStorageSync('userInfo');
 
-      // 使用全局方法检查用户信息是否完整
+      // 检查用户信息是否完整
       if (!app.checkUserInfoComplete(userInfo)) {
-        console.log('用户信息不完整，跳转到完善信息页面');
-        // 跳转到信息完善页面（强制模式）
-        app.redirectToProfileEdit();
+        console.log('登录成功，用户信息不完整，跳转到完善信息页');
+        wx.redirectTo({
+          url: '/pages/user/profile-edit/profile-edit?type=complete&required=true'
+        });
       } else {
-        console.log('用户信息完整，跳转到首页');
-        // 跳转到首页
+        console.log('登录成功，用户信息完整，跳转到首页');
         wx.switchTab({
           url: '/pages/index/index'
         });
@@ -119,30 +116,26 @@ Page({
     }, 1500);
   },
 
-  // 切换协议同意状态
-  toggleAgreement() {
+  // 切换隐私协议勾选状态
+  onTogglePrivacy() {
     this.setData({
-      agreed: !this.data.agreed
+      privacyAgreed: !this.data.privacyAgreed
     });
   },
 
-  // 查看协议
-  onViewAgreement(e) {
-    const type = e.currentTarget.dataset.type;
-    const title = type === 'privacy' ? '隐私政策' : '用户协议';
-
-    wx.showModal({
-      title: title,
-      content: '这里显示协议内容...',
-      showCancel: false
+  // 查看隐私协议
+  onViewPrivacy(e) {
+    wx.navigateTo({
+      url: '/pages/user/privacy/privacy'
     });
   },
 
   // 获取用户信息
   onGetUserInfo(e) {
-    if (!this.data.agreed) {
+    // 检查是否同意隐私协议
+    if (!this.data.privacyAgreed) {
       wx.showToast({
-        title: '请先同意用户协议',
+        title: '请先同意隐私保护指引',
         icon: 'none'
       });
       return;

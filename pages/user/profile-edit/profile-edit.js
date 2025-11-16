@@ -15,11 +15,8 @@ Page({
       phone: '',
       jerseyNumber: '',
       position: '',
-      height: '',
-      weight: '',
       leftFootLevel: 0,    // 左脚熟练度 0-5，0表示未选择
-      rightFootLevel: 0,   // 右脚熟练度 0-5，0表示未选择
-      skillDescription: ''
+      rightFootLevel: 0    // 右脚熟练度 0-5，0表示未选择
     },
     // 位置数据
     positionGroups: {}, // 分组的位置数据 {GK: [...], DF: [...], MF: [...], FW: [...]}
@@ -129,11 +126,8 @@ Page({
           phone: userInfo.phone || '',
           jerseyNumber: userInfo.jerseyNumber || '',
           position: positionDisplay,  // 用于显示的字符串
-          height: userInfo.height || '',
-          weight: userInfo.weight || '',
           leftFootLevel: userInfo.leftFootSkill || 0,   // 后端字段: leftFootSkill
-          rightFootLevel: userInfo.rightFootSkill || 0, // 后端字段: rightFootSkill
-          skillDescription: userInfo.skillDescription || ''
+          rightFootLevel: userInfo.rightFootSkill || 0  // 后端字段: rightFootSkill
         }
       });
     }).catch(err => {
@@ -161,63 +155,57 @@ Page({
     wx.navigateBack();
   },
 
-  // 点击昵称区域
-  onNicknameTap() {
-    // 如果昵称为空，直接尝试获取授权
-    if (!this.data.formData.nickname || this.data.formData.nickname.trim() === '') {
-      this.getUserProfile();
-    }
-    // 如果昵称不为空，不做任何操作，让用户正常编辑
-  },
+  // 选择微信头像（open-type="chooseAvatar"）
+  onChooseAvatar(e) {
+    const { avatarUrl } = e.detail;
+    console.log('获取微信头像成功:', avatarUrl);
 
-  // 选择头像
-  onChooseAvatar() {
-    // 弹出选择菜单
-    wx.showActionSheet({
-      itemList: ['获取微信头像昵称', '从相册选择', '拍照'],
-      success: (res) => {
-        if (res.tapIndex === 0) {
-          // 获取微信授权
-          this.getUserProfile();
-        } else {
-          // 上传自定义头像
-          const sourceType = res.tapIndex === 1 ? ['album'] : ['camera'];
-          this.uploadCustomAvatar(sourceType);
-        }
-      }
+    this.setData({
+      'formData.avatar': avatarUrl
+    });
+
+    wx.showToast({
+      title: '微信头像获取成功',
+      icon: 'success'
     });
   },
 
-  // 获取微信授权（昵称+头像）
-  getUserProfile() {
-    console.log('准备调用 wx.getUserProfile...');
-
-    wx.getUserProfile({
-      desc: '用于完善用户资料',
+  // 从相册选择图片
+  chooseImageFromAlbum() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
       success: (res) => {
-        const { nickName, avatarUrl } = res.userInfo;
+        const tempFilePath = res.tempFilePaths[0];
+        console.log('选择图片成功:', tempFilePath);
 
-        console.log('获取微信授权成功:', nickName, avatarUrl);
-
-        // 更新表单数据
         this.setData({
-          'formData.nickname': nickName,
-          'formData.avatar': avatarUrl
+          'formData.avatar': tempFilePath
         });
 
         wx.showToast({
-          title: '授权成功',
+          title: '头像选择成功',
           icon: 'success'
         });
       },
       fail: (err) => {
-        console.error('用户拒绝授权:', err);
+        console.error('选择图片失败:', err);
         wx.showToast({
-          title: '您取消了授权，可手动输入昵称',
-          icon: 'none',
-          duration: 2000
+          title: '选择图片失败',
+          icon: 'none'
         });
       }
+    });
+  },
+
+  // 昵称输入失焦（type="nickname" 会自动触发微信昵称填写）
+  onNicknameBlur(e) {
+    const nickname = e.detail.value;
+    console.log('昵称输入:', nickname);
+
+    this.setData({
+      'formData.nickname': nickname
     });
   },
 

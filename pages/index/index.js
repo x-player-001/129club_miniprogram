@@ -20,16 +20,35 @@ Page({
 
   onLoad() {
     console.log('首页 onLoad 执行');
-    // 启动页已经完成了登录和信息完整性检查，这里直接加载数据
-    this.loadPageData();
+    // 检查用户信息完整性（防止绕过启动页）
+    this.checkUserInfo();
   },
 
   onShow() {
+    // 检查用户信息完整性（防止从其他tab切换过来时绕过检查）
+    this.checkUserInfo();
+
     // 只在首次加载或需要刷新时加载数据
     // 避免每次切换Tab都重新加载，防止无限重试
     if (!this.data.hasLoaded && !this.data.isLoading) {
       this.loadPageData();
     }
+  },
+
+  // 检查用户信息完整性
+  checkUserInfo() {
+    const userInfo = wx.getStorageSync('userInfo');
+
+    // 如果用户信息不完整，跳转到完善信息页
+    if (!app.checkUserInfoComplete(userInfo)) {
+      console.log('首页检测到用户信息不完整，跳转到完善信息页');
+      wx.redirectTo({
+        url: '/pages/user/profile-edit/profile-edit?type=complete&required=true'
+      });
+      return false;
+    }
+
+    return true;
   },
 
   onPullDownRefresh() {

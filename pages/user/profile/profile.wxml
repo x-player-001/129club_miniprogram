@@ -10,7 +10,7 @@
       <view class="user-info">
         <view class="user-name-row">
           <text class="user-name">{{userInfo.realName || userInfo.nickname || '未设置'}}</text>
-          <text class="user-nickname" wx:if="{{userInfo.nickname && userInfo.realName}}"> -- {{userInfo.nickname}}</text>
+          <text class="user-nickname" wx:if="{{userInfo.nickname && userInfo.realName}}"> @{{userInfo.nickname}}</text>
         </view>
         <view class="user-meta">
           <text class="jersey-number" wx:if="{{userInfo.jerseyNumber}}">{{userInfo.jerseyNumber}}号</text>

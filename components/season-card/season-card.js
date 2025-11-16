@@ -69,7 +69,15 @@ Component({
 
     // 点击卡片
     onCardTap() {
-      this.triggerEvent('tap', { season: this.data.season });
+      const season = this.properties.season || this.data.season;
+
+      // 防御性检查
+      if (!season || !season.id) {
+        console.error('[Season Card] 无效的赛季数据:', season);
+        return;
+      }
+
+      this.triggerEvent('cardtap', { season: season });
     },
 
     // 阻止冒泡

@@ -1,6 +1,7 @@
 // app.js
 const userAPI = require('./api/user');
 const seasonAPI = require('./api/season');
+const visitAPI = require('./api/visit');
 const cache = require('./utils/cache');
 
 App({
@@ -9,14 +10,21 @@ App({
     this.getSystemInfo();
     this.checkLoginStatus();
     this.checkUpdate();
+
     // 延迟加载球员列表和当前赛季（等待 app 实例完全初始化）
+    // 仅在已登录时才预加载（避免401错误触发重定向）
     setTimeout(() => {
-      this.loadAllPlayers().catch(err => {
-        console.error('[App] 预加载球员列表失败:', err);
-      });
-      this.loadCurrentSeason().catch(err => {
-        console.error('[App] 预加载当前赛季失败:', err);
-      });
+      const token = wx.getStorageSync('token');
+      if (token) {
+        this.loadAllPlayers().catch(err => {
+          console.error('[App] 预加载球员列表失败:', err);
+        });
+        this.loadCurrentSeason().catch(err => {
+          console.error('[App] 预加载当前赛季失败:', err);
+        });
+      } else {
+        console.log('[App] 未登录，跳过预加载');
+      }
     }, 500);
   },
 
@@ -207,8 +215,71 @@ App({
     });
   },
 
-  onShow() {
+  // 检查并强制完善信息（供所有页面调用）
+  // 如果信息不完整，自动跳转到完善信息页
+  // 返回 true 表示信息完整，false 表示已跳转
+  checkAndRedirectIfIncomplete() {
+    const userInfo = wx.getStorageSync('userInfo');
+
+    if (!this.checkUserInfoComplete(userInfo)) {
+      console.log('[App] 检测到用户信息不完整，强制跳转完善信息页');
+      this.redirectToProfileEdit();
+      return false;
+    }
+
+    return true;
+  },
+
+  onShow(options) {
     console.log('小程序显示');
+    this.recordVisit(options);
+  },
+
+  /**
+   * 记录用户访问
+   * @param {Object} options 启动参数
+   */
+  recordVisit(options = {}) {
+    // 检查是否已登录
+    const token = wx.getStorageSync('token');
+    if (!token) {
+      console.log('[Visit] 未登录，跳过访问记录');
+      return;
+    }
+
+    // 防抖：避免快速切换导致重复记录（5分钟内只记录一次）
+    const now = Date.now();
+    const lastVisitTime = this.globalData.lastVisitTime || 0;
+    const timeDiff = now - lastVisitTime;
+
+    if (timeDiff < 5 * 60 * 1000) {
+      console.log('[Visit] 5分钟内已记录，跳过');
+      return;
+    }
+
+    // 获取系统信息
+    const systemInfo = this.globalData.systemInfo || wx.getSystemInfoSync();
+
+    // 构建访问数据
+    const visitData = {
+      platform: systemInfo.platform || 'unknown',
+      scene: options.scene || 0,
+      deviceModel: systemInfo.model || '',
+      systemVersion: systemInfo.system || '',
+      appVersion: systemInfo.version || ''
+    };
+
+    console.log('[Visit] 记录访问:', visitData);
+
+    // 调用接口（静默失败，不影响用户体验）
+    visitAPI.recordVisit(visitData).then(res => {
+      console.log('[Visit] 记录成功:', res);
+      this.globalData.lastVisitTime = now;
+    }).catch(err => {
+      console.error('[Visit] 记录失败（静默处理）:', err);
+      // 失败也记录时间戳，避免死循环（特别是401错误会触发重新登录）
+      this.globalData.lastVisitTime = now;
+    });
   },
 
   onHide() {
@@ -256,6 +327,8 @@ App({
     playersLastUpdate: null,
     // 当前赛季全局缓存
     currentSeason: null,
-    seasonLastUpdate: null
+    seasonLastUpdate: null,
+    // 访问记录时间戳
+    lastVisitTime: null
   }
 });

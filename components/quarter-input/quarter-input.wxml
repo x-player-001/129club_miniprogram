@@ -24,34 +24,31 @@
     <text class="quarter-points-rule">{{quarterNumber <= 2 ? '胜者得1分' : '胜者得2分'}}</text>
   </view>
 
-  <!-- 进球数输入 -->
-  <view class="goals-section">
-    <view class="team-goal-input">
-      <image class="team-logo-small" src="{{team1.logo}}" mode="aspectFill"></image>
-      <text class="team-name-small">{{team1.name}}</text>
-      <input
-        class="goal-input"
-        type="number"
-        value="{{form.team1Goals}}"
-        bindinput="onTeam1GoalsInput"
-        placeholder="0"
-      />
-      <text class="goal-unit">球</text>
+  <!-- 当前比分显示（自动计算） -->
+  <view class="goals-display">
+    <view class="auto-calc-tip">
+      <text class="tip-icon">⚡</text>
+      <text class="tip-text">比分根据进球事件自动计算</text>
     </view>
 
-    <text class="vs-separator">-</text>
+    <view class="score-board">
+      <view class="team-score">
+        <view class="team-info">
+          <image class="team-logo-small" src="{{team1.logo}}" mode="aspectFill"></image>
+          <text class="team-name-small">{{team1.name}}</text>
+        </view>
+        <text class="score-number">{{form.team1Goals}}</text>
+      </view>
 
-    <view class="team-goal-input">
-      <input
-        class="goal-input"
-        type="number"
-        value="{{form.team2Goals}}"
-        bindinput="onTeam2GoalsInput"
-        placeholder="0"
-      />
-      <text class="goal-unit">球</text>
-      <text class="team-name-small">{{team2.name}}</text>
-      <image class="team-logo-small" src="{{team2.logo}}" mode="aspectFill"></image>
+      <text class="score-separator">:</text>
+
+      <view class="team-score team-score-right">
+        <text class="score-number">{{form.team2Goals}}</text>
+        <view class="team-info">
+          <text class="team-name-small">{{team2.name}}</text>
+          <image class="team-logo-small" src="{{team2.logo}}" mode="aspectFill"></image>
+        </view>
+      </view>
     </view>
   </view>
 

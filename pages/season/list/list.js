@@ -9,14 +9,32 @@ Page({
   data: {
     currentTab: 'active',  // 当前Tab：active, completed, ''(全部)
     seasons: [],
-    loading: false
+    loading: false,
+    isAdmin: false  // 是否是管理员
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
+    this.checkAdminPermission();
     this.loadSeasonList();
+  },
+
+  /**
+   * 检查管理员权限
+   */
+  checkAdminPermission() {
+    const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
+    const isAdmin = userInfo && (userInfo.role === 'admin' || userInfo.isAdmin === true);
+
+    console.log('[Season List] 用户权限:', {
+      role: userInfo?.role,
+      isAdmin: userInfo?.isAdmin,
+      hasPermission: isAdmin
+    });
+
+    this.setData({ isAdmin });
   },
 
   /**
@@ -89,7 +107,18 @@ Page({
    * 点击赛季卡片 - 跳转到详情页
    */
   onSeasonTap(e) {
-    const season = e.detail.season;
+    const season = e.detail?.season;
+
+    // 防御性检查
+    if (!season || !season.id) {
+      console.error('[Season List] 无效的赛季数据:', season);
+      wx.showToast({
+        title: '赛季数据错误',
+        icon: 'none'
+      });
+      return;
+    }
+
     wx.navigateTo({
       url: `/pages/season/detail/detail?id=${season.id}`
     });
@@ -99,6 +128,14 @@ Page({
    * 创建赛季
    */
   onCreate() {
+    if (!this.data.isAdmin) {
+      wx.showToast({
+        title: '仅管理员可操作',
+        icon: 'none'
+      });
+      return;
+    }
+
     wx.navigateTo({
       url: '/pages/season/form/form'
     });
@@ -108,6 +145,14 @@ Page({
    * 编辑赛季
    */
   onEdit(e) {
+    if (!this.data.isAdmin) {
+      wx.showToast({
+        title: '仅管理员可操作',
+        icon: 'none'
+      });
+      return;
+    }
+
     const seasonId = e.detail.seasonId;
     wx.navigateTo({
       url: `/pages/season/form/form?id=${seasonId}`
@@ -118,6 +163,14 @@ Page({
    * 完成赛季
    */
   onComplete(e) {
+    if (!this.data.isAdmin) {
+      wx.showToast({
+        title: '仅管理员可操作',
+        icon: 'none'
+      });
+      return;
+    }
+
     const seasonId = e.detail.seasonId;
 
     wx.showModal({
@@ -164,6 +217,14 @@ Page({
    * 删除赛季
    */
   onDelete(e) {
+    if (!this.data.isAdmin) {
+      wx.showToast({
+        title: '仅管理员可操作',
+        icon: 'none'
+      });
+      return;
+    }
+
     const seasonId = e.detail.seasonId;
 
     wx.showModal({

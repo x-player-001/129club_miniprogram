@@ -101,7 +101,7 @@
         <text>我的成就</text>
         <text class="achievement-count">{{unlockedAchievementCount}}</text>
       </view>
-      <scroll-view class="achievements-scroll" scroll-x>
+      <scroll-view class="achievements-scroll" scroll-x show-scrollbar="{{false}}">
         <view class="achievements-list">
           <view class="achievement-item {{item.unlocked ? 'unlocked' : 'locked'}}" wx:for="{{achievements}}" wx:key="id">
             <view class="achievement-icon">
