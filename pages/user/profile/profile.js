@@ -426,17 +426,19 @@ Page({
   // 退出登录
   onLogout() {
     wx.showModal({
-      title: '提示',
-      content: '确定要退出登录吗?',
+      title: '确认退出',
+      content: '退出后将以游客模式继续浏览',
+      confirmText: '退出',
+      confirmColor: '#f20810',
       success: (res) => {
         if (res.confirm) {
-          // 清除登录信息
-          wx.removeStorageSync('token');
-          wx.removeStorageSync('userInfo');
+          // 清除所有缓存
+          wx.clearStorageSync();
 
-          // 清除全局数据
+          // 设置为游客模式
           app.globalData.isLogin = false;
           app.globalData.userInfo = null;
+          app.globalData.token = null;
 
           wx.showToast({
             title: '已退出登录',
@@ -444,10 +446,10 @@ Page({
             duration: 1500
           });
 
-          // 跳转到登录页
+          // 跳转到首页（游客模式）
           setTimeout(() => {
-            wx.redirectTo({
-              url: '/pages/user/login/login'
+            wx.reLaunch({
+              url: '/pages/index/index'
             });
           }, 1500);
         }

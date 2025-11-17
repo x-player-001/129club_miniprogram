@@ -36,7 +36,7 @@ Page({
   onLogout() {
     wx.showModal({
       title: '确认退出',
-      content: '退出后需要重新登录才能使用',
+      content: '退出后将以游客模式继续浏览',
       confirmText: '退出',
       confirmColor: '#f20810',
       success: (res) => {
@@ -44,7 +44,8 @@ Page({
           // 清除所有缓存数据
           wx.clearStorageSync();
 
-          // 清除全局用户信息
+          // 设置为游客模式
+          app.globalData.isLogin = false;
           app.globalData.userInfo = null;
           app.globalData.token = null;
 
@@ -54,10 +55,10 @@ Page({
             duration: 1500
           });
 
-          // 延迟跳转到登录页
+          // 延迟跳转到首页（游客模式）
           setTimeout(() => {
             wx.reLaunch({
-              url: '/pages/user/login/login'
+              url: '/pages/index/index'
             });
           }, 1500);
         }
