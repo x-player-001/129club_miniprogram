@@ -55,7 +55,7 @@ Page({
   // 游客点击登录按钮
   onGoToLogin() {
     wx.navigateTo({
-      url: '/pages/user/login/login'
+      url: '/pages/user/login/login?autoLogin=false'
     });
   },
 

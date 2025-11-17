@@ -187,13 +187,13 @@ App({
   },
 
   // 检查用户信息是否完整（必填字段）
-  // 必填字段：nickname, realName, phone, position, jerseyNumber
+  // 必填字段：nickname, realName, position, jerseyNumber
   checkUserInfoComplete(userInfo) {
     if (!userInfo) {
       return false;
     }
 
-    const requiredFields = ['nickname', 'realName', 'phone', 'position', 'jerseyNumber'];
+    const requiredFields = ['nickname', 'realName', 'position', 'jerseyNumber'];
 
     for (const field of requiredFields) {
       const value = userInfo[field];
@@ -229,7 +229,7 @@ App({
       success: (res) => {
         if (res.confirm) {
           wx.navigateTo({
-            url: '/pages/user/login/login'
+            url: '/pages/user/login/login?autoLogin=false'
           });
           // 执行确认回调
           if (onConfirm && typeof onConfirm === 'function') {

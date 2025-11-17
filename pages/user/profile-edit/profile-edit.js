@@ -22,7 +22,6 @@ Page({
       avatar: '',
       nickname: '',
       realName: '',
-      phone: '',
       jerseyNumber: '',
       position: '',
       leftFootLevel: 0,    // 左脚熟练度 0-5，0表示未选择
@@ -139,7 +138,6 @@ Page({
           avatar: userInfo.avatar || '',
           nickname: userInfo.nickname || '',
           realName: userInfo.realName || '',
-          phone: userInfo.phone || '',
           jerseyNumber: userInfo.jerseyNumber || '',
           position: positionDisplay,  // 用于显示的字符串
           leftFootLevel: leftFootLevel,   // 后端字段: leftFootSkill
@@ -394,7 +392,7 @@ Page({
 
   // 表单验证
   validateForm() {
-    const { avatar, nickname, realName, phone, jerseyNumber, position, leftFootLevel, rightFootLevel } = this.data.formData;
+    const { avatar, nickname, realName, jerseyNumber, position, leftFootLevel, rightFootLevel } = this.data.formData;
 
     // 头像必填验证
     if (!avatar || !avatar.trim()) {
@@ -415,15 +413,7 @@ Page({
 
     if (!realName || !realName.trim()) {
       wx.showToast({
-        title: '请输入真实姓名',
-        icon: 'none'
-      });
-      return false;
-    }
-
-    if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
-      wx.showToast({
-        title: '请输入正确的手机号',
+        title: '请输入姓名',
         icon: 'none'
       });
       return false;
