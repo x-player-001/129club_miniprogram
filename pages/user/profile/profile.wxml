@@ -66,35 +66,6 @@
       <image class="arrow" src="{{icons.arrowRightWhite}}" mode="aspectFit"></image>
     </view>
 
-    <!-- 数据统计卡片 -->
-    <view class="stats-card">
-      <view class="stats-row">
-        <view class="stat-item">
-          <text class="stat-value">{{personalStats.matches || 0}}</text>
-          <text class="stat-label">出场</text>
-        </view>
-        <view class="stat-divider"></view>
-        <view class="stat-item">
-          <text class="stat-value">{{personalStats.goals || 0}}</text>
-          <text class="stat-label">进球</text>
-        </view>
-        <view class="stat-divider"></view>
-        <view class="stat-item">
-          <text class="stat-value">{{personalStats.assists || 0}}</text>
-          <text class="stat-label">助攻</text>
-        </view>
-        <view class="stat-divider"></view>
-        <view class="stat-item">
-          <text class="stat-value">{{personalStats.mvpCount || 0}}</text>
-          <text class="stat-label">MVP</text>
-        </view>
-      </view>
-      <view class="view-detail" bindtap="onViewStats">
-        <text>查看详细数据</text>
-        <image src="{{icons.arrowRight}}" mode="aspectFit"></image>
-      </view>
-    </view>
-
     <!-- 功能菜单 - 使用 menu-item 组件 -->
     <view class="menu-section">
       <view class="menu-title">我的功能</view>

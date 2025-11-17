@@ -367,19 +367,6 @@ Page({
     });
   },
 
-  // 查看详细数据
-  onViewStats() {
-    wx.navigateTo({
-      url: '/pages/user/stats/stats'
-    });
-  },
-
-  // stats-grid 组件点击事件
-  onStatsGridTap(e) {
-    // 点击任意统计项都跳转到详细数据页
-    this.onViewStats();
-  },
-
   // 菜单点击
   onMenuClick(e) {
     const type = e.currentTarget.dataset.type;
