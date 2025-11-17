@@ -27,29 +27,30 @@
 
       <!-- 用户信息 -->
       <view class="user-card">
-      <image class="avatar" src="{{userInfo.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
-      <view class="user-info">
-        <view class="user-name-row">
-          <text class="user-name">{{userInfo.realName || userInfo.nickname || '未设置'}}</text>
-          <text class="user-nickname" wx:if="{{userInfo.nickname && userInfo.realName}}"> @{{userInfo.nickname}}</text>
-        </view>
-        <view class="user-meta">
-          <text class="jersey-number" wx:if="{{userInfo.jerseyNumber}}">{{userInfo.jerseyNumber}}号</text>
+        <image class="avatar" src="{{userInfo.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
+        <view class="user-info">
+          <view class="user-name-row">
+            <text class="user-name">{{userInfo.realName || userInfo.nickname || '未设置'}}</text>
+            <text class="user-nickname" wx:if="{{userInfo.nickname && userInfo.realName}}"> @{{userInfo.nickname}}</text>
+          </view>
+          <view class="user-meta">
+            <text class="jersey-number" wx:if="{{userInfo.jerseyNumber}}">{{userInfo.jerseyNumber}}号</text>
 
-          <!-- 显示所有位置 -->
-          <block wx:if="{{userInfo.positions && userInfo.positions.length > 0}}">
-            <position-tag wx:for="{{userInfo.positions}}" wx:key="*this" code="{{item}}" size="small"></position-tag>
-          </block>
+            <!-- 显示所有位置 -->
+            <block wx:if="{{userInfo.positions && userInfo.positions.length > 0}}">
+              <position-tag wx:for="{{userInfo.positions}}" wx:key="*this" code="{{item}}" size="small"></position-tag>
+            </block>
 
-          <!-- 惯用脚展示 -->
-          <foot-skill-display
-            leftFootSkill="{{userInfo.leftFootSkill}}"
-            rightFootSkill="{{userInfo.rightFootSkill}}">
-          </foot-skill-display>
+            <!-- 惯用脚展示 -->
+            <foot-skill-display
+              leftFootSkill="{{userInfo.leftFootSkill}}"
+              rightFootSkill="{{userInfo.rightFootSkill}}">
+            </foot-skill-display>
+          </view>
         </view>
-      </view>
-      <view class="edit-btn" bindtap="onEditProfile">
-        <image src="{{icons.edit}}" mode="aspectFit"></image>
+        <view class="edit-btn" bindtap="onEditProfile">
+          <image src="{{icons.edit}}" mode="aspectFit"></image>
+        </view>
       </view>
     </view>
 
