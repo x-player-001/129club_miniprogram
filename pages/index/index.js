@@ -9,6 +9,7 @@ const config = require('../../utils/config.js');
 
 Page({
   data: {
+    isLogin: false,  // 是否登录
     userInfo: {},
     currentTeam: null,
     teamStats: {},
@@ -75,6 +76,9 @@ Page({
     // 检查是否登录
     const isLogin = app.globalData.isLogin;
     console.log('[Index] 登录状态:', isLogin);
+
+    // 更新登录状态到页面数据
+    this.setData({ isLogin });
 
     // 游客模式：只加载公开数据
     if (!isLogin) {

@@ -5,17 +5,21 @@
     <view class="user-info">
       <image class="avatar" src="{{userInfo.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
       <view class="user-text">
-        <view class="greeting">你好，{{userInfo.realName || userInfo.nickname}}</view>
+        <!-- 游客模式 -->
+        <view class="greeting" wx:if="{{!isLogin}}">你好，游客</view>
+        <!-- 登录模式 -->
+        <view class="greeting" wx:else>你好，{{userInfo.realName || userInfo.nickname}}</view>
+
         <view class="team-tag" wx:if="{{currentTeam}}">
           <text class="team-dot" style="background: {{currentTeam.color}};"></text>
           <text>{{currentTeam.name}}</text>
         </view>
         <view class="no-team" wx:else>
-          <text>暂未分配队伍</text>
+          <text>{{isLogin ? '暂未分配队伍' : '登录后查看更多'}}</text>
         </view>
       </view>
     </view>
-    <view class="message-icon" bindtap="onGoToMessage">
+    <view class="message-icon" bindtap="onGoToMessage" wx:if="{{isLogin}}">
       <image src="{{icons.bell}}" mode="aspectFit"></image>
       <view class="badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
     </view>
