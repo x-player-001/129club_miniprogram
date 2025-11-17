@@ -64,7 +64,6 @@
       </view>
       <image class="arrow" src="{{icons.arrowRightWhite}}" mode="aspectFit"></image>
     </view>
-  </view>
 
     <!-- 数据统计卡片 -->
     <view class="stats-card">
@@ -94,45 +93,45 @@
         <image src="{{icons.arrowRight}}" mode="aspectFit"></image>
       </view>
     </view>
-  </view>
 
-  <!-- 功能菜单 - 使用 menu-item 组件 -->
-  <view class="menu-section">
-    <view class="menu-title">我的功能</view>
-    <view class="menu-list">
-      <menu-item
-        icon="{{icons.users}}"
-        text="队员列表"
-        type="members"
-        bind:tap="onMenuItemTap">
-      </menu-item>
+    <!-- 功能菜单 - 使用 menu-item 组件 -->
+    <view class="menu-section">
+      <view class="menu-title">我的功能</view>
+      <view class="menu-list">
+        <menu-item
+          icon="{{icons.users}}"
+          text="队员列表"
+          type="members"
+          bind:tap="onMenuItemTap">
+        </menu-item>
 
-      <menu-item
-        icon="{{icons.message}}"
-        text="消息中心"
-        type="message"
-        badge="{{unreadCount}}"
-        bind:tap="onMenuItemTap">
-      </menu-item>
+        <menu-item
+          icon="{{icons.message}}"
+          text="消息中心"
+          type="message"
+          badge="{{unreadCount}}"
+          bind:tap="onMenuItemTap">
+        </menu-item>
 
-      <menu-item
-        icon="{{icons.notice}}"
-        text="通知公告"
-        type="notice"
-        bind:tap="onMenuItemTap">
-      </menu-item>
+        <menu-item
+          icon="{{icons.notice}}"
+          text="通知公告"
+          type="notice"
+          bind:tap="onMenuItemTap">
+        </menu-item>
+      </view>
     </view>
-  </view>
 
-  <view class="menu-section">
-    <view class="menu-title">设置</view>
-    <view class="menu-list">
-      <menu-item
-        icon="{{icons.setting}}"
-        text="设置"
-        type="settings"
-        bind:tap="onMenuItemTap">
-      </menu-item>
+    <view class="menu-section">
+      <view class="menu-title">设置</view>
+      <view class="menu-list">
+        <menu-item
+          icon="{{icons.setting}}"
+          text="设置"
+          type="settings"
+          bind:tap="onMenuItemTap">
+        </menu-item>
+      </view>
     </view>
   </view>
 
@@ -141,7 +140,6 @@
     <text>版本 {{version}}</text>
   </view>
 
-    <!-- 底部占位 -->
-    <view class="bottom-space"></view>
-  </view>
+  <!-- 底部占位 -->
+  <view class="bottom-space"></view>
 </view>
