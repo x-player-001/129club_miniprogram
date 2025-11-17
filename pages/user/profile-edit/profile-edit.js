@@ -171,18 +171,8 @@ Page({
     wx.navigateBack();
   },
 
-  // 选择微信头像（open-type="chooseAvatar"）
-  onChooseAvatar(e) {
-    const { avatarUrl } = e.detail;
-    console.log('获取微信头像临时路径:', avatarUrl);
-
-    // avatarUrl 是 http://tmp/xxx 格式的临时路径
-    // 需要先将其上传到服务器，获取永久URL
-    this.uploadAvatarFile(avatarUrl);
-  },
-
-  // 从相册选择图片
-  chooseImageFromAlbum() {
+  // 选择头像
+  onChooseAvatar() {
     wx.chooseImage({
       count: 1,
       sizeType: ['compressed'],
