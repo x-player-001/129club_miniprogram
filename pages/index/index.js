@@ -39,34 +39,15 @@ Page({
 
   onLoad() {
     console.log('首页 onLoad 执行');
-    // 检查用户信息完整性（防止绕过启动页）
-    this.checkUserInfo();
+    // 加载数据（游客或登录用户）
+    this.loadPageData();
   },
 
   onShow() {
-    // 检查用户信息完整性（防止从其他tab切换过来时绕过检查）
-    this.checkUserInfo();
-
     // 每次onShow都刷新数据（确保数据实时性）
     if (!this.data.isLoading) {
       this.loadPageData();
     }
-  },
-
-  // 检查用户信息完整性
-  checkUserInfo() {
-    const userInfo = wx.getStorageSync('userInfo');
-
-    // 如果用户信息不完整，跳转到完善信息页
-    if (!app.checkUserInfoComplete(userInfo)) {
-      console.log('首页检测到用户信息不完整，跳转到完善信息页');
-      wx.redirectTo({
-        url: '/pages/user/profile-edit/profile-edit?type=complete&required=true'
-      });
-      return false;
-    }
-
-    return true;
   },
 
   onPullDownRefresh() {
@@ -91,9 +72,35 @@ Page({
 
     this.setData({ isLoading: true });
 
-    // 尝试加载真实API数据
+    // 检查是否登录
+    const isLogin = app.globalData.isLogin;
+    console.log('[Index] 登录状态:', isLogin);
+
+    // 游客模式：只加载公开数据
+    if (!isLogin) {
+      return Promise.all([
+        this.loadCurrentSeason(),
+        this.loadRecentMatches().catch(err => {
+          console.log('[Index] 游客模式加载比赛失败（正常）:', err);
+          return Promise.resolve();
+        })
+      ]).then(() => {
+        this.setData({
+          isLoading: false,
+          hasLoaded: true
+        });
+      }).catch(err => {
+        console.error('[Index] 游客模式加载失败:', err);
+        this.setData({
+          isLoading: false,
+          hasLoaded: true
+        });
+      });
+    }
+
+    // 登录模式：加载完整数据
     return Promise.all([
-      this.loadUserInfo(), // loadUserInfo 会自动设置 currentTeam 并加载队伍统计
+      this.loadUserInfo(),
       this.loadCurrentSeason(),
       this.loadRecentMatches(),
       this.loadUnreadCount()
@@ -104,10 +111,6 @@ Page({
       });
     }).catch(err => {
       console.error('加载API数据失败:', err);
-      wx.showToast({
-        title: '加载失败',
-        icon: 'none'
-      });
       this.setData({
         isLoading: false,
         hasLoaded: true

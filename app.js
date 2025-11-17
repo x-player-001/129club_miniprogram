@@ -215,6 +215,31 @@ App({
     });
   },
 
+  /**
+   * 显示登录引导弹窗（游客模式专用）
+   * @param {String} message 自定义提示信息
+   * @param {Function} onConfirm 确认回调（可选）
+   */
+  showLoginGuide(message = '此功能需要登录后才能使用', onConfirm) {
+    wx.showModal({
+      title: '需要登录',
+      content: message,
+      confirmText: '去登录',
+      cancelText: '稍后再说',
+      success: (res) => {
+        if (res.confirm) {
+          wx.navigateTo({
+            url: '/pages/user/login/login'
+          });
+          // 执行确认回调
+          if (onConfirm && typeof onConfirm === 'function') {
+            onConfirm();
+          }
+        }
+      }
+    });
+  },
+
   // 检查并强制完善信息（供所有页面调用）
   // 如果信息不完整，自动跳转到完善信息页
   // 返回 true 表示信息完整，false 表示已跳转

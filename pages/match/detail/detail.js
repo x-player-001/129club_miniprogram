@@ -17,6 +17,7 @@ Page({
     isRegistered: false,
     canRegister: true,
     isAdmin: true, // 管理员权限（测试用）
+    isLogin: false, // 是否登录
     _isFirstLoad: true, // 标记是否首次加载
     needRefresh: false, // 标记是否需要刷新
     // 图片URL
@@ -27,6 +28,12 @@ Page({
 
   onLoad(options) {
     console.log('[Match Detail] onLoad 被调用, options:', options);
+
+    // 检查登录状态
+    const isLogin = app.globalData.isLogin;
+    this.setData({ isLogin });
+    console.log('[Match Detail] 登录状态:', isLogin);
+
     if (options.id) {
       // 直接使用 this.data.matchId 赋值，不用 setData（避免异步问题）
       this.data.matchId = options.id;
@@ -570,6 +577,12 @@ Page({
 
   // 跳转到报名页面
   onGoToRegister() {
+    // 游客模式，提示登录
+    if (!this.data.isLogin) {
+      app.showLoginGuide('报名比赛需要先登录');
+      return;
+    }
+
     wx.navigateTo({
       url: `/pages/match/register/register?id=${this.data.matchId}`
     });
@@ -713,6 +726,12 @@ Page({
 
   // 逐节录入（直接进入）
   onManualRecord() {
+    // 游客模式，提示登录
+    if (!this.data.isLogin) {
+      app.showLoginGuide('录入比赛记录需要先登录');
+      return;
+    }
+
     wx.navigateTo({
       url: `/pages/match/record/record?id=${this.data.matchId}`
     });

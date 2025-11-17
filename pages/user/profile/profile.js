@@ -7,6 +7,7 @@ const config = require('../../../utils/config.js');
 
 Page({
   data: {
+    isLogin: false, // 是否登录
     userInfo: {},
     currentTeam: null,
     personalStats: {},
@@ -16,6 +17,7 @@ Page({
     icons: {
       edit: config.getIconUrl('edit.png'),
       arrowRightWhite: config.getIconUrl('arrow-right-white.png'),
+      arrowRight: config.getIconUrl('arrow-right.png'),
       users: config.getIconUrl('users.png'),
       message: config.getIconUrl('message.png'),
       notice: config.getIconUrl('notice.png'),
@@ -29,13 +31,32 @@ Page({
   },
 
   onLoad() {
-    // 启动页已经完成了登录和信息完整性检查，这里直接加载数据
-    this.loadPageData();
+    // 检查登录状态并加载数据
+    this.checkLoginAndLoad();
   },
 
   onShow() {
-    // 每次显示时刷新数据
-    this.loadPageData();
+    // 每次显示时检查登录并刷新数据
+    this.checkLoginAndLoad();
+  },
+
+  // 检查登录状态并加载数据
+  checkLoginAndLoad() {
+    const isLogin = app.globalData.isLogin;
+    this.setData({ isLogin });
+
+    if (isLogin) {
+      this.loadPageData();
+    } else {
+      console.log('[Profile] 游客模式，显示登录引导');
+    }
+  },
+
+  // 游客点击登录按钮
+  onGoToLogin() {
+    wx.navigateTo({
+      url: '/pages/user/login/login'
+    });
   },
 
   onPullDownRefresh() {

@@ -1,11 +1,32 @@
 <!-- 个人中心页面 -->
 <view class="profile-container">
-  <!-- 顶部背景 -->
-  <view class="profile-header">
-    <view class="header-bg"></view>
+  <!-- 游客模式：登录引导 -->
+  <view wx:if="{{!isLogin}}" class="guest-guide">
+    <view class="guest-card">
+      <text class="guest-icon">👋</text>
+      <text class="guest-title">欢迎来到129俱乐部</text>
+      <text class="guest-text">登录后可查看个人数据、参与比赛报名等更多功能</text>
+      <button class="login-btn" bindtap="onGoToLogin">立即登录</button>
+    </view>
 
-    <!-- 用户信息 -->
-    <view class="user-card">
+    <!-- 游客可用功能 -->
+    <view class="menu-section">
+      <view class="menu-title">可用功能</view>
+      <view class="menu-list">
+        <menu-item icon="{{icons.notice}}" text="通知公告" type="notice" bind:tap="onMenuItemTap"></menu-item>
+        <menu-item icon="{{icons.setting}}" text="关于我们" type="about" bind:tap="onMenuItemTap"></menu-item>
+      </view>
+    </view>
+  </view>
+
+  <!-- 登录模式：完整个人中心 -->
+  <view wx:else>
+    <!-- 顶部背景 -->
+    <view class="profile-header">
+      <view class="header-bg"></view>
+
+      <!-- 用户信息 -->
+      <view class="user-card">
       <image class="avatar" src="{{userInfo.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
       <view class="user-info">
         <view class="user-name-row">
@@ -42,6 +63,36 @@
         <text class="team-role">{{currentTeam.iscaptain ? '队长' : '队员'}}</text>
       </view>
       <image class="arrow" src="{{icons.arrowRightWhite}}" mode="aspectFit"></image>
+    </view>
+  </view>
+
+    <!-- 数据统计卡片 -->
+    <view class="stats-card">
+      <view class="stats-row">
+        <view class="stat-item">
+          <text class="stat-value">{{personalStats.matches || 0}}</text>
+          <text class="stat-label">出场</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-value">{{personalStats.goals || 0}}</text>
+          <text class="stat-label">进球</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-value">{{personalStats.assists || 0}}</text>
+          <text class="stat-label">助攻</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-value">{{personalStats.mvpCount || 0}}</text>
+          <text class="stat-label">MVP</text>
+        </view>
+      </view>
+      <view class="view-detail" bindtap="onViewStats">
+        <text>查看详细数据</text>
+        <image src="{{icons.arrowRight}}" mode="aspectFit"></image>
+      </view>
     </view>
   </view>
 
@@ -90,6 +141,7 @@
     <text>版本 {{version}}</text>
   </view>
 
-  <!-- 底部占位 -->
-  <view class="bottom-space"></view>
+    <!-- 底部占位 -->
+    <view class="bottom-space"></view>
+  </view>
 </view>
