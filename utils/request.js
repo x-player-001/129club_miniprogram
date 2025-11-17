@@ -105,7 +105,7 @@ function request(options) {
             reject(res.data);
           }
         } else if (res.statusCode === 401) {
-          // 未授权，清除本地登录信息并跳转登录页
+          // 未授权，清除本地登录信息
           console.log('[Request] 401 未授权，清除登录信息');
           wx.removeStorageSync('token');
           wx.removeStorageSync('userInfo');
@@ -118,19 +118,22 @@ function request(options) {
 
           // 静默模式下不弹窗和跳转
           if (!isSilent) {
-            wx.showToast({
-              title: '登录已过期，请重新登录',
-              icon: 'none',
-              duration: 2000
+            // 弹窗询问用户是否登录，而不是直接跳转
+            wx.showModal({
+              title: '需要登录',
+              content: '此功能需要登录后才能使用，是否前往登录？',
+              confirmText: '去登录',
+              cancelText: '稍后再说',
+              success: (modalRes) => {
+                if (modalRes.confirm) {
+                  // 用户确认登录，跳转到登录页
+                  wx.navigateTo({
+                    url: '/pages/user/login/login'
+                  });
+                }
+                // 用户取消，不做任何操作，停留在当前页面
+              }
             });
-
-            // 延迟跳转，让用户看到提示
-            setTimeout(() => {
-              // 使用 reLaunch 而非 navigateTo，因为可能在 tabBar 页面
-              wx.reLaunch({
-                url: '/pages/user/login/login?autoLogin=false'
-              });
-            }, 1500);
           }
           reject(res);
         } else {
