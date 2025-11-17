@@ -3,6 +3,8 @@
  * 用于将API返回的数据转换为页面组件需要的格式
  */
 
+const config = require('./config.js');
+
 /**
  * 格式化比赛数据为match-card组件格式
  * @param {Object} match API返回的比赛数据
@@ -25,15 +27,21 @@ function formatMatchData(match) {
     time: `${hours}:${minutes}`,
     location: match.location,
     status: match.status,
-    team1: match.team1 || {
+    team1: match.team1 ? {
+      ...match.team1,
+      logo: getTeamLogoUrl(match.team1.logo)
+    } : {
       id: match.team1Id,
       name: match.team1Name,
-      logo: match.team1Logo
+      logo: getTeamLogoUrl(match.team1Logo)
     },
-    team2: match.team2 || {
+    team2: match.team2 ? {
+      ...match.team2,
+      logo: getTeamLogoUrl(match.team2.logo)
+    } : {
       id: match.team2Id,
       name: match.team2Name,
-      logo: match.team2Logo
+      logo: getTeamLogoUrl(match.team2Logo)
     },
     team1Score: match.team1Score,
     team2Score: match.team2Score,
@@ -56,7 +64,7 @@ function formatTeamData(team) {
   return {
     id: team.id,
     name: team.name,
-    logo: team.logo || '/static/images/default-team.png',
+    logo: team.logo || config.getImageUrl('default-team.png'),
     color: team.color || '#ff6b6b',
     colorDark: darkenColor(team.color || '#ff6b6b'),
     captainName: team.captain?.realName || team.captain?.nickname || team.captainName || '未设置',
@@ -85,7 +93,7 @@ function formatPlayerData(player) {
     id: player.id,
     nickname: player.nickname,
     realName: player.realName,
-    avatar: player.avatar || '/static/images/default-avatar.png',
+    avatar: player.avatar || config.getImageUrl('default-avatar.png'),
     jerseyNumber: player.jerseyNumber,
     position: player.position,
     teamName: player.team?.name || player.teamName,
@@ -109,25 +117,25 @@ function formatStatsGrid(stats) {
 
   return [
     {
-      icon: '/static/icons/goal.png',
+      icon: config.getIconUrl('goal.png'),
       iconClass: 'goal-icon',
       value: stats.goals || 0,
       label: '进球'
     },
     {
-      icon: '/static/icons/assist.png',
+      icon: config.getIconUrl('assist.png'),
       iconClass: 'assist-icon',
       value: stats.assists || 0,
       label: '助攻'
     },
     {
-      icon: '/static/icons/match.png',
+      icon: config.getIconUrl('match.png'),
       iconClass: 'match-icon',
       value: stats.matchesPlayed || stats.matches || 0,
       label: '出场'
     },
     {
-      icon: '/static/icons/star.png',
+      icon: config.getIconUrl('star.png'),
       iconClass: 'mvp-icon',
       value: stats.mvpCount || 0,
       label: 'MVP'
@@ -172,12 +180,39 @@ function formatRankingItem(rankingItem, index) {
     id: user.id,
     nickname: user.nickname,
     realName: user.realName,
-    avatar: user.avatar || '/static/images/default-avatar.png',
+    avatar: user.avatar || config.getImageUrl('default-avatar.png'),
     teamName: user.team?.name || rankingItem.teamName,
     teamColor: user.team?.color || rankingItem.teamColor,
     value: rankingItem.goals || rankingItem.assists || rankingItem.mvpCount || rankingItem.attendanceRate || 0,
     matchesPlayed: rankingItem.matchesPlayed || 0
   };
+}
+
+/**
+ * 获取队伍logo URL（统一使用服务器地址）
+ * @param {String} logoPath logo路径
+ * @returns {String} 完整的logo URL
+ */
+function getTeamLogoUrl(logoPath) {
+  return config.getStaticUrl(logoPath, 'teamLogos');
+}
+
+/**
+ * 获取图标URL（统一使用服务器地址）
+ * @param {String} iconPath 图标路径
+ * @returns {String} 完整的图标URL
+ */
+function getIconUrl(iconPath) {
+  return config.getStaticUrl(iconPath, 'icons');
+}
+
+/**
+ * 获取图片URL（统一使用服务器地址）
+ * @param {String} imagePath 图片路径
+ * @returns {String} 完整的图片URL
+ */
+function getImageUrl(imagePath) {
+  return config.getStaticUrl(imagePath, 'images');
 }
 
 /**
@@ -217,6 +252,7 @@ module.exports = {
   formatStatsGrid,
   formatTeamStatsBar,
   formatRankingItem,
+  getTeamLogoUrl,
   darkenColor,
   formatPeriod
 };

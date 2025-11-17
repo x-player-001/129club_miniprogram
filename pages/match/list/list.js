@@ -1,6 +1,8 @@
 // pages/match/list/list.js
 const app = getApp();
 const matchAPI = require('../../../api/match.js');
+const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -12,7 +14,16 @@ Page({
     ],
     matchList: [],
     loading: false,
-    isAdmin: false
+    isAdmin: false,
+
+    // 图标URL
+    icons: {
+      add: config.getIconUrl('add.png')
+    },
+    // 图片URL
+    images: {
+      emptyMatch: config.getImageUrl('empty-match.png')
+    }
   },
 
   onLoad(options) {
@@ -161,13 +172,13 @@ Page({
       team1: {
         id: match.team1?.id || match.team1Id,
         name: match.team1?.name || match.team1Name,
-        logo: match.team1?.logo || match.team1Logo || '/static/images/default-team.png',
+        logo: getTeamLogoUrl(match.team1?.logo || match.team1Logo),
         color: match.team1?.color || match.team1Color || '#ff6b6b'
       },
       team2: {
         id: match.team2?.id || match.team2Id,
         name: match.team2?.name || match.team2Name,
-        logo: match.team2?.logo || match.team2Logo || '/static/images/default-team.png',
+        logo: getTeamLogoUrl(match.team2?.logo || match.team2Logo),
         color: match.team2?.color || match.team2Color || '#3498db'
       },
       status: this.convertStatus(match.status),
@@ -200,7 +211,6 @@ Page({
     };
     return statusMap[status] || status;
   },
-
 
   // Tab切换
   onSwitchTab(e) {

@@ -1,4 +1,6 @@
 // components/empty-season/empty-season.js
+const config = require('../../utils/config.js');
+
 Component({
   /**
    * 组件的属性列表
@@ -31,21 +33,21 @@ Component({
     getTypeConfig(type) {
       const configs = {
         'no-season': {
-          iconSrc: '/static/icons/empty-season.png',
+          iconSrc: config.getIconUrl('empty-season.png'),
           title: '暂无赛季',
           description: '还没有创建任何赛季\n点击下方按钮创建第一个赛季'
         },
         'no-completed-season': {
-          iconSrc: '/static/icons/empty-season.png',
+          iconSrc: config.getIconUrl('empty-season.png'),
           description: '还没有已完成的赛季'
         },
         'no-all-season': {
-          iconSrc: '/static/icons/empty-season.png',
+          iconSrc: config.getIconUrl('empty-season.png'),
           title: '暂无赛季',
           description: '还没有任何赛季记录'
         },
         'no-match': {
-          iconSrc: '/static/images/empty-match.png',
+          iconSrc: config.getImageUrl('empty-match.png'),
           title: '暂无比赛',
           description: '该赛季还没有比赛记录'
         }
@@ -55,11 +57,11 @@ Component({
 
     // 初始化配置
     initConfig() {
-      const config = this.getTypeConfig(this.data.type);
+      const typeConfig = this.getTypeConfig(this.data.type);
       this.setData({
-        iconSrc: config.iconSrc,
-        title: config.title,
-        description: config.description
+        iconSrc: typeConfig.iconSrc,
+        title: typeConfig.title,
+        description: typeConfig.description
       });
     },
 

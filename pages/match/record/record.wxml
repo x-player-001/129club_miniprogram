@@ -160,8 +160,8 @@
       </view>
     </view>
 
-    <!-- Step 7: 到场人员（原Step 6，条件改为步骤7） -->
-    <view class="step-content" wx:if="{{currentStep === 7 && matchInfo}}">
+    <!-- Step 6/7: 到场人员（无点球时步骤6，有点球时步骤7） -->
+    <view class="step-content" wx:if="{{((currentStep === 6 && !needPenalty) || (currentStep === 7 && needPenalty)) && matchInfo}}">
       <view class="section-card">
         <view class="section-header">
           <text class="section-title">到场人员选择</text>
@@ -183,9 +183,9 @@
 
           <view class="participant-list" wx:if="{{participants.team1.length > 0}}">
             <view class="participant-item" wx:for="{{participants.team1}}" wx:key="id">
-              <image class="participant-avatar" src="{{item.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+              <image class="participant-avatar" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
               <text class="participant-name">{{item.name || item.nickname}}</text>
-              <image class="participant-remove" src="/static/icons/close-red.png" bindtap="onRemoveParticipant" data-team="team1" data-id="{{item.id}}" mode="aspectFill"></image>
+              <image class="participant-remove" src="{{icons.closeRed}}" bindtap="onRemoveParticipant" data-team="team1" data-id="{{item.id}}" mode="aspectFill"></image>
             </view>
           </view>
           <view class="participant-empty" wx:else>
@@ -208,9 +208,9 @@
 
           <view class="participant-list" wx:if="{{participants.team2.length > 0}}">
             <view class="participant-item" wx:for="{{participants.team2}}" wx:key="id">
-              <image class="participant-avatar" src="{{item.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+              <image class="participant-avatar" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
               <text class="participant-name">{{item.name || item.nickname}}</text>
-              <image class="participant-remove" src="/static/icons/close-red.png" bindtap="onRemoveParticipant" data-team="team2" data-id="{{item.id}}" mode="aspectFill"></image>
+              <image class="participant-remove" src="{{icons.closeRed}}" bindtap="onRemoveParticipant" data-team="team2" data-id="{{item.id}}" mode="aspectFill"></image>
             </view>
           </view>
           <view class="participant-empty" wx:else>
@@ -220,8 +220,8 @@
       </view>
     </view>
 
-    <!-- Step 8: MVP与照片（原Step 7，条件改为步骤8） -->
-    <view class="step-content" wx:if="{{currentStep === 8 && matchInfo}}">
+    <!-- Step 7/8: MVP与照片（无点球时步骤7，有点球时步骤8） -->
+    <view class="step-content" wx:if="{{((currentStep === 7 && !needPenalty) || (currentStep === 8 && needPenalty)) && matchInfo}}">
       <!-- 最终得分展示 -->
       <view class="final-score-card">
         <text class="final-title">比赛结果</text>
@@ -270,7 +270,7 @@
         <view class="mvp-container" wx:if="{{mvpPlayers.length > 0}}">
           <view class="mvp-item" wx:for="{{mvpPlayers}}" wx:key="id">
             <view class="mvp-glow"></view>
-            <image class="mvp-avatar-mini" src="{{item.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+            <image class="mvp-avatar-mini" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
             <view class="mvp-details">
               <text class="mvp-name-mini">{{item.name}}</text>
               <text class="mvp-num" wx:if="{{item.nickname}}">{{item.nickname}}</text>
@@ -323,7 +323,7 @@
         <view class="photo-grid">
           <view class="photo-item {{item.uploading ? 'uploading' : ''}}" wx:for="{{photos}}" wx:key="id">
             <image class="photo-img" src="{{item.url}}" mode="aspectFill" bindtap="onPreviewPhoto" data-index="{{index}}"></image>
-            <image class="photo-delete" wx:if="{{!item.uploading}}" src="/static/icons/close-red.png" mode="aspectFit" bindtap="onDeletePhoto" data-index="{{index}}"></image>
+            <image class="photo-delete" wx:if="{{!item.uploading}}" src="{{icons.closeRed}}" mode="aspectFit" bindtap="onDeletePhoto" data-index="{{index}}"></image>
             <view class="photo-loading" wx:if="{{item.uploading}}">
               <text class="loading-text">上传中...</text>
             </view>

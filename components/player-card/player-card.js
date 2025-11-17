@@ -1,4 +1,6 @@
 // components/player-card/player-card.js
+const config = require('../../utils/config.js');
+
 Component({
   properties: {
     // 球员数据
@@ -42,6 +44,9 @@ Component({
     _processedPlayerData: {
       leftFootSkill: 0,
       rightFootSkill: 0
+    },
+    icons: {
+      crownSmall: config.getIconUrl('crown-small.png')
     }
   },
 
@@ -62,7 +67,7 @@ Component({
 
       const { _processedPlayerData, playerData, selected } = this.data;
       const data = _processedPlayerData.id ? _processedPlayerData : playerData;
-      console.log('[player-card] onCardTap 触发，playerId:', data.id);
+
       this.triggerEvent('tap', {
         playerId: data.id,
         playerData: data,

@@ -1,6 +1,7 @@
 // pages/team/create/create.js
 const app = getApp();
 const teamAPI = require('../../../api/team.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -20,7 +21,12 @@ Page({
     ],
     users: [], // 可选队长列表
     captainName: '', // 已选队长的名字
-    showCaptainPicker: false // 是否显示队长选择器
+    showCaptainPicker: false, // 是否显示队长选择器
+
+    // 图标URL
+    icons: {
+      arrowRight: config.getIconUrl('arrow-right.png')
+    }
   },
 
   onLoad(options) {

@@ -24,7 +24,7 @@
     <view class="picker-header">
       <text class="picker-title">{{title}}</text>
       <view class="close-btn" catchtap="onCloseTap">
-        <image src="/static/icons/close.png" mode="aspectFit"></image>
+        <image src="{{icons.close}}" mode="aspectFit"></image>
       </view>
     </view>
 
@@ -50,7 +50,7 @@
           <image
             wx:if="{{showAvatar && !item[avatarField]}}"
             class="item-avatar"
-            src="/static/images/default-avatar.png"
+            src="{{images.defaultAvatar}}"
             mode="aspectFill"></image>
 
           <!-- 文本 -->

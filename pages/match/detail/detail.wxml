@@ -124,34 +124,55 @@
           <text class="summary-text">{{matchInfo.result.summary}}</text>
         </view>
       </view>
+
+      <!-- 比赛照片（已完成的比赛且有照片） -->
+      <view class="photos-card" wx:if="{{matchInfo.status === 'finished' && matchInfo.result && matchInfo.result.photos && matchInfo.result.photos.length > 0}}">
+        <view class="photos-header">
+          <text class="photos-title">📷 比赛照片</text>
+          <text class="photos-count">{{matchInfo.result.photos.length}}张</text>
+        </view>
+        <view class="photos-grid">
+          <image
+            class="photo-item"
+            wx:for="{{matchInfo.result.photos}}"
+            wx:key="index"
+            src="{{item}}"
+            mode="aspectFill"
+            bindtap="onPreviewPhoto"
+            data-index="{{index}}">
+          </image>
+        </view>
+      </view>
     </view>
 
     <!-- 报名情况/到场情况（所有状态都显示） -->
     <view class="registration-section">
       <view class="section-header">
         <text class="section-title">{{matchInfo.status === 'finished' ? '到场情况' : '报名情况'}}</text>
-        <text class="section-subtitle">共{{team1Players.length + team2Players.length}}人{{matchInfo.status === 'finished' ? '到场' : '报名'}}</text>
+        <text class="section-subtitle">共{{matchInfo.status === 'finished' ? totalAttendedCount : (team1Players.length + team2Players.length)}}人{{matchInfo.status === 'finished' ? '到场' : '报名'}}</text>
       </view>
 
       <view class="teams-tabs">
         <view class="team-tab {{currentTeam === 'team1' ? 'active' : ''}}" bindtap="onSwitchTeam" data-team="team1">
           <text class="tab-name">{{matchInfo.team1.name}}</text>
-          <view class="tab-count">{{team1Players.length}}</view>
+          <view class="tab-count">{{matchInfo.status === 'finished' ? team1AttendedCount : team1Players.length}}</view>
         </view>
         <view class="team-tab {{currentTeam === 'team2' ? 'active' : ''}}" bindtap="onSwitchTeam" data-team="team2">
           <text class="tab-name">{{matchInfo.team2.name}}</text>
-          <view class="tab-count">{{team2Players.length}}</view>
+          <view class="tab-count">{{matchInfo.status === 'finished' ? team2AttendedCount : team2Players.length}}</view>
         </view>
       </view>
 
       <view class="players-grid">
         <view class="player-card-mini {{!item.isAttended ? 'absent' : ''}} {{item.isMvp ? 'mvp-player' : ''}}" wx:for="{{currentPlayers}}" wx:key="id">
           <view class="avatar-wrapper">
-            <image class="player-avatar-mini" src="{{item.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+            <image class="player-avatar-mini" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
             <!-- 球衣号码徽章 -->
             <view class="jersey-badge" wx:if="{{item.jerseyNumber}}">{{item.jerseyNumber}}</view>
             <!-- 缺席标记（仅已完成的比赛显示） -->
             <view class="absent-badge" wx:if="{{matchInfo.status === 'finished' && !item.isAttended}}">缺席</view>
+            <!-- 临时参加标记（仅已完成的比赛且为临时参加球员显示） -->
+            <view class="walkin-badge" wx:if="{{matchInfo.status === 'finished' && item.isWalkIn}}">临时</view>
             <!-- MVP标记（仅已完成的比赛显示） -->
             <view class="mvp-badge-mini" wx:if="{{matchInfo.status === 'finished' && item.isMvp}}">🏆</view>
           </view>
@@ -181,24 +202,25 @@
 
   <!-- 底部操作栏（未开始的比赛） -->
   <view class="action-bar" wx:if="{{matchInfo.status === 'upcoming'}}">
-    <view class="action-btn share-btn" bindtap="onShare">
+    <button class="action-btn share-btn" open-type="share">
       <text class="btn-text">分享</text>
       <text class="btn-icon">📤</text>
-    </view>
+    </button>
+    <!-- 去报名按钮（所有用户可见） -->
     <view class="action-btn register-btn" bindtap="onGoToRegister">
       <text class="btn-text">去报名</text>
       <text class="btn-icon">⚡</text>
     </view>
   </view>
 
-  <!-- 底部操作栏（已结束的比赛 - 所有人可见） -->
-  <view class="action-bar" wx:if="{{matchInfo.status === 'finished' && !matchInfo.hasRecord}}">
+  <!-- 底部操作栏（已结束的比赛 - 仅超级管理员可见） -->
+  <view class="action-bar" wx:if="{{matchInfo.status === 'finished' && !matchInfo.hasRecord && canRecordMatch}}">
     <view class="action-btn record-btn" bindtap="onManualRecord">
       <text class="btn-text">录入比赛记录</text>
     </view>
   </view>
 
-  <!-- 底部操作栏（进行中的比赛 - 所有人可见） -->
+  <!-- 底部操作栏（进行中的比赛 - 所有用户可见） -->
   <view class="action-bar" wx:if="{{matchInfo.status === 'ongoing'}}">
     <view class="action-btn record-btn" bindtap="onManualRecord">
       <text class="btn-text">录入比赛记录</text>

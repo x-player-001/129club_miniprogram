@@ -1,6 +1,7 @@
 // pages/season/detail/detail.js
 const API = require('../../../api/index');
 const app = getApp();
+const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
 
 Page({
   /**
@@ -93,6 +94,35 @@ Page({
               ? match.result.team2FinalScore
               : (match.team2Score !== undefined ? match.team2Score : 0));
 
+          // 处理点球大战数据
+          let penaltyShootout = {
+            enabled: false,
+            team1Score: 0,
+            team2Score: 0,
+            winner: ''
+          };
+
+          if (match.result && match.result.penaltyShootout) {
+            let winner = '';
+            if (match.result.penaltyWinnerTeamId) {
+              const team1Id = match.team1?.id;
+              const team2Id = match.team2?.id;
+
+              if (match.result.penaltyWinnerTeamId === team1Id) {
+                winner = 'team1';
+              } else if (match.result.penaltyWinnerTeamId === team2Id) {
+                winner = 'team2';
+              }
+            }
+
+            penaltyShootout = {
+              enabled: true,
+              team1Score: match.result.team1PenaltyScore || 0,
+              team2Score: match.result.team2PenaltyScore || 0,
+              winner: winner
+            };
+          }
+
           return {
             ...match,
             formattedDate: this.formatDate(match.matchDate),
@@ -100,58 +130,87 @@ Page({
             team2FinalScore: team2Score,
             // 保留进球数用于其他显示
             team1TotalGoals: match.result?.team1TotalGoals,
-            team2TotalGoals: match.result?.team2TotalGoals
+            team2TotalGoals: match.result?.team2TotalGoals,
+            penaltyShootout: penaltyShootout
           };
         });
 
-        // 计算赛季总比分
-        const { team1Wins, team2Wins } = this.calculateSeasonScore(formattedMatches);
+        // 使用后端返回的 rankings 数据获取总比分
+        const rankings = seasonInfo.rankings || [];
 
-        // 从比赛中提取队伍信息（假设所有比赛使用相同的两个队伍）
-        let team1Info = { name: '队伍1', logo: '/static/images/logoa.png' };
-        let team2Info = { name: '队伍2', logo: '/static/images/logob.png' };
+        // 从 rankings 中提取队伍信息和总比分
+        let team1Data = { name: '队伍1', logo: getTeamLogoUrl('/static/images/logoa.png'), wins: 0 };
+        let team2Data = { name: '队伍2', logo: getTeamLogoUrl('/static/images/logob.png'), wins: 0 };
 
-        if (formattedMatches.length > 0) {
+        if (rankings.length >= 2) {
+          // 假设 rankings 中第一个是长江黄河，第二个是嘉陵摩托
+          // 或者根据 teamId 匹配（如果 seasonInfo 中有 team1Id/team2Id）
+          const ranking1 = rankings[0];
+          const ranking2 = rankings[1];
+
+          // 如果有明确的队伍ID，进行匹配
+          if (seasonInfo.team1Id && seasonInfo.team2Id) {
+            const team1Ranking = rankings.find(r => r.teamId === seasonInfo.team1Id);
+            const team2Ranking = rankings.find(r => r.teamId === seasonInfo.team2Id);
+
+            if (team1Ranking) {
+              team1Data = {
+                name: team1Ranking.teamName,
+                logo: getTeamLogoUrl(team1Ranking.teamLogo),
+                wins: team1Ranking.totalScore
+              };
+            }
+
+            if (team2Ranking) {
+              team2Data = {
+                name: team2Ranking.teamName,
+                logo: getTeamLogoUrl(team2Ranking.teamLogo),
+                wins: team2Ranking.totalScore
+              };
+            }
+          } else {
+            // 如果没有明确的队伍ID，按顺序使用（需要后端保证顺序）
+            team1Data = {
+              name: ranking1.teamName,
+              logo: getTeamLogoUrl(ranking1.teamLogo),
+              wins: ranking1.totalScore
+            };
+            team2Data = {
+              name: ranking2.teamName,
+              logo: getTeamLogoUrl(ranking2.teamLogo),
+              wins: ranking2.totalScore
+            };
+          }
+        } else if (formattedMatches.length > 0) {
+          // 如果 rankings 数据不可用，从比赛中提取队伍信息（降级方案）
           const firstMatch = formattedMatches[0];
           if (firstMatch.team1) {
-            team1Info = {
-              name: firstMatch.team1.name || team1Info.name,
-              logo: firstMatch.team1.logo || team1Info.logo
-            };
+            team1Data.name = firstMatch.team1.name || team1Data.name;
+            team1Data.logo = getTeamLogoUrl(firstMatch.team1.logo) || team1Data.logo;
           }
           if (firstMatch.team2) {
-            team2Info = {
-              name: firstMatch.team2.name || team2Info.name,
-              logo: firstMatch.team2.logo || team2Info.logo
-            };
+            team2Data.name = firstMatch.team2.name || team2Data.name;
+            team2Data.logo = getTeamLogoUrl(firstMatch.team2.logo) || team2Data.logo;
           }
-        }
 
-        // 如果seasonInfo中有队伍信息，优先使用
-        if (seasonInfo.team1Name) team1Info.name = seasonInfo.team1Name;
-        if (seasonInfo.team1Logo) team1Info.logo = seasonInfo.team1Logo;
-        if (seasonInfo.team2Name) team2Info.name = seasonInfo.team2Name;
-        if (seasonInfo.team2Logo) team2Info.logo = seasonInfo.team2Logo;
+          // 使用前端计算的总比分（降级方案）
+          const { team1Wins, team2Wins } = this.calculateSeasonScore(formattedMatches);
+          team1Data.wins = team1Wins;
+          team2Data.wins = team2Wins;
+        }
 
         this.setData({
           seasonInfo,
           matches: formattedMatches,
           formattedStartDate,
-          team1Data: {
-            name: team1Info.name,
-            logo: team1Info.logo,
-            wins: team1Wins
-          },
-          team2Data: {
-            name: team2Info.name,
-            logo: team2Info.logo,
-            wins: team2Wins
-          },
+          team1Data,
+          team2Data,
+          rankings, // 保存 rankings 数据，供统计Tab使用
           loading: false
         });
 
-        // 如果当前是统计Tab，加载统计数据
-        if (this.data.currentTab === 'statistics') {
+        // 如果当前是统计Tab且没有 rankings 数据，加载统计数据
+        if (this.data.currentTab === 'statistics' && rankings.length === 0) {
           this.loadStatistics();
         }
       })

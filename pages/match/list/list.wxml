@@ -21,7 +21,7 @@
     <!-- 空状态 - 使用 empty-state 组件 -->
     <view wx:else>
       <empty-state
-        icon="/static/images/empty-match.png"
+        icon="{{images.emptyMatch}}"
         text="暂无比赛"
         hint="{{currentTab === '0' ? '等待管理员创建比赛' : currentTab === '1' ? '当前没有进行中的比赛' : '还没有比赛记录'}}">
       </empty-state>
@@ -34,7 +34,7 @@
   <!-- 创建比赛按钮（管理员可见） -->
   <view class="create-btn-wrapper" wx:if="{{isAdmin}}">
     <view class="create-match-btn" bindtap="onCreateMatch">
-      <image class="btn-icon" src="/static/icons/add.png" mode="aspectFit"></image>
+      <image class="btn-icon" src="{{icons.add}}" mode="aspectFit"></image>
       <text>创建比赛</text>
     </view>
   </view>

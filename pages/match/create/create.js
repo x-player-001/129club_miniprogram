@@ -3,6 +3,7 @@ const app = getApp();
 const matchAPI = require('../../../api/match.js');
 const teamAPI = require('../../../api/team.js');
 const seasonAPI = require('../../../api/season.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -25,10 +26,14 @@ Page({
     noActiveSeason: false,  // 是否没有活跃赛季
     // 默认比赛地点配置
     defaultLocation: {
-      name: '重庆市两江新区轨道交通大竹林基地',
+      name: '轨道交通大竹林基地',
       address: '重庆市轨道交通（集团）有限公司内部地下停车场',
       latitude: 29.628999,
       longitude: 106.496754
+    },
+    // 图片URL
+    images: {
+      defaultTeam: config.getImageUrl('default-team.png')
     }
   },
 
@@ -51,25 +56,25 @@ Page({
       'formData.longitude': defaultLocation.longitude
     });
 
-    // 加载当前赛季
-    this.loadCurrentSeason();
-
     // 加载队伍列表
     this.loadTeams();
   },
 
   /**
+   * 页面显示时重新加载赛季数据
+   * 确保获取最新的 matchCount
+   */
+  onShow() {
+    // 每次显示页面时重新加载赛季，获取最新的 matchCount
+    this.loadCurrentSeason();
+  },
+
+  /**
    * 加载当前活跃赛季
+   * 每次都从 API 加载最新数据，确保 matchCount 是最新的
    */
   loadCurrentSeason() {
-    // 先尝试从app获取缓存的当前赛季
-    const cachedSeason = app.getCurrentSeason();
-    if (cachedSeason) {
-      this.onSeasonLoaded(cachedSeason);
-      return;
-    }
-
-    // 如果没有缓存，从API加载
+    // 直接从 API 加载最新的赛季数据（不使用缓存）
     seasonAPI.getList({ status: 'active', limit: 1 })
       .then(res => {
         const seasons = res.data.list || [];
@@ -122,8 +127,15 @@ Page({
       const teams = res.data?.list || [];
 
       if (teams.length >= 2) {
-        const team1 = teams[0];
-        const team2 = teams[1];
+        // 处理队伍logo URL
+        const team1 = {
+          ...teams[0],
+          logo: config.getStaticUrl(teams[0].logo, 'teamLogos')
+        };
+        const team2 = {
+          ...teams[1],
+          logo: config.getStaticUrl(teams[1].logo, 'teamLogos')
+        };
 
         this.setData({
           team1: team1,

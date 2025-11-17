@@ -1,6 +1,8 @@
 // pages/match/register/register.js
 const app = getApp();
 const matchAPI = require('../../../api/match.js');
+const config = require('../../../utils/config.js');
+const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
 
 Page({
   data: {
@@ -8,11 +10,18 @@ Page({
     matchInfo: {},
     myTeamId: '',
     registeredPlayers: [],
-    remark: '',
+    notes: '',
     isRegistered: false, // 是否已报名
     currentTeamView: 'team1', // 当前查看的队伍（team1 或 team2）
     team1Players: [], // 队伍1的报名人员
-    team2Players: [] // 队伍2的报名人员
+    team2Players: [], // 队伍2的报名人员
+    hasTeam: false, // 用户是否有队伍
+    showTeamSelector: false, // 是否显示队伍选择弹窗
+    selectedTeamId: '', // 无队伍球员选择的队伍ID
+    // 图片URL
+    images: {
+      defaultAvatar: config.getImageUrl('default-avatar.png')
+    }
   },
 
   onLoad(options) {
@@ -42,13 +51,13 @@ Page({
         team1: {
           id: match.team1?.id || match.team1Id,
           name: match.team1?.name || match.team1Name,
-          logo: match.team1?.logo || match.team1Logo || '/static/images/default-team.png',
+          logo: getTeamLogoUrl(match.team1?.logo || match.team1Logo),
           color: match.team1?.color || '#f20810'
         },
         team2: {
           id: match.team2?.id || match.team2Id,
           name: match.team2?.name || match.team2Name,
-          logo: match.team2?.logo || match.team2Logo || '/static/images/default-team.png',
+          logo: getTeamLogoUrl(match.team2?.logo || match.team2Logo),
           color: match.team2?.color || '#924ab0'
         },
         maxPlayers: match.maxPlayersPerTeam || 11,
@@ -60,9 +69,14 @@ Page({
         description: match.description || ''
       };
 
+      // 判断用户是否有队伍
+      const myTeamId = userInfo.currentTeamId || userInfo.teamId || match.myTeamId || '';
+      const hasTeam = !!myTeamId;
+
       this.setData({
         matchInfo: matchInfo,
-        myTeamId: userInfo.currentTeamId || match.myTeamId
+        myTeamId: myTeamId,
+        hasTeam: hasTeam
       });
 
       // 加载已报名人员列表
@@ -97,7 +111,8 @@ Page({
         realName: reg.user?.realName,
         nickname: reg.user?.nickname,
         jerseyNumber: reg.user?.jerseyNumber,
-        position: Array.isArray(reg.user?.position) ? reg.user.position.join(', ') : reg.user?.position
+        position: Array.isArray(reg.user?.position) ? reg.user.position.join(', ') : reg.user?.position,
+        notes: reg.notes || '' // 添加备注字段
       }));
 
       // 转换队伍2的数据格式
@@ -107,7 +122,8 @@ Page({
         realName: reg.user?.realName,
         nickname: reg.user?.nickname,
         jerseyNumber: reg.user?.jerseyNumber,
-        position: Array.isArray(reg.user?.position) ? reg.user.position.join(', ') : reg.user?.position
+        position: Array.isArray(reg.user?.position) ? reg.user.position.join(', ') : reg.user?.position,
+        notes: reg.notes || '' // 添加备注字段
       }));
 
       // 检查当前用户是否已报名
@@ -150,7 +166,7 @@ Page({
   // 输入备注
   onRemarkInput(e) {
     this.setData({
-      remark: e.detail.value
+      notes: e.detail.value
     });
   },
 
@@ -160,12 +176,26 @@ Page({
       return;
     }
 
+    // 判断用户是否有队伍
+    if (this.data.hasTeam) {
+      // 有队伍：直接报名
+      this.confirmAndSubmit();
+    } else {
+      // 无队伍：显示队伍选择器
+      this.setData({
+        showTeamSelector: true
+      });
+    }
+  },
+
+  // 确认并提交报名
+  confirmAndSubmit(teamId) {
     wx.showModal({
       title: '确认报名',
       content: `确定要报名参加"${this.data.matchInfo.title}"吗？`,
       success: (res) => {
         if (res.confirm) {
-          this.submitRegistration();
+          this.submitRegistration(teamId);
         }
       }
     });
@@ -178,12 +208,17 @@ Page({
   },
 
   // 提交报名
-  submitRegistration() {
+  submitRegistration(teamId) {
     wx.showLoading({ title: '报名中...' });
 
     const registrationData = {
-      remark: this.data.remark
+      notes: this.data.notes
     };
+
+    // 如果传入了 teamId（无队伍球员），添加到请求数据中
+    if (teamId) {
+      registrationData.teamId = teamId;
+    }
 
     matchAPI.registerMatch(this.data.matchId, registrationData).then(() => {
       wx.hideLoading();
@@ -196,7 +231,16 @@ Page({
       // 刷新页面数据
       setTimeout(() => {
         this.loadMatchInfo();
-        this.setData({ remark: '' }); // 清空备注
+        this.setData({ notes: '' }); // 清空备注
+
+        // 标记比赛详情页需要刷新
+        const pages = getCurrentPages();
+        if (pages.length >= 2) {
+          const prevPage = pages[pages.length - 2];
+          if (prevPage.loadMatchDetail) {
+            prevPage.setData({ needRefresh: true });
+          }
+        }
       }, 1500);
     }).catch(err => {
       wx.hideLoading();
@@ -235,6 +279,15 @@ Page({
       // 刷新页面数据
       setTimeout(() => {
         this.loadMatchInfo();
+
+        // 标记比赛详情页需要刷新
+        const pages = getCurrentPages();
+        if (pages.length >= 2) {
+          const prevPage = pages[pages.length - 2];
+          if (prevPage.loadMatchDetail) {
+            prevPage.setData({ needRefresh: true });
+          }
+        }
       }, 1500);
     }).catch(err => {
       wx.hideLoading();
@@ -243,5 +296,86 @@ Page({
         icon: 'none'
       });
     });
+  },
+
+  // 选择支援队伍
+  onSelectTeam(e) {
+    const teamId = e.currentTarget.dataset.teamId;
+    const teamName = e.currentTarget.dataset.teamName;
+
+    this.setData({
+      selectedTeamId: teamId,
+      showTeamSelector: false
+    });
+
+    // 显示确认弹窗
+    wx.showModal({
+      title: '确认报名',
+      content: `确定要支援 ${teamName} 参加比赛吗？`,
+      success: (res) => {
+        if (res.confirm) {
+          this.submitRegistration(teamId);
+        }
+      }
+    });
+  },
+
+  // 取消队伍选择
+  onCancelTeamSelect() {
+    this.setData({
+      showTeamSelector: false
+    });
+  },
+
+  // 获取分享图片URL
+  getShareImageUrl(status, shareImage) {
+    // 如果有自定义分享图，使用自定义的
+    if (shareImage) {
+      return config.getStaticUrl(shareImage, 'shareImages');
+    }
+
+    // 否则根据比赛状态返回默认图
+    const imageMap = {
+      'upcoming': config.getStaticUrl('/share_images/registration.png', 'shareImages'),
+      'ongoing': config.getStaticUrl('/share_images/ongoing.png', 'shareImages'),
+      'finished': config.getStaticUrl('/share_images/finished.png', 'shareImages')
+    };
+
+    return imageMap[status] || config.getStaticUrl('/share_images/registration.png', 'shareImages');
+  },
+
+  // 分享比赛
+  onShareAppMessage() {
+    const matchInfo = this.data.matchInfo;
+
+    // 报名页面分享标题
+    const team1Count = matchInfo.team1RegisteredCount || 0;
+    const team2Count = matchInfo.team2RegisteredCount || 0;
+    const totalRegistered = team1Count + team2Count;
+    const maxTotal = (matchInfo.maxPlayersPerTeam || 11) * 2;
+
+    let title = '';
+    if (totalRegistered >= maxTotal) {
+      title = `⚽ ${matchInfo.title} | 报名已满，等你来战！`;
+    } else {
+      title = `⚽ ${matchInfo.title} | 已集结${totalRegistered}人，快来报名！`;
+    }
+
+    return {
+      title: title,
+      path: `/pages/match/register/register?id=${this.data.matchId}`,
+      imageUrl: this.getShareImageUrl('upcoming', matchInfo.shareImage)
+    };
+  },
+
+  // 分享到朋友圈
+  onShareTimeline() {
+    const matchInfo = this.data.matchInfo;
+
+    return {
+      title: `${matchInfo.title} | 129俱乐部`,
+      query: `id=${this.data.matchId}`,
+      imageUrl: this.getShareImageUrl('upcoming', matchInfo.shareImage)
+    };
   }
 });

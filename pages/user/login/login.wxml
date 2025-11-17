@@ -6,7 +6,7 @@
   <!-- Logo和标题区域 -->
   <view class="logo-section">
     <view class="logo-circle">
-      <image class="logo" src="/static/images/logo.png" mode="aspectFill"></image>
+      <image class="logo" src="{{images.logo}}" mode="aspectFill"></image>
     </view>
     <text class="app-name">129俱乐部</text>
     <text class="app-slogan">队内管理系统</text>
@@ -35,13 +35,13 @@
       open-type="getUserInfo"
       bindgetuserinfo="onGetUserInfo"
       hover-class="login-btn-hover">
-      <image class="wechat-icon" src="/static/icons/wechat.png" mode="aspectFit"></image>
+      <image class="wechat-icon" src="{{icons.wechat}}" mode="aspectFit"></image>
       <text>微信授权登录</text>
     </button>
   </view>
 
   <!-- 底部装饰 -->
   <view class="bottom-decoration">
-    <image class="football-icon" src="/static/images/football.png" mode="aspectFit"></image>
+    <image class="football-icon" src="{{images.football}}" mode="aspectFit"></image>
   </view>
 </view>

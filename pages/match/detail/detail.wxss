@@ -214,7 +214,7 @@
 }
 
 .penalty-detail-label {
-  font-size: 20rpx;
+  font-size: 26rpx;
   font-weight: 600;
   color: var(--theme-color);
   letter-spacing: 1rpx;
@@ -227,7 +227,7 @@
 }
 
 .penalty-detail-team {
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: 700;
   color: #636e72;
   font-family: 'DIN Alternate', sans-serif;
@@ -237,7 +237,6 @@
 
 .penalty-detail-team.winner {
   color: var(--theme-color);
-  font-size: 44rpx;
 }
 
 .penalty-detail-separator {
@@ -554,6 +553,46 @@
   line-height: 1.8;
 }
 
+/* ========== 比赛照片卡片 ========== */
+.photos-card {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.photos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.photos-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.photos-count {
+  font-size: 24rpx;
+  color: #95a5a6;
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+}
+
+.photo-item {
+  width: 100%;
+  height: 200rpx;
+  border-radius: 12rpx;
+  background: #f5f6f8;
+}
+
 /* 实际到场 */
 .attendance-info {
   background: #f8f9fa;
@@ -762,6 +801,21 @@
   z-index: 2;
 }
 
+/* 临时参加徽章 - 右上角 */
+.walkin-badge {
+  position: absolute;
+  top: -4rpx;
+  right: -4rpx;
+  padding: 4rpx 8rpx;
+  background: #3498db;
+  color: #ffffff;
+  font-size: 16rpx;
+  font-weight: 600;
+  border-radius: 8rpx;
+  box-shadow: 0 2rpx 8rpx rgba(52, 152, 219, 0.4);
+  z-index: 2;
+}
+
 /* MVP徽章 - 左上角 */
 .mvp-badge-mini {
   position: absolute;
@@ -873,6 +927,15 @@
   background: linear-gradient(135deg, #ecf0f1 0%, #dfe6e9 100%);
   color: #636e72;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  /* 重置 button 默认样式 */
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: inherit;
+}
+
+.share-btn::after {
+  border: none; /* 去除 button 默认边框 */
 }
 
 .register-btn {
@@ -880,6 +943,13 @@
   background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-color-dark) 100%);
   color: #ffffff;
   box-shadow: 0 8rpx 24rpx rgba(242, 8, 16, 0.4);
+}
+
+.cancel-btn {
+  flex: 1.5;
+  background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);
+  color: #ffffff;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.3);
 }
 
 .register-btn.registered {

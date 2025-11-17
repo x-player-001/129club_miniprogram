@@ -25,12 +25,12 @@
         </view>
         <view class="teams-display">
           <view class="team-item">
-            <image class="team-logo" src="{{team1.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+            <image class="team-logo" src="{{team1.logo || images.defaultTeam}}" mode="aspectFit"></image>
             <text class="team-name">{{team1.name || '加载中...'}}</text>
           </view>
           <text class="vs-text">VS</text>
           <view class="team-item">
-            <image class="team-logo" src="{{team2.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+            <image class="team-logo" src="{{team2.logo || images.defaultTeam}}" mode="aspectFit"></image>
             <text class="team-name">{{team2.name || '加载中...'}}</text>
           </view>
         </view>
@@ -82,14 +82,6 @@
           <text class="btn-icon">📍</text>
           <text class="btn-text">选择地点</text>
         </button>
-      </view>
-
-      <!-- 详细地址 -->
-      <view class="form-item" wx:if="{{formData.address}}">
-        <view class="form-label">
-          <text class="label-text">详细地址</text>
-        </view>
-        <view class="address-text">{{formData.address}}</view>
       </view>
 
       <!-- 比赛说明 -->

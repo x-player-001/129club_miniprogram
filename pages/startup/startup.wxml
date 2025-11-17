@@ -2,7 +2,7 @@
 <view class="startup-container">
   <!-- Logo区域 -->
   <view class="logo-section">
-    <image class="logo" src="/static/images/logo.png" mode="aspectFill"></image>
+    <image class="logo" src="{{images.logo}}" mode="aspectFill"></image>
     <view class="app-name">129俱乐部</view>
   </view>
 

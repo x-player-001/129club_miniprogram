@@ -4,7 +4,7 @@
     <!-- 赛季选择器 -->
     <view class="season-selector" bindtap="onShowSeasonPicker">
       <text class="season-name">{{currentSeasonName || '全部'}}</text>
-      <image class="dropdown-icon" src="/static/icons/dropdown.png"></image>
+      <image class="dropdown-icon" src="{{icons.dropdown}}"></image>
     </view>
 
     <!-- 赛季选择弹窗 -->
@@ -24,7 +24,7 @@
             data-name="{{item.name}}"
           >
             <text class="picker-item-name">{{item.name}}</text>
-            <image class="picker-check-icon" wx:if="{{item.id === selectedSeasonId}}" src="/static/icons/check.png"></image>
+            <image class="picker-check-icon" wx:if="{{item.id === selectedSeasonId}}" src="{{icons.check}}"></image>
           </view>
         </scroll-view>
       </view>
@@ -34,7 +34,7 @@
     <view class="my-stats-hero-card" bindtap="onViewMyStats">
       <view class="hero-header">
         <view class="user-info">
-          <image class="user-avatar" src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <image class="user-avatar" src="{{userInfo.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
           <view class="user-text">
             <text class="user-name">{{userInfo.nickname || userInfo.realName || '球员'}}</text>
             <text class="user-subtitle">{{userInfo.currentTeam.name || '暂无队伍'}}</text>
@@ -42,7 +42,7 @@
         </view>
         <view class="more-btn">
           <text>详情</text>
-          <image class="arrow-icon" src="/static/icons/arrow-right.png"></image>
+          <image class="arrow-icon" src="{{icons.arrowRight}}"></image>
         </view>
       </view>
 
@@ -50,28 +50,28 @@
       <view class="hero-stats-grid">
         <view class="hero-stat-item">
           <view class="stat-icon-wrapper match">
-            <image class="stat-icon" src="/static/icons/match.png"></image>
+            <image class="stat-icon" src="{{icons.match}}"></image>
           </view>
           <text class="stat-value">{{myStats.matches}}</text>
           <text class="stat-label">参赛场次</text>
         </view>
         <view class="hero-stat-item">
           <view class="stat-icon-wrapper goal">
-            <image class="stat-icon" src="/static/icons/goal.png"></image>
+            <image class="stat-icon" src="{{icons.goal}}"></image>
           </view>
           <text class="stat-value">{{myStats.goals}}</text>
           <text class="stat-label">进球</text>
         </view>
         <view class="hero-stat-item">
           <view class="stat-icon-wrapper assist">
-            <image class="stat-icon" src="/static/icons/assist.png"></image>
+            <image class="stat-icon" src="{{icons.assist}}"></image>
           </view>
           <text class="stat-value">{{myStats.assists}}</text>
           <text class="stat-label">助攻</text>
         </view>
         <view class="hero-stat-item">
           <view class="stat-icon-wrapper mvp">
-            <image class="stat-icon" src="/static/icons/star.png"></image>
+            <image class="stat-icon" src="{{icons.star}}"></image>
           </view>
           <text class="stat-value">{{myStats.mvp}}</text>
           <text class="stat-label">MVP</text>

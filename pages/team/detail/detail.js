@@ -1,6 +1,8 @@
 // pages/team/detail/detail.js
 const app = getApp();
 const teamAPI = require('../../../api/team.js');
+const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -11,7 +13,18 @@ Page({
     rankType: 'goals', // goals, assists, mvp
     rankingList: [],
     isCaptain: false,
-    canEdit: false // 是否可以编辑（队长或管理员）
+    canEdit: false, // 是否可以编辑（队长或管理员）
+
+    // 图标URL
+    icons: {
+      crown: config.getIconUrl('crown.png'),
+      editWhite: config.getIconUrl('edit-white.png'),
+      arrowRight: config.getIconUrl('arrow-right.png')
+    },
+    // 图片URL
+    images: {
+      defaultTeam: config.getImageUrl('default-team.png')
+    }
   },
 
   onLoad(options) {
@@ -117,6 +130,7 @@ Page({
       this.setData({
         teamInfo: {
           ...teamInfo,
+          logo: getTeamLogoUrl(teamInfo.logo),
           captainName: teamInfo.captain?.realName || teamInfo.captain?.nickname || '未设置',
           colorDark: this.darkenColor(teamInfo.color || '#667eea')
         },
@@ -167,11 +181,15 @@ Page({
         .filter(p => p)
         .join(',');
 
+      // 处理头像URL
+      const avatarPath = member.user?.avatar;
+      const avatar = avatarPath ? config.getStaticUrl(avatarPath, 'avatars') : config.getImageUrl('default-avatar.png');
+
       return {
         id: member.userId || member.user?.id,
         realName: member.user?.realName,
         nickname: member.user?.nickname,
-        avatar: member.user?.avatar || '/static/images/default-avatar.png',
+        avatar: avatar,
         jerseyNumber: member.user?.jerseyNumber,
         position: position,
         isCaptain: member.role === 'captain',
@@ -234,34 +252,43 @@ Page({
     switch (type) {
       case 'goals':
         rankingList = members
-          .map(m => ({
-            id: m.userId || m.user?.id,
-            realName: m.user?.realName || m.user?.nickname,
-            avatar: m.user?.avatar || '/static/images/default-avatar.png',
-            value: m.user?.stats?.goals || 0
-          }))
+          .map(m => {
+            const avatarPath = m.user?.avatar;
+            return {
+              id: m.userId || m.user?.id,
+              realName: m.user?.realName || m.user?.nickname,
+              avatar: avatarPath ? config.getStaticUrl(avatarPath, 'avatars') : config.getImageUrl('default-avatar.png'),
+              value: m.user?.stats?.goals || 0
+            };
+          })
           .sort((a, b) => b.value - a.value)
           .slice(0, 10);
         break;
       case 'assists':
         rankingList = members
-          .map(m => ({
-            id: m.userId || m.user?.id,
-            realName: m.user?.realName || m.user?.nickname,
-            avatar: m.user?.avatar || '/static/images/default-avatar.png',
-            value: m.user?.stats?.assists || 0
-          }))
+          .map(m => {
+            const avatarPath = m.user?.avatar;
+            return {
+              id: m.userId || m.user?.id,
+              realName: m.user?.realName || m.user?.nickname,
+              avatar: avatarPath ? config.getStaticUrl(avatarPath, 'avatars') : config.getImageUrl('default-avatar.png'),
+              value: m.user?.stats?.assists || 0
+            };
+          })
           .sort((a, b) => b.value - a.value)
           .slice(0, 10);
         break;
       case 'mvp':
         rankingList = members
-          .map(m => ({
-            id: m.userId || m.user?.id,
-            realName: m.user?.realName || m.user?.nickname,
-            avatar: m.user?.avatar || '/static/images/default-avatar.png',
-            value: m.user?.stats?.mvpCount || 0
-          }))
+          .map(m => {
+            const avatarPath = m.user?.avatar;
+            return {
+              id: m.userId || m.user?.id,
+              realName: m.user?.realName || m.user?.nickname,
+              avatar: avatarPath ? config.getStaticUrl(avatarPath, 'avatars') : config.getImageUrl('default-avatar.png'),
+              value: m.user?.stats?.mvpCount || 0
+            };
+          })
           .sort((a, b) => b.value - a.value)
           .slice(0, 10);
         break;
@@ -343,7 +370,7 @@ Page({
   onViewMemberStats(e) {
     const id = e.currentTarget.dataset.id;
     wx.navigateTo({
-      url: `/pages/user/stats/stats?userId=${id}`
+      url: `/pages/user/stats/stats?id=${id}`  // 使用 id 而不是 userId
     });
   },
 
@@ -365,7 +392,7 @@ Page({
     this._navigating = true;
 
     wx.navigateTo({
-      url: `/pages/user/stats/stats?userId=${playerId}`,
+      url: `/pages/user/stats/stats?id=${playerId}`,  // 使用 id 而不是 userId
       success: () => {
         setTimeout(() => {
           this._navigating = false;

@@ -3,6 +3,7 @@ const app = getApp();
 const statsAPI = require('../../../api/stats.js');
 const seasonAPI = require('../../../api/season.js');
 const achievementAPI = require('../../../api/achievement.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -79,6 +80,21 @@ Page({
       goalsPerMatch: '0.0',
       assistsPerMatch: '0.0',
       contributionPerMatch: '0.0'
+    },
+
+    // 图标URL
+    icons: {
+      dropdown: config.getIconUrl('dropdown.png'),
+      check: config.getIconUrl('check.png'),
+      arrowRight: config.getIconUrl('arrow-right.png'),
+      match: config.getIconUrl('match.png'),
+      goal: config.getIconUrl('goal.png'),
+      assist: config.getIconUrl('assist.png'),
+      star: config.getIconUrl('star.png')
+    },
+    // 图片URL
+    images: {
+      defaultAvatar: config.getImageUrl('default-avatar.png')
     }
   },
 
@@ -86,7 +102,7 @@ Page({
     // 加载用户信息
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo') || {
       id: '1',
-      avatar: '/static/images/default-avatar.png',
+      avatar: config.getImageUrl('default-avatar.png'),
       nickname: '张三',
       teamId: '1'
     };
@@ -103,7 +119,7 @@ Page({
     // 每次显示时刷新数据
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo') || {
       id: '1',
-      avatar: '/static/images/default-avatar.png',
+      avatar: config.getImageUrl('default-avatar.png'),
       nickname: '张三',
       teamId: '1'
     };
@@ -192,10 +208,10 @@ Page({
     };
 
     const myStatsGrid = [
-      { icon: '/static/icons/match.png', iconClass: 'match-icon', value: 15, label: '参赛场次' },
-      { icon: '/static/icons/goal.png', iconClass: 'goal-icon', value: 12, label: '进球' },
-      { icon: '/static/icons/assist.png', iconClass: 'assist-icon', value: 8, label: '助攻' },
-      { icon: '/static/icons/star.png', iconClass: 'mvp-icon', value: 3, label: 'MVP' }
+      { icon: config.getIconUrl('match.png'), iconClass: 'match-icon', value: 15, label: '参赛场次' },
+      { icon: config.getIconUrl('goal.png'), iconClass: 'goal-icon', value: 12, label: '进球' },
+      { icon: config.getIconUrl('assist.png'), iconClass: 'assist-icon', value: 8, label: '助攻' },
+      { icon: config.getIconUrl('star.png'), iconClass: 'mvp-icon', value: 3, label: 'MVP' }
     ];
 
     // 模拟个人排名
@@ -207,15 +223,15 @@ Page({
 
     // 模拟整体数据
     const overallStatsGrid = [
-      { icon: '/static/icons/match.png', iconClass: 'match-icon', value: 18, label: '总比赛场次' },
-      { icon: '/static/icons/goal.png', iconClass: 'goal-icon', value: 95, label: '总进球数' },
-      { icon: '/static/icons/assist.png', iconClass: 'assist-icon', value: 95, label: '总助攻数' }
+      { icon: config.getIconUrl('match.png'), iconClass: 'match-icon', value: 18, label: '总比赛场次' },
+      { icon: config.getIconUrl('goal.png'), iconClass: 'goal-icon', value: 95, label: '总进球数' },
+      { icon: config.getIconUrl('assist.png'), iconClass: 'assist-icon', value: 95, label: '总助攻数' }
     ];
 
     // 模拟队伍数据
     const teamStats = {
       name: '嘉陵摩托',
-      logo: '/static/images/logoa.png',
+      logo: config.getImageUrl('logoa.png'),
       color: '#f20810',
       matches: 18,
       wins: 12,
@@ -292,9 +308,9 @@ Page({
       // 处理整体统计
       const summary = data.summary || {};
       const overallStatsGrid = [
-        { icon: '/static/icons/match.png', iconClass: 'match-icon', value: summary.totalMatches || 0, label: '总比赛场次' },
-        { icon: '/static/icons/goal.png', iconClass: 'goal-icon', value: summary.totalGoals || 0, label: '总进球数' },
-        { icon: '/static/icons/assist.png', iconClass: 'assist-icon', value: summary.totalAssists || 0, label: '总助攻数' }
+        { icon: config.getIconUrl('match.png'), iconClass: 'match-icon', value: summary.totalMatches || 0, label: '总比赛场次' },
+        { icon: config.getIconUrl('goal.png'), iconClass: 'goal-icon', value: summary.totalGoals || 0, label: '总进球数' },
+        { icon: config.getIconUrl('assist.png'), iconClass: 'assist-icon', value: summary.totalAssists || 0, label: '总助攻数' }
       ];
 
       // 处理个人数据（从API返回）
@@ -309,10 +325,10 @@ Page({
       };
 
       const myStatsGrid = [
-        { icon: '/static/icons/match.png', iconClass: 'match-icon', value: myStats.matches, label: '参赛场次' },
-        { icon: '/static/icons/goal.png', iconClass: 'goal-icon', value: myStats.goals, label: '进球' },
-        { icon: '/static/icons/assist.png', iconClass: 'assist-icon', value: myStats.assists, label: '助攻' },
-        { icon: '/static/icons/star.png', iconClass: 'mvp-icon', value: myStats.mvp, label: 'MVP' }
+        { icon: config.getIconUrl('match.png'), iconClass: 'match-icon', value: myStats.matches, label: '参赛场次' },
+        { icon: config.getIconUrl('goal.png'), iconClass: 'goal-icon', value: myStats.goals, label: '进球' },
+        { icon: config.getIconUrl('assist.png'), iconClass: 'assist-icon', value: myStats.assists, label: '助攻' },
+        { icon: config.getIconUrl('star.png'), iconClass: 'mvp-icon', value: myStats.mvp, label: 'MVP' }
       ];
 
       // 处理队伍数据（从API返回统计，从userInfo获取基本信息）
@@ -321,7 +337,7 @@ Page({
 
       const teamStats = {
         name: currentTeam.name || teamStatsData.name || '我的队伍',
-        logo: currentTeam.logo || teamStatsData.logo || '/static/images/logoa.png',
+        logo: config.getStaticUrl(currentTeam.logo || teamStatsData.logo, 'teamLogos') || config.getImageUrl('logoa.png'),
         color: currentTeam.color || teamStatsData.color || '#f20810',
         matches: teamStatsData.matchesPlayed || teamStatsData.matches || 0,
         wins: teamStatsData.wins || 0,
@@ -577,9 +593,17 @@ Page({
       // 转换成页面需要的格式（使用后端返回的图片路径）
       const achievements = achievementsData.map(ach => {
         // 优先使用后端返回的 icon，如果无效则使用 emoji 作为降级方案
-        const icon = ach.icon || this.getAchievementEmoji(ach.code);
+        let icon = ach.icon || this.getAchievementEmoji(ach.code);
+
         // 判断是否为图片路径
         const isImageIcon = icon && (icon.includes('/') || icon.startsWith('http'));
+
+        // 如果是相对路径（/static/images/xxx.png），转换为动态路径
+        if (isImageIcon && icon.startsWith('/static/')) {
+          // 提取文件名（如 hat-trick.png）
+          const filename = icon.split('/').pop();
+          icon = config.getImageUrl(filename);
+        }
 
         return {
           id: ach.code || ach.id,

@@ -2,6 +2,7 @@
 const app = getApp();
 const statsAPI = require('../../../api/stats.js');
 const userAPI = require('../../../api/user.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -37,7 +38,12 @@ Page({
     unlockedCount: 0, // 已解锁成就数量
 
     // 加载状态
-    loading: false
+    loading: false,
+
+    // 图片URL
+    images: {
+      defaultAvatar: config.getImageUrl('default-avatar.png')
+    }
   },
 
   onLoad(options) {
@@ -72,7 +78,7 @@ Page({
         id: data.user?.id || this.data.userId,
         realName: data.user?.realName || '',
         nickname: data.user?.nickname || '',
-        avatar: data.user?.avatar || '/static/images/default-avatar.png',
+        avatar: config.getStaticUrl(data.user?.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
         jerseyNumber: data.user?.jerseyNumber || 0,
         leftFootSkill: data.user?.leftFootSkill || 0,
         rightFootSkill: data.user?.rightFootSkill || 0,
@@ -100,10 +106,10 @@ Page({
 
       // 核心数据（4宫格）
       const coreStats = [
-        { icon: '/static/icons/match.png', value: totalStats.matches, label: '参赛', type: 'matches' },
-        { icon: '/static/icons/goal.png', value: totalStats.goals, label: '进球', type: 'goals' },
-        { icon: '/static/icons/assist.png', value: totalStats.assists, label: '助攻', type: 'assists' },
-        { icon: '/static/icons/star.png', value: totalStats.mvp, label: 'MVP', type: 'mvp' }
+        { icon: config.getIconUrl('match.png'), value: totalStats.matches, label: '参赛', type: 'matches' },
+        { icon: config.getIconUrl('goal.png'), value: totalStats.goals, label: '进球', type: 'goals' },
+        { icon: config.getIconUrl('assist.png'), value: totalStats.assists, label: '助攻', type: 'assists' },
+        { icon: config.getIconUrl('star.png'), value: totalStats.mvp, label: 'MVP', type: 'mvp' }
       ];
 
       // 次要数据（2列网格，带进度条）

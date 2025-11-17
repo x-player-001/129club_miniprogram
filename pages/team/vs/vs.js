@@ -2,6 +2,7 @@
 const app = getApp();
 const matchAPI = require('../../../api/match.js');
 const teamAPI = require('../../../api/team.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -10,7 +11,11 @@ Page({
     team1Info: {},
     team2Info: {},
     vsStats: {},
-    matchList: []
+    matchList: [],
+    images: {
+      emptyMatch: config.getImageUrl('empty-match.png'),
+      defaultTeam: config.getImageUrl('default-team.png')
+    }
   },
 
   onLoad(options) {

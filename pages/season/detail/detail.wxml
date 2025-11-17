@@ -54,7 +54,12 @@
       <view class="match-item" wx:for="{{matches}}" wx:key="id" bindtap="onMatchTap" data-id="{{item.id}}">
         <view class="match-header">
           <text class="match-title">{{item.title || '比赛' + (index + 1)}}</text>
-          <text class="match-date">{{item.formattedDate}}</text>
+          <view class="header-right">
+            <text class="match-date">{{item.formattedDate}}</text>
+            <view class="status-badge status-{{item.status}}">
+              {{item.status === 'registration' ? '未开始' : item.status === 'in_progress' ? '进行中' : item.status === 'completed' ? '已结束' : '已取消'}}
+            </view>
+          </view>
         </view>
         <view class="match-teams">
           <view class="team">
@@ -69,6 +74,16 @@
           <view class="team">
             <text class="team-name">{{item.team2.name}}</text>
             <image class="team-logo" src="{{item.team2.logo}}" mode="aspectFill"></image>
+          </view>
+        </view>
+
+        <!-- 点球大战比分 -->
+        <view class="penalty-shootout" wx:if="{{item.penaltyShootout && item.penaltyShootout.enabled}}">
+          <text class="penalty-label">点球大战</text>
+          <view class="penalty-score">
+            <text class="penalty-team {{item.penaltyShootout.winner === 'team1' ? 'winner' : ''}}">{{item.penaltyShootout.team1Score}}</text>
+            <text class="penalty-separator">-</text>
+            <text class="penalty-team {{item.penaltyShootout.winner === 'team2' ? 'winner' : ''}}">{{item.penaltyShootout.team2Score}}</text>
           </view>
         </view>
       </view>

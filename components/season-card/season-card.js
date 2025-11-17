@@ -1,4 +1,6 @@
 // components/season-card/season-card.js
+const config = require('../../utils/config.js');
+
 Component({
   /**
    * 组件的属性列表
@@ -50,17 +52,36 @@ Component({
         formattedStartDate: this.formatDate(season.startDate)
       });
 
-      // 如果有统计数据，设置队伍比分
-      if (season.team1Wins !== undefined && season.team2Wins !== undefined) {
+      // 处理排名数据
+      if (season.rankings && Array.isArray(season.rankings) && season.rankings.length >= 2) {
+        // 从 rankings 数组中获取前两名队伍
+        const rank1 = season.rankings[0];
+        const rank2 = season.rankings[1];
+
+        this.setData({
+          team1Data: {
+            name: rank1.teamName || '队伍1',
+            logo: config.getStaticUrl(rank1.teamLogo, 'teamLogos') || config.getImageUrl('default-team.png'),
+            wins: rank1.winCount || 0
+          },
+          team2Data: {
+            name: rank2.teamName || '队伍2',
+            logo: config.getStaticUrl(rank2.teamLogo, 'teamLogos') || config.getImageUrl('default-team.png'),
+            wins: rank2.winCount || 0
+          }
+        });
+      }
+      // 兼容旧数据格式（如果有统计数据，设置队伍比分）
+      else if (season.team1Wins !== undefined && season.team2Wins !== undefined) {
         this.setData({
           team1Data: {
             name: season.team1Name || '红队',
-            logo: season.team1Logo || '/static/images/logoa.png',
+            logo: config.getStaticUrl(season.team1Logo, 'teamLogos') || config.getImageUrl('logoa.png'),
             wins: season.team1Wins || 0
           },
           team2Data: {
             name: season.team2Name || '蓝队',
-            logo: season.team2Logo || '/static/images/logob.png',
+            logo: config.getStaticUrl(season.team2Logo, 'teamLogos') || config.getImageUrl('logob.png'),
             wins: season.team2Wins || 0
           }
         });

@@ -1,7 +1,52 @@
 <view class="page-container">
-  <view class="coming-soon">
-    <text class="icon">⚙️</text>
-    <text class="title">设置</text>
-    <text class="subtitle">功能开发中，敬请期待...</text>
+  <!-- 用户信息卡片 -->
+  <view class="user-info-card" wx:if="{{userInfo}}">
+    <view class="user-info">
+      <text class="user-name">{{userInfo.realName || userInfo.nickname}}</text>
+      <view class="user-role">
+        <text class="role-tag {{userInfo.role === 'super_admin' ? 'admin' : userInfo.role === 'captain' ? 'captain' : 'member'}}">
+          {{userInfo.role === 'super_admin' ? '超级管理员' : userInfo.role === 'captain' ? '队长' : '成员'}}
+        </text>
+      </view>
+    </view>
   </view>
+
+  <!-- 设置列表 -->
+  <view class="settings-section">
+    <view class="section-title">常规设置</view>
+
+    <!-- 清除缓存 -->
+    <view class="setting-item" bindtap="onClearCache">
+      <view class="item-left">
+        <text class="item-icon">🗑️</text>
+        <text class="item-label">清除缓存</text>
+      </view>
+      <view class="item-right">
+        <text class="item-hint">不会退出登录</text>
+        <image class="arrow-icon" src="{{icons.arrowRight}}" mode="aspectFit"></image>
+      </view>
+    </view>
+
+    <!-- 关于我们 -->
+    <view class="setting-item" bindtap="onAbout">
+      <view class="item-left">
+        <text class="item-icon">ℹ️</text>
+        <text class="item-label">关于我们</text>
+      </view>
+      <view class="item-right">
+        <text class="item-hint">v{{version}}</text>
+        <image class="arrow-icon" src="{{icons.arrowRight}}" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出登录按钮 -->
+  <view class="logout-section">
+    <button class="logout-btn" bindtap="onLogout">
+      <text>退出登录</text>
+    </button>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-space"></view>
 </view>

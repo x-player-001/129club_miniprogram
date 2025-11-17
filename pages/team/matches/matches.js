@@ -1,6 +1,8 @@
 // pages/team/matches/matches.js
 const app = getApp();
 const matchAPI = require('../../../api/match.js');
+const config = require('../../../utils/config.js');
+const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
 
 Page({
   data: {
@@ -11,7 +13,12 @@ Page({
     teamColorDark: '#d10710', // 深色版本
     filterType: 'all', // all, win, draw, loss
     matchList: [],
-    loading: false
+    loading: false,
+
+    // 图片URL
+    images: {
+      emptyMatch: config.getImageUrl('empty-match.png')
+    }
   },
 
   onLoad(options) {
@@ -133,6 +140,35 @@ Page({
       'cancelled': 'finished'
     };
 
+    // 处理点球大战数据
+    let penaltyShootout = {
+      enabled: false,
+      team1Score: 0,
+      team2Score: 0,
+      winner: ''
+    };
+
+    if (match.result && match.result.penaltyShootout) {
+      let winner = '';
+      if (match.result.penaltyWinnerTeamId) {
+        const team1Id = match.team1?.id || match.team1Id;
+        const team2Id = match.team2?.id || match.team2Id;
+
+        if (match.result.penaltyWinnerTeamId === team1Id) {
+          winner = 'team1';
+        } else if (match.result.penaltyWinnerTeamId === team2Id) {
+          winner = 'team2';
+        }
+      }
+
+      penaltyShootout = {
+        enabled: true,
+        team1Score: match.result.team1PenaltyScore || 0,
+        team2Score: match.result.team2PenaltyScore || 0,
+        winner: winner
+      };
+    }
+
     return {
       id: match.id,
       dateDay: day,
@@ -140,14 +176,15 @@ Page({
       time: `${hours}:${minutes}`,
       location: match.location,
       status: statusMap[match.status] || match.status,
-      team1: match.team1 || { name: match.team1Name, logo: match.team1Logo },
-      team2: match.team2 || { name: match.team2Name, logo: match.team2Logo },
+      team1: match.team1 ? { ...match.team1, logo: getTeamLogoUrl(match.team1.logo) } : { name: match.team1Name, logo: getTeamLogoUrl(match.team1Logo) },
+      team2: match.team2 ? { ...match.team2, logo: getTeamLogoUrl(match.team2.logo) } : { name: match.team2Name, logo: getTeamLogoUrl(match.team2Logo) },
       team1Score: match.team1Score || 0,
       team2Score: match.team2Score || 0,
       team1FinalScore: match.result?.team1FinalScore || match.team1Score || 0,
       team2FinalScore: match.result?.team2FinalScore || match.team2Score || 0,
       team1TotalGoals: match.result?.team1TotalGoals,
-      team2TotalGoals: match.result?.team2TotalGoals
+      team2TotalGoals: match.result?.team2TotalGoals,
+      penaltyShootout: penaltyShootout
     };
   },
 

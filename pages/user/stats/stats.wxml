@@ -12,7 +12,7 @@
 
       <view class="profile-layout">
         <!-- 头像（左侧独立） -->
-        <image class="avatar" src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <image class="avatar" src="{{userInfo.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
 
         <!-- 中间：文字信息（姓名、号码、昵称、惯用脚）-->
         <view class="text-column">

@@ -3,7 +3,7 @@
   <!-- 顶部用户卡片 -->
   <view class="header-card">
     <view class="user-info">
-      <image class="avatar" src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+      <image class="avatar" src="{{userInfo.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
       <view class="user-text">
         <view class="greeting">你好，{{userInfo.realName || userInfo.nickname}}</view>
         <view class="team-tag" wx:if="{{currentTeam}}">
@@ -16,7 +16,7 @@
       </view>
     </view>
     <view class="message-icon" bindtap="onGoToMessage">
-      <image src="/static/icons/bell.png" mode="aspectFit"></image>
+      <image src="{{icons.bell}}" mode="aspectFit"></image>
       <view class="badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
     </view>
   </view>
@@ -26,17 +26,17 @@
     <!-- 队伍主信息 -->
     <view class="my-team-header">
       <view class="my-team-logo-wrapper">
-        <image class="my-team-logo" src="{{currentTeam.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+        <image class="my-team-logo" src="{{currentTeam.logo || images.defaultTeam}}" mode="aspectFit"></image>
       </view>
       <view class="my-team-info">
         <view class="my-team-name">{{currentTeam.name}}</view>
         <view class="my-team-captain">
-          <image class="captain-icon" src="/static/icons/crown.png" mode="aspectFit"></image>
+          <image class="captain-icon" src="{{icons.crown}}" mode="aspectFit"></image>
           <text>{{currentTeam.captainName}}</text>
         </view>
       </view>
       <view class="my-team-arrow">
-        <image src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        <image src="{{icons.arrowRight}}" mode="aspectFit"></image>
       </view>
     </view>
 
@@ -61,32 +61,32 @@
 
   <!-- 暂无队伍提示 - 使用 empty-state 组件 -->
   <view class="no-team-card" wx:else>
-    <empty-state icon="/static/images/empty-team.png" text="你还没有加入队伍" hint="请等待队长分配"></empty-state>
+    <empty-state icon="{{images.emptyTeam}}" text="你还没有加入队伍" hint="请等待队长分配"></empty-state>
   </view>
 
   <!-- 快捷功能区 -->
   <view class="quick-actions">
     <view class="action-item" bindtap="onQuickAction" data-type="match">
       <view class="action-icon matches-icon">
-        <image src="/static/icons/football-white.png" mode="aspectFit"></image>
+        <image src="{{icons.footballWhite}}" mode="aspectFit"></image>
       </view>
       <text class="action-text">比赛</text>
     </view>
     <view class="action-item" bindtap="onQuickAction" data-type="stats">
       <view class="action-icon stats-icon">
-        <image src="/static/icons/chart-white.png" mode="aspectFit"></image>
+        <image src="{{icons.chartWhite}}" mode="aspectFit"></image>
       </view>
       <text class="action-text">数据</text>
     </view>
     <view class="action-item" bindtap="onQuickAction" data-type="ranking">
       <view class="action-icon ranking-icon">
-        <image src="/static/icons/trophy-white.png" mode="aspectFit"></image>
+        <image src="{{icons.trophyWhite}}" mode="aspectFit"></image>
       </view>
       <text class="action-text">排行榜</text>
     </view>
     <view class="action-item" bindtap="onQuickAction" data-type="team">
       <view class="action-icon team-icon">
-        <image src="/static/icons/team-white.png" mode="aspectFit"></image>
+        <image src="{{icons.teamWhite}}" mode="aspectFit"></image>
       </view>
       <text class="action-text">队伍</text>
     </view>
@@ -101,7 +101,7 @@
       </view>
       <view class="section-more" catchtap="onGoToSeasonList">
         <text>赛季管理</text>
-        <image class="arrow" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        <image class="arrow" src="{{icons.arrowRight}}" mode="aspectFit"></image>
       </view>
     </view>
 
@@ -112,7 +112,6 @@
       </view>
       <view class="season-info-compact">
         <text class="season-title-compact" wx:if="{{currentSeason.title}}">{{currentSeason.title}}</text>
-        <text class="season-matches-compact">已进行 {{currentSeason.matchCount || 0}} 场</text>
       </view>
     </view>
   </view>
@@ -126,7 +125,7 @@
       </view>
       <view class="section-more" bindtap="onViewAllMatches">
         <text>查看全部</text>
-        <image class="arrow" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        <image class="arrow" src="{{icons.arrowRight}}" mode="aspectFit"></image>
       </view>
     </view>
 
@@ -144,7 +143,7 @@
 
     <!-- 空状态 - 使用 empty-state 组件 -->
     <view wx:else>
-      <empty-state icon="/static/images/empty-match.png" text="暂无比赛"></empty-state>
+      <empty-state icon="{{images.emptyMatch}}" text="暂无比赛"></empty-state>
     </view>
   </view>
 

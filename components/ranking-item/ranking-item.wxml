@@ -1,5 +1,5 @@
 <!-- components/ranking-item/ranking-item.wxml -->
-<view class="ranking-item {{isCurrentUser ? 'highlight' : ''}}" bindtap="onItemTap">
+<view class="ranking-item {{isCurrentUser ? 'highlight' : ''}}" catchtap="onItemTap">
   <!-- 排名 -->
   <view class="rank-number">
     <view wx:if="{{rankData.rank <= 3}}" class="medal medal-{{rankData.rank}}">

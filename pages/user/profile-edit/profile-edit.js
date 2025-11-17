@@ -2,12 +2,22 @@
 const app = getApp();
 const userAPI = require('../../../api/user.js');
 const positionAPI = require('../../../api/position.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
     type: 'edit', // complete: 首次完善信息, edit: 编辑资料
     statusBarHeight: 0, // 状态栏高度
     navBarHeight: 0, // 导航栏总高度
+
+    // 图标URL
+    icons: {
+      back: config.getIconUrl('back.png'),
+      camera: config.getIconUrl('camera.png'),
+      arrowRight: config.getIconUrl('arrow-right.png'),
+      close: config.getIconUrl('close.png')
+    },
+
     formData: {
       avatar: '',
       nickname: '',
@@ -18,6 +28,9 @@ Page({
       leftFootLevel: 0,    // 左脚熟练度 0-5，0表示未选择
       rightFootLevel: 0    // 右脚熟练度 0-5，0表示未选择
     },
+    // 脚印图标URL（根据 level 动态计算）
+    leftFootIcon: config.getIconUrl('foot-print-0.png'),
+    rightFootIcon: config.getIconUrl('foot-print-0.png'),
     // 位置数据
     positionGroups: {}, // 分组的位置数据 {GK: [...], DF: [...], MF: [...], FW: [...]}
     selectedPositions: [], // 已选择的位置code数组
@@ -117,6 +130,9 @@ Page({
       }
 
       // 设置表单数据（后端字段映射）
+      const leftFootLevel = userInfo.leftFootSkill || 0;
+      const rightFootLevel = userInfo.rightFootSkill || 0;
+
       this.setData({
         selectedPositions,
         formData: {
@@ -126,9 +142,11 @@ Page({
           phone: userInfo.phone || '',
           jerseyNumber: userInfo.jerseyNumber || '',
           position: positionDisplay,  // 用于显示的字符串
-          leftFootLevel: userInfo.leftFootSkill || 0,   // 后端字段: leftFootSkill
-          rightFootLevel: userInfo.rightFootSkill || 0  // 后端字段: rightFootSkill
-        }
+          leftFootLevel: leftFootLevel,   // 后端字段: leftFootSkill
+          rightFootLevel: rightFootLevel  // 后端字段: rightFootSkill
+        },
+        leftFootIcon: config.getIconUrl(`foot-print-${leftFootLevel >= 5 ? 5 : 0}.png`),
+        rightFootIcon: config.getIconUrl(`foot-print-${rightFootLevel >= 5 ? 5 : 0}.png`)
       });
     }).catch(err => {
       wx.hideLoading();
@@ -330,8 +348,10 @@ Page({
   onIncreaseLeftFoot() {
     const current = this.data.formData.leftFootLevel;
     if (current < 5) {
+      const newLevel = current + 1;
       this.setData({
-        'formData.leftFootLevel': current + 1
+        'formData.leftFootLevel': newLevel,
+        leftFootIcon: config.getIconUrl(`foot-print-${newLevel >= 5 ? 5 : 0}.png`)
       });
     }
   },
@@ -340,8 +360,10 @@ Page({
   onDecreaseLeftFoot() {
     const current = this.data.formData.leftFootLevel;
     if (current > 0) {
+      const newLevel = current - 1;
       this.setData({
-        'formData.leftFootLevel': current - 1
+        'formData.leftFootLevel': newLevel,
+        leftFootIcon: config.getIconUrl(`foot-print-${newLevel >= 5 ? 5 : 0}.png`)
       });
     }
   },
@@ -350,8 +372,10 @@ Page({
   onIncreaseRightFoot() {
     const current = this.data.formData.rightFootLevel;
     if (current < 5) {
+      const newLevel = current + 1;
       this.setData({
-        'formData.rightFootLevel': current + 1
+        'formData.rightFootLevel': newLevel,
+        rightFootIcon: config.getIconUrl(`foot-print-${newLevel >= 5 ? 5 : 0}.png`)
       });
     }
   },
@@ -360,15 +384,26 @@ Page({
   onDecreaseRightFoot() {
     const current = this.data.formData.rightFootLevel;
     if (current > 0) {
+      const newLevel = current - 1;
       this.setData({
-        'formData.rightFootLevel': current - 1
+        'formData.rightFootLevel': newLevel,
+        rightFootIcon: config.getIconUrl(`foot-print-${newLevel >= 5 ? 5 : 0}.png`)
       });
     }
   },
 
   // 表单验证
   validateForm() {
-    const { nickname, realName, phone, jerseyNumber, position, leftFootLevel, rightFootLevel } = this.data.formData;
+    const { avatar, nickname, realName, phone, jerseyNumber, position, leftFootLevel, rightFootLevel } = this.data.formData;
+
+    // 头像必填验证
+    if (!avatar || !avatar.trim()) {
+      wx.showToast({
+        title: '请上传头像',
+        icon: 'none'
+      });
+      return false;
+    }
 
     if (!nickname || !nickname.trim()) {
       wx.showToast({

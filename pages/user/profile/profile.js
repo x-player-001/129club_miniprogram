@@ -3,6 +3,7 @@ const app = getApp();
 const userAPI = require('../../../api/user.js');
 const teamAPI = require('../../../api/team.js');
 const statsAPI = require('../../../api/stats.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -10,7 +11,21 @@ Page({
     currentTeam: null,
     personalStats: {},
     unreadCount: 0,
-    version: app.globalData.version
+    version: app.globalData.version,
+    // 图标URL
+    icons: {
+      edit: config.getIconUrl('edit.png'),
+      arrowRightWhite: config.getIconUrl('arrow-right-white.png'),
+      users: config.getIconUrl('users.png'),
+      message: config.getIconUrl('message.png'),
+      notice: config.getIconUrl('notice.png'),
+      setting: config.getIconUrl('setting.png')
+    },
+    // 图片URL
+    images: {
+      defaultAvatar: config.getImageUrl('default-avatar.png'),
+      defaultTeam: config.getImageUrl('default-team.png')
+    }
   },
 
   onLoad() {
@@ -126,10 +141,10 @@ Page({
 
         // 格式化数据给 stats-grid 组件
         const personalStatsGrid = [
-          { icon: '/static/icons/match.png', iconClass: 'match-icon', value: stats.matchesPlayed || stats.matches || 0, label: '出场' },
-          { icon: '/static/icons/goal.png', iconClass: 'goal-icon', value: stats.goals || 0, label: '进球' },
-          { icon: '/static/icons/assist.png', iconClass: 'assist-icon', value: stats.assists || 0, label: '助攻' },
-          { icon: '/static/icons/star.png', iconClass: 'mvp-icon', value: stats.mvpCount || 0, label: 'MVP' }
+          { icon: config.getIconUrl('match.png'), iconClass: 'match-icon', value: stats.matchesPlayed || stats.matches || 0, label: '出场' },
+          { icon: config.getIconUrl('goal.png'), iconClass: 'goal-icon', value: stats.goals || 0, label: '进球' },
+          { icon: config.getIconUrl('assist.png'), iconClass: 'assist-icon', value: stats.assists || 0, label: '助攻' },
+          { icon: config.getIconUrl('star.png'), iconClass: 'mvp-icon', value: stats.mvpCount || 0, label: 'MVP' }
         ];
 
         this.setData({

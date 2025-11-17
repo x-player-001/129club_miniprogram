@@ -2,6 +2,7 @@
 const app = getApp();
 const userAPI = require('../../../api/user.js');
 const teamAPI = require('../../../api/team.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -10,7 +11,16 @@ Page({
     teams: [],
     filterOptions: [],
     members: [],
-    filteredMembers: []
+    filteredMembers: [],
+
+    // 图标URL
+    icons: {
+      search: config.getIconUrl('search.png')
+    },
+    // 图片URL
+    images: {
+      emptyTeam: config.getImageUrl('empty-team.png')
+    }
   },
 
   onLoad(options) {
@@ -109,7 +119,7 @@ Page({
           id: member.user?.id || member.id,
           realName: member.user?.realName || member.realName,
           nickname: member.user?.nickname || member.nickname,
-          avatar: member.user?.avatar || member.avatar || '/static/images/default-avatar.png',
+          avatar: config.getStaticUrl(member.user?.avatar || member.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
           jerseyNumber: member.user?.jerseyNumber || member.jerseyNumber,
           position: position,
           teamId: member.currentTeamId || member.teamId,  // API返回的是 currentTeamId
@@ -210,7 +220,7 @@ Page({
   onViewMemberDetail(e) {
     const id = e.currentTarget.dataset.id;
     wx.navigateTo({
-      url: `/pages/user/stats/stats?userId=${id}`
+      url: `/pages/user/stats/stats?id=${id}`  // 使用 id 而不是 userId
     });
   },
 
@@ -231,7 +241,7 @@ Page({
     this._navigating = true;
 
     wx.navigateTo({
-      url: `/pages/user/stats/stats?userId=${playerId}`,
+      url: `/pages/user/stats/stats?id=${playerId}`,  // 使用 id 而不是 userId
       success: () => {
         setTimeout(() => {
           this._navigating = false;

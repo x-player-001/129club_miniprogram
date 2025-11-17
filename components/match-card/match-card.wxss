@@ -200,11 +200,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12rpx;
 }
 
 .penalty-label {
-  font-size: 22rpx;
+  font-size: 26rpx;
   font-weight: 600;
   color: var(--theme-color, #f20810);
   letter-spacing: 1rpx;
@@ -217,7 +216,7 @@
 }
 
 .penalty-team {
-  font-size: 40rpx;
+  font-size: 32rpx;
   font-weight: 700;
   color: #636e72;
   font-family: 'DIN Alternate', sans-serif;
@@ -228,7 +227,6 @@
 
 .penalty-team.winner {
   color: var(--theme-color, #f20810);
-  font-size: 48rpx;
 }
 
 .penalty-separator {

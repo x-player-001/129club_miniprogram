@@ -1,5 +1,5 @@
 <!-- components/player-card/player-card.wxml -->
-<view class="player-card {{mode}} {{selected ? 'selected' : ''}} {{disabled ? 'disabled' : ''}}" bindtap="onCardTap">
+<view class="player-card {{mode}} {{selected ? 'selected' : ''}} {{disabled ? 'disabled' : ''}}" catchtap="onCardTap">
   <!-- 球员头像 -->
   <image class="player-avatar" src="{{_processedPlayerData.avatar || playerData.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
 
@@ -10,7 +10,7 @@
       <!-- 第一行：姓名 + 队长标识 -->
       <view class="player-name-row">
         <text class="player-name">{{_processedPlayerData.realName || _processedPlayerData.nickname || playerData.realName || playerData.nickname}}</text>
-        <image wx:if="{{_processedPlayerData.isCaptain || playerData.isCaptain}}" class="captain-badge" src="/static/icons/crown-small.png" mode="aspectFit"></image>
+        <image wx:if="{{_processedPlayerData.isCaptain || playerData.isCaptain}}" class="captain-badge" src="{{icons.crownSmall}}" mode="aspectFit"></image>
       </view>
       <!-- 第二行：号码 -->
       <view class="player-number-row">

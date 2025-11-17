@@ -2,6 +2,8 @@
 const app = getApp();
 const teamAPI = require('../../../api/team.js');
 const seasonAPI = require('../../../api/season.js');
+const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -19,7 +21,18 @@ Page({
     allSeasons: [], // 所有赛季列表
     selectedSeasonId: '', // 选中的赛季ID
     selectedSeasonName: '请选择赛季', // 选中的赛季名称
-    showSeasonPicker: false // 是否显示赛季选择器
+    showSeasonPicker: false, // 是否显示赛季选择器
+
+    // 图标URL
+    icons: {
+      arrowDown: config.getIconUrl('arrow-down.png'),
+      close: config.getIconUrl('close.png'),
+      check: config.getIconUrl('check.png')
+    },
+    // 图片URL
+    images: {
+      emptyTeam: config.getImageUrl('empty-team.png')
+    }
   },
 
   onLoad(options) {
@@ -112,7 +125,7 @@ Page({
       const teams = teamList.map(team => ({
         id: team.id,
         name: team.name,
-        logo: team.logo || '/static/images/default-team.png',
+        logo: getTeamLogoUrl(team.logo),
         color: team.color || '#ff6b6b',
         colorDark: this.darkenColor(team.color || '#ff6b6b'),
         captainName: team.captain?.realName || team.captain?.nickname || team.captainName || '未设置',
@@ -142,7 +155,7 @@ Page({
       const teams = teamList.map(team => ({
         id: team.id,
         name: team.name,
-        logo: team.logo || '/static/images/default-team.png',
+        logo: getTeamLogoUrl(team.logo),
         color: team.color || '#95a5a6',
         colorDark: this.darkenColor(team.color || '#95a5a6'),
         season: team.season,

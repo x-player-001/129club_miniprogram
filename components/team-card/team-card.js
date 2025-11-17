@@ -1,4 +1,6 @@
 // components/team-card/team-card.js
+const config = require('../../utils/config.js');
+
 Component({
   properties: {
     // 队伍数据
@@ -10,6 +12,13 @@ Component({
     mode: {
       type: String,
       value: 'current'
+    }
+  },
+
+  data: {
+    icons: {
+      crown: config.getIconUrl('crown.png'),
+      users: config.getIconUrl('users.png')
     }
   },
 

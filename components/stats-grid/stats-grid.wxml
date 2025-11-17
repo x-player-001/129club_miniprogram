@@ -4,7 +4,7 @@
     wx:for="{{stats}}"
     wx:key="index"
     class="stat-card"
-    bindtap="onStatTap"
+    catchtap="onStatTap"
     data-index="{{index}}"
   >
     <view class="stat-icon {{item.iconClass}}">

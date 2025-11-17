@@ -1,5 +1,5 @@
 <!-- components/season-card/season-card.wxml -->
-<view class="season-card" bindtap="onCardTap">
+<view class="season-card" catchtap="onCardTap">
   <!-- 头部：名称 + 状态 -->
   <view class="card-header">
     <view class="season-title-section">

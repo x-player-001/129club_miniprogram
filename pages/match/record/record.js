@@ -2,11 +2,22 @@
 const app = getApp();
 const matchAPI = require('../../../api/match.js');
 const uploadAPI = require('../../../api/upload.js');
+const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
     matchId: '',
     matchInfo: null,
+
+    // 图标URL
+    icons: {
+      closeRed: config.getIconUrl('close-red.png')
+    },
+    // 图片URL
+    images: {
+      defaultAvatar: config.getImageUrl('default-avatar.png')
+    },
 
     // 当前步骤 (1-7)
     currentStep: 1,
@@ -119,13 +130,13 @@ Page({
         team1: {
           id: match.team1.id,
           name: match.team1.name,
-          logo: match.team1.logo || '/static/images/logoa.png',
+          logo: getTeamLogoUrl(match.team1.logo),
           color: match.team1.color || '#f20810'
         },
         team2: {
           id: match.team2.id,
           name: match.team2.name,
-          logo: match.team2.logo || '/static/images/logob.png',
+          logo: getTeamLogoUrl(match.team2.logo),
           color: match.team2.color || '#924ab0'
         }
       };
@@ -139,7 +150,7 @@ Page({
         number: player.jerseyNumber || 0,
         jerseyNumber: player.jerseyNumber || 0,
         position: player.position ? player.position.join('/') : '',
-        avatar: player.avatar || '/static/images/avatar-default.png'
+        avatar: config.getStaticUrl(player.avatar, 'avatar') || config.getImageUrl('default-avatar.png')
       }));
 
       // 按队伍分组球员
@@ -154,14 +165,14 @@ Page({
       const team1Participants = (registration.team1 || []).map(reg => ({
         id: reg.user.id,
         name: reg.user.realName || reg.user.nickname,
-        avatar: reg.user.avatar || '/static/images/avatar-default.png',
+        avatar: config.getStaticUrl(reg.user.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
         jerseyNumber: reg.user.jerseyNumber || 0
       }));
 
       const team2Participants = (registration.team2 || []).map(reg => ({
         id: reg.user.id,
         name: reg.user.realName || reg.user.nickname,
-        avatar: reg.user.avatar || '/static/images/avatar-default.png',
+        avatar: config.getStaticUrl(reg.user.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
         jerseyNumber: reg.user.jerseyNumber || 0
       }));
 
@@ -185,7 +196,7 @@ Page({
           finalTeam1Participants = (participantsData.team1 || []).map(p => ({
             id: p.userId || p.user?.id,
             name: p.user?.realName || p.user?.nickname || p.name,
-            avatar: p.user?.avatar || '/static/images/avatar-default.png',
+            avatar: config.getStaticUrl(p.user?.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
             jerseyNumber: p.user?.jerseyNumber || 0
           }));
           finalTeam1ParticipantIds = finalTeam1Participants.map(p => p.id);
@@ -194,7 +205,7 @@ Page({
           finalTeam2Participants = (participantsData.team2 || []).map(p => ({
             id: p.userId || p.user?.id,
             name: p.user?.realName || p.user?.nickname || p.name,
-            avatar: p.user?.avatar || '/static/images/avatar-default.png',
+            avatar: config.getStaticUrl(p.user?.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
             jerseyNumber: p.user?.jerseyNumber || 0
           }));
           finalTeam2ParticipantIds = finalTeam2Participants.map(p => p.id);
@@ -219,7 +230,7 @@ Page({
               id: player.id,
               name: player.name,
               nickname: player.nickname,
-              avatar: player.avatar || '/static/images/default-avatar.png',
+              avatar: config.getStaticUrl(player.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
               jerseyNumber: player.jerseyNumber || player.number
             };
           }
@@ -234,15 +245,8 @@ Page({
       let savedPhotos = [];
       if (match.result && match.result.photos && match.result.photos.length > 0) {
         savedPhotos = match.result.photos.map((photoUrl, index) => {
-          // 拼接完整URL（照片是静态资源，去掉 /api 前缀）
-          let fullUrl;
-          if (photoUrl.startsWith('http')) {
-            fullUrl = photoUrl;
-          } else {
-            // 从 apiBaseUrl 中提取基础URL（去掉 /api）
-            const baseUrl = app.globalData.apiBaseUrl.replace('/api', '');
-            fullUrl = `${baseUrl}${photoUrl}`;
-          }
+          // 使用统一的URL处理方法
+          const fullUrl = config.getStaticUrl(photoUrl, 'matchPhotos');
 
           return {
             url: fullUrl, // 完整URL用于显示
@@ -390,9 +394,9 @@ Page({
     }
 
     // 如果是到场人员选择步骤，保存到场人员
-    // 步骤7（有点球大战）或步骤7（无点球大战，从5跳到7）
+    // 步骤6（无点球大战）或步骤7（有点球大战）
     const { needPenalty } = this.data;
-    const isParticipantStep = (needPenalty && currentStep === 7) || (!needPenalty && currentStep === 7);
+    const isParticipantStep = (needPenalty && currentStep === 7) || (!needPenalty && currentStep === 6);
 
     if (isParticipantStep) {
       const saved = await this.saveParticipants();
@@ -418,10 +422,19 @@ Page({
     this.goNextStep();
   },
 
+  /**
+   * 跳转到下一步
+   *
+   * 特殊处理：
+   * - 第4节完成后（currentStep=5），根据比分动态插入/移除点球大战步骤
+   * - 平局：插入点球步骤，跳转到步骤6（点球大战）
+   * - 不平局（但之前有点球）：移除点球步骤，跳转到步骤6（到场人员）
+   * - 其他情况：正常递增 currentStep
+   */
   goNextStep() {
     const { currentStep, totalTeam1Score, totalTeam2Score, needPenalty } = this.data;
 
-    // 如果刚完成第4节（currentStep === 5），重新检查是否需要点球大战
+    // 特殊处理：如果刚完成第4节（currentStep === 5），重新检查是否需要点球大战
     if (currentStep === 5) {
       // 检查是否平局
       const isTie = totalTeam1Score === totalTeam2Score;
@@ -458,15 +471,15 @@ Page({
         // 不再平局但之前设置了点球大战，需要移除点球大战步骤
         console.log('比分不再相同，取消点球大战');
 
-        // 移除点球大战步骤，恢复原始步骤
+        // 移除点球大战步骤，恢复标准7步流程
         const newSteps = [
           { id: 1, name: '基本信息' },
           { id: 2, name: '第1节' },
           { id: 3, name: '第2节' },
           { id: 4, name: '第3节' },
           { id: 5, name: '第4节' },
-          { id: 7, name: '到场人员' },
-          { id: 8, name: 'MVP' }
+          { id: 6, name: '到场人员' },
+          { id: 7, name: 'MVP' }
         ];
 
         // 清空点球大战数据
@@ -481,7 +494,7 @@ Page({
           needPenalty: false,
           steps: newSteps,
           penaltyShootout: clearedPenaltyData,
-          currentStep: 7  // 直接跳到到场人员步骤
+          currentStep: 6  // 跳到到场人员步骤（标准步骤6）
         });
 
         // 滚动到顶部
@@ -493,15 +506,8 @@ Page({
       }
     }
 
-    // 如果当前在点球大战步骤（currentStep === 6 且 needPenalty === true），跳到步骤7
-    // 如果不需要点球大战，从步骤5直接跳到步骤7（原来的步骤6）
-    let nextStep;
-    if (currentStep === 5 && !needPenalty) {
-      // 不需要点球大战，跳过步骤6
-      nextStep = 7;
-    } else {
-      nextStep = currentStep + 1;
-    }
+    // 正常递增步骤
+    const nextStep = currentStep + 1;
 
     if (nextStep <= 8) {
       this.setData({ currentStep: nextStep });
@@ -733,10 +739,12 @@ Page({
       const quartersCompleted = quarterData.quartersCompleted || 0;
 
       if (quartersCompleted >= 4 && hasParticipants) {
-        // 4个节次都已完成，且已保存到场人员，跳转到MVP与照片（步骤7）
+        // 4个节次都已完成，且已保存到场人员，跳转到MVP
+        // 注意：这里返回基础步骤7（无点球场景），checkAndUpdatePenaltyState会根据实际情况调整
         currentStep = 7;
       } else if (quartersCompleted >= 4) {
-        // 4个节次都已完成，但未保存到场人员，跳转到到场人员选择（步骤6）
+        // 4个节次都已完成，但未保存到场人员，跳转到到场人员
+        // 注意：这里返回基础步骤6（无点球场景），checkAndUpdatePenaltyState会根据实际情况调整
         currentStep = 6;
       } else if (quartersCompleted > 0) {
         // 已完成部分节次，跳转到下一个未完成的节次
@@ -816,11 +824,20 @@ Page({
     });
   },
 
-  // 检查并更新点球大战状态（用于页面加载时恢复状态）
+  /**
+   * 检查并更新点球大战状态（用于页面加载时恢复状态）
+   *
+   * 设计说明：
+   * 1. processQuarterData() 返回基于7步流程的 currentStep（不考虑点球）
+   * 2. 本函数根据实际情况（点球数据或平局）调整为8步流程
+   * 3. 步骤调整规则：6→7（到场人员），7→8（MVP）
+   *
+   * 调用时机：loadMatchInfo() 完成后
+   */
   checkAndUpdatePenaltyState() {
     const { totalTeam1Score, totalTeam2Score, currentStep, penaltyShootout } = this.data;
 
-    // 如果已经有点球大战数据（从后端加载），说明需要点球大战
+    // 场景1：如果已经有点球大战数据（从后端加载），说明需要点球大战
     if (penaltyShootout.enabled) {
       console.log('[Record] 检测到已保存的点球大战数据，更新状态');
 
@@ -895,31 +912,26 @@ Page({
         });
       } else if (allQuartersCompleted && totalTeam1Score !== totalTeam2Score) {
         // 不是平局，确保没有点球大战状态
-        console.log('[Record] 不是平局，调整步骤编号以匹配WXML');
+        console.log('[Record] 不是平局，保持标准7步流程');
 
-        // 确保步骤数组不包含点球大战
+        // 确保步骤数组不包含点球大战（保持标准7步）
         const newSteps = [
           { id: 1, name: '基本信息' },
           { id: 2, name: '第1节' },
           { id: 3, name: '第2节' },
           { id: 4, name: '第3节' },
           { id: 5, name: '第4节' },
-          { id: 7, name: '到场人员' },
-          { id: 8, name: 'MVP' }
+          { id: 6, name: '到场人员' },
+          { id: 7, name: 'MVP' }
         ];
 
-        // 调整步骤编号：原步骤6→步骤7，原步骤7→步骤8
-        let adjustedStep = currentStep;
-        if (currentStep === 6) {
-          adjustedStep = 7; // 到场人员
-        } else if (currentStep === 7) {
-          adjustedStep = 8; // MVP
-        }
+        // 不需要调整 currentStep，保持原值
+        // currentStep = 6 对应"到场人员"，currentStep = 7 对应"MVP"
 
         this.setData({
           needPenalty: false,
-          steps: newSteps,
-          currentStep: adjustedStep
+          steps: newSteps
+          // 不设置 currentStep，保持原值
         });
       }
     }
@@ -1042,7 +1054,7 @@ Page({
       id: player.id,
       name: player.name || player.nickname,
       nickname: player.nickname,
-      avatar: player.avatar || '/static/images/default-avatar.png',
+      avatar: config.getStaticUrl(player.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
       jerseyNumber: player.jerseyNumber || player.number
     }));
 
@@ -1124,20 +1136,12 @@ Page({
           // 新接口返回格式：data.upload.success[0]
           const uploadedPhoto = res.data.upload.success[0];
 
-          // 拼接完整URL（照片是静态资源，去掉 /api 前缀）
-          let fullUrl;
-          if (uploadedPhoto.url.startsWith('http')) {
-            fullUrl = uploadedPhoto.url;
-          } else {
-            // 从 apiBaseUrl 中提取基础URL（去掉 /api）
-            const baseUrl = app.globalData.apiBaseUrl.replace('/api', '');
-            fullUrl = `${baseUrl}${uploadedPhoto.url}`;
-          }
+          // 使用统一的URL处理方法
+          const fullUrl = config.getStaticUrl(uploadedPhoto.url, 'matchPhotos');
 
           console.log('[Upload] 照片上传成功:', {
             原始URL: uploadedPhoto.url,
             完整URL: fullUrl,
-            apiBaseUrl: app.globalData.apiBaseUrl,
             文件名: uploadedPhoto.filename
           });
 
@@ -1250,16 +1254,7 @@ Page({
   onSubmit() {
     if (this.data.isSubmitting) return;
 
-    // 验证简报是否填写
-    if (!this.data.summary || !this.data.summary.trim()) {
-      wx.showToast({
-        title: '请填写比赛简报',
-        icon: 'none'
-      });
-      return;
-    }
-
-    // 验证
+    // 验证是否有进球数据
     const hasAnyGoals = this.data.quarters.some(q => q.team1Goals > 0 || q.team2Goals > 0);
     if (!hasAnyGoals) {
       wx.showModal({
@@ -1286,15 +1281,23 @@ Page({
     // 注意：photos 字段已移除，照片通过上传接口自动关联
     const supplementData = {
       mvpUserIds: this.data.mvpUserIds, // MVP球员ID数组（支持多个）
-      summary: this.data.summary // 使用用户输入的简报（已在onSubmit中验证必填）
+      summary: this.data.summary || '' // 比赛简报（选填）
     };
 
     // 如果有点球大战数据，包含进去
     if (this.data.penaltyShootout.enabled) {
+      // 将 'team1'/'team2' 转换为实际的 teamId
+      let penaltyWinnerTeamId = '';
+      if (this.data.penaltyShootout.winner === 'team1') {
+        penaltyWinnerTeamId = this.data.matchInfo.team1.id;
+      } else if (this.data.penaltyShootout.winner === 'team2') {
+        penaltyWinnerTeamId = this.data.matchInfo.team2.id;
+      }
+
       supplementData.penaltyShootout = {
-        team1Score: this.data.penaltyShootout.team1Score,
-        team2Score: this.data.penaltyShootout.team2Score,
-        winner: this.data.penaltyShootout.winner
+        team1PenaltyScore: this.data.penaltyShootout.team1Score,
+        team2PenaltyScore: this.data.penaltyShootout.team2Score,
+        penaltyWinnerTeamId: penaltyWinnerTeamId
       };
       console.log('[Record] 包含点球大战数据:', supplementData.penaltyShootout);
     }
@@ -1315,6 +1318,15 @@ Page({
         });
 
         setTimeout(() => {
+          // 通知上一页刷新数据
+          const pages = getCurrentPages();
+          if (pages.length > 1) {
+            const prevPage = pages[pages.length - 2];
+            if (prevPage.loadMatchDetail) {
+              // 标记需要刷新
+              prevPage.setData({ needRefresh: true });
+            }
+          }
           wx.navigateBack();
         }, 1500);
       })

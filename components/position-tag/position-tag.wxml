@@ -1,5 +1,5 @@
 <!-- components/position-tag/position-tag.wxml -->
-<view class="position-tag-container" bindtap="onTap">
+<view class="position-tag-container" catchtap="onTap">
   <view
     wx:for="{{positionTags}}"
     wx:key="code"

@@ -1,5 +1,6 @@
 // pages/stats/team-compare/team-compare.js
 const app = getApp();
+const config = require('../../../utils/config.js');
 const teamAPI = require('../../../api/team.js');
 const statsAPI = require('../../../api/stats.js');
 
@@ -20,7 +21,14 @@ Page({
     teamOptions: [],
 
     // 加载状态
-    loading: false
+    loading: false,
+
+    // 图片URL
+    images: {
+      logoA: config.getImageUrl('logoa.png'),
+      logoB: config.getImageUrl('logob.png'),
+      defaultTeam: config.getImageUrl('default-team.png')
+    }
   },
 
   onLoad(options) {
@@ -29,13 +37,13 @@ Page({
       team1: {
         id: '1',
         name: '嘉陵摩托',
-        logo: '/static/images/logoa.png',
+        logo: this.data.images.logoA,
         color: '#f20810'
       },
       team2: {
         id: '2',
         name: '长江黄河',
-        logo: '/static/images/logob.png',
+        logo: this.data.images.logoB,
         color: '#924ab0'
       }
     });
@@ -57,7 +65,7 @@ Page({
       const teamOptions = teams.map(team => ({
         id: team.id,
         name: team.name,
-        logo: team.logo || '/static/images/default-team.png',
+        logo: team.logo || this.data.images.defaultTeam,
         color: team.color || '#667eea',
         season: team.season || '2025'
       }));

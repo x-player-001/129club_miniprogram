@@ -2,7 +2,7 @@
 <view class="members-container">
   <!-- 搜索栏 -->
   <view class="search-bar">
-    <image class="search-icon" src="/static/icons/search.png" mode="aspectFit"></image>
+    <image class="search-icon" src="{{icons.search}}" mode="aspectFit"></image>
     <input class="search-input"
            placeholder="搜索队员姓名或号码"
            value="{{searchKeyword}}"
@@ -36,7 +36,7 @@
   <!-- 空状态 - 使用 empty-state 组件 -->
   <view wx:else>
     <empty-state
-      icon="/static/images/empty-team.png"
+      icon="{{images.emptyTeam}}"
       text="暂无队员"
       hint="{{searchKeyword ? '试试其他搜索关键词' : ''}}">
     </empty-state>

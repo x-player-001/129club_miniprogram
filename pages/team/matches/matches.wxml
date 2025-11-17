@@ -44,7 +44,7 @@
     <!-- 空状态 -->
     <view wx:else class="empty-container">
       <empty-state
-        icon="/static/images/empty-match.png"
+        icon="{{images.emptyMatch}}"
         text="{{filterType === 'all' ? '暂无比赛记录' : filterType === 'win' ? '暂无胜场记录' : filterType === 'draw' ? '暂无平局记录' : '暂无负场记录'}}">
       </empty-state>
     </view>

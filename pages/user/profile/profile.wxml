@@ -6,7 +6,7 @@
 
     <!-- 用户信息 -->
     <view class="user-card">
-      <image class="avatar" src="{{userInfo.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
+      <image class="avatar" src="{{userInfo.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
       <view class="user-info">
         <view class="user-name-row">
           <text class="user-name">{{userInfo.realName || userInfo.nickname || '未设置'}}</text>
@@ -28,20 +28,20 @@
         </view>
       </view>
       <view class="edit-btn" bindtap="onEditProfile">
-        <image src="/static/icons/edit.png" mode="aspectFit"></image>
+        <image src="{{icons.edit}}" mode="aspectFit"></image>
       </view>
     </view>
 
     <!-- 队伍信息 -->
     <view class="team-info-card" wx:if="{{currentTeam}}" bindtap="onGoToTeamDetail">
       <view class="team-badge">
-        <image src="{{currentTeam.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+        <image src="{{currentTeam.logo || images.defaultTeam}}" mode="aspectFit"></image>
       </view>
       <view class="team-text">
         <text class="team-name">{{currentTeam.name}}</text>
         <text class="team-role">{{currentTeam.iscaptain ? '队长' : '队员'}}</text>
       </view>
-      <image class="arrow" src="/static/icons/arrow-right-white.png" mode="aspectFit"></image>
+      <image class="arrow" src="{{icons.arrowRightWhite}}" mode="aspectFit"></image>
     </view>
   </view>
 
@@ -50,14 +50,14 @@
     <view class="menu-title">我的功能</view>
     <view class="menu-list">
       <menu-item
-        icon="/static/icons/users.png"
+        icon="{{icons.users}}"
         text="队员列表"
         type="members"
         bind:tap="onMenuItemTap">
       </menu-item>
 
       <menu-item
-        icon="/static/icons/message.png"
+        icon="{{icons.message}}"
         text="消息中心"
         type="message"
         badge="{{unreadCount}}"
@@ -65,7 +65,7 @@
       </menu-item>
 
       <menu-item
-        icon="/static/icons/notice.png"
+        icon="{{icons.notice}}"
         text="通知公告"
         type="notice"
         bind:tap="onMenuItemTap">
@@ -77,7 +77,7 @@
     <view class="menu-title">设置</view>
     <view class="menu-list">
       <menu-item
-        icon="/static/icons/setting.png"
+        icon="{{icons.setting}}"
         text="设置"
         type="settings"
         bind:tap="onMenuItemTap">

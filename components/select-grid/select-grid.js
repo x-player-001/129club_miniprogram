@@ -1,4 +1,6 @@
 // components/select-grid/select-grid.js
+const config = require('../../utils/config.js');
+
 Component({
   /**
    * 通用弹窗选择器组件
@@ -63,7 +65,13 @@ Component({
   },
 
   data: {
-    selectedValues: [] // 内部临时维护的选中值数组
+    selectedValues: [], // 内部临时维护的选中值数组
+    icons: {
+      close: config.getIconUrl('close.png')
+    },
+    images: {
+      defaultAvatar: config.getImageUrl('default-avatar.png')
+    }
   },
 
   observers: {

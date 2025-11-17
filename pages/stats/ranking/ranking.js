@@ -1,6 +1,8 @@
 // pages/stats/ranking/ranking.js
 const app = getApp();
 const statsAPI = require('../../../api/stats.js');
+const seasonAPI = require('../../../api/season.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -22,9 +24,7 @@ Page({
       { id: 'team', name: '队内排名' }
     ],
     seasonOptions: [
-      { id: 'all', name: '全部' },
-      { id: '2025', name: '2025赛季' },
-      { id: '2024', name: '2024赛季' }
+      { id: 'all', name: '全部赛季' }
     ],
 
     // 排行榜数据
@@ -51,7 +51,54 @@ Page({
       this.setData({ myUserId: userInfo.id });
     }
 
+    // 加载赛季列表
+    this.loadSeasons();
+
     this.loadRankingData();
+  },
+
+  // 加载赛季列表
+  loadSeasons() {
+    seasonAPI.getList({ limit: 100 }).then(res => {
+      const seasons = res.data?.list || [];
+
+      // 构建赛季选项列表
+      const seasonOptions = [
+        { id: 'all', name: '全部赛季' }
+      ];
+
+      // 查找当前活跃赛季
+      let activeSeasonIndex = 0;
+      let activeSeason = null;
+
+      seasons.forEach((season, index) => {
+        seasonOptions.push({
+          id: season.id,
+          name: season.name
+        });
+
+        // 记录活跃赛季的索引（在seasonOptions中的位置是index+1，因为第0项是"全部赛季"）
+        if (season.status === 'active') {
+          activeSeason = season;
+          activeSeasonIndex = index + 1;
+        }
+      });
+
+      // 如果找到活跃赛季，设置为默认选中
+      if (activeSeason) {
+        this.setData({
+          seasonOptions,
+          season: activeSeason.id,
+          seasonIndex: activeSeasonIndex
+        });
+        // 重新加载排行榜数据（使用当前赛季筛选）
+        this.loadRankingData();
+      } else {
+        this.setData({ seasonOptions });
+      }
+    }).catch(err => {
+      console.error('加载赛季列表失败:', err);
+    });
   },
 
   onPullDownRefresh() {
@@ -111,7 +158,7 @@ Page({
           rank: item.rank || index + 1,
           id: item.userId || item.user?.id,
           name: item.user?.realName || item.user?.nickname || '未知',
-          avatar: item.user?.avatar || '/static/images/default-avatar.png',
+          avatar: config.getStaticUrl(item.user?.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
           team: item.user?.teams?.[0]?.team?.name || item.user?.currentTeam?.name || '无队伍',
           teamColor: item.user?.teams?.[0]?.team?.color || item.user?.currentTeam?.color || '#667eea',
           value: value,

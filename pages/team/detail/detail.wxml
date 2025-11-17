@@ -3,11 +3,11 @@
   <!-- 队伍头部 -->
   <view class="team-header" style="background: linear-gradient(135deg, {{teamInfo.color}} 0%, {{teamInfo.colorDark}} 100%);">
     <view class="team-badge">
-      <image src="{{teamInfo.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+      <image src="{{teamInfo.logo || images.defaultTeam}}" mode="aspectFit"></image>
     </view>
     <view class="team-name">{{teamInfo.name}}</view>
     <view class="team-captain">
-      <image class="crown" src="/static/icons/crown.png" mode="aspectFit"></image>
+      <image class="crown" src="{{icons.crown}}" mode="aspectFit"></image>
       <text>队长：{{teamInfo.captainName}}</text>
     </view>
     <view class="season-info">{{teamInfo.season}}</view>
@@ -15,7 +15,7 @@
     <!-- 队长/管理员操作按钮 -->
     <view class="captain-actions" wx:if="{{canEdit}}">
       <view class="action-icon-btn" bindtap="onEditTeam">
-        <image src="/static/icons/edit-white.png" mode="aspectFit"></image>
+        <image src="{{icons.editWhite}}" mode="aspectFit"></image>
       </view>
     </view>
   </view>
@@ -49,7 +49,7 @@
       </view>
       <view class="view-all" bindtap="onViewAllMembers">
         <text>查看全部</text>
-        <image src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        <image src="{{icons.arrowRight}}" mode="aspectFit"></image>
       </view>
     </view>
 

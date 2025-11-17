@@ -1,4 +1,6 @@
 // components/menu-item/menu-item.js
+const config = require('../../utils/config.js');
+
 Component({
   /**
    * 组件的属性列表
@@ -29,6 +31,13 @@ Component({
       type: String,
       value: ''
     }
+  },
+
+  /**
+   * 组件的初始数据
+   */
+  data: {
+    arrowIcon: config.getIconUrl('arrow-right.png')
   },
 
   /**

@@ -76,7 +76,7 @@
           <view class="picker-content {{captainName ? '' : 'placeholder'}}">
             {{captainName || '请选择队长'}}
           </view>
-          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+          <image class="arrow-icon" src="{{icons.arrowRight}}" mode="aspectFit"></image>
         </view>
       </view>
     </view>

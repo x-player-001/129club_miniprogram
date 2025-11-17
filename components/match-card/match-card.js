@@ -1,4 +1,6 @@
 // components/match-card/match-card.js
+const config = require('../../utils/config.js');
+
 Component({
   properties: {
     // 比赛数据
@@ -15,6 +17,14 @@ Component({
     showActions: {
       type: Boolean,
       value: true
+    }
+  },
+
+  data: {
+    icons: {
+      match: config.getIconUrl('match.png'),
+      location: config.getIconUrl('location.png'),
+      star: config.getIconUrl('star.png')
     }
   },
 

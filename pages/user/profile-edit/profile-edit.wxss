@@ -67,6 +67,12 @@
   margin-bottom: 32rpx;
 }
 
+.required-mark {
+  color: #e74c3c;
+  margin-left: 4rpx;
+  font-size: 32rpx;
+}
+
 /* 头像上传按钮（重置 button 默认样式，解决椭圆问题） */
 .avatar-upload-btn {
   position: relative;
@@ -122,6 +128,32 @@
 .avatar-mask text {
   font-size: 22rpx;
   color: #ffffff;
+}
+
+/* 头像占位符（未上传状态） */
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f5f6f8 0%, #e9ecef 100%);
+  border: 3rpx dashed #bdc3c7;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.camera-icon-large {
+  width: 60rpx;
+  height: 60rpx;
+  margin-bottom: 12rpx;
+  opacity: 0.6;
+}
+
+.upload-hint {
+  font-size: 26rpx;
+  color: #7f8c8d;
 }
 
 /* 表单区域 */

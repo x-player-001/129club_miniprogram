@@ -1,4 +1,6 @@
 // components/team-score-bar/team-score-bar.js
+const config = require('../../utils/config.js');
+
 Component({
   /**
    * 组件的属性列表
@@ -8,7 +10,7 @@ Component({
       type: Object,
       value: {
         name: '队伍1',
-        logo: '/static/images/logoa.png',
+        logo: config.getImageUrl('logoa.png'),
         wins: 0
       }
     },
@@ -16,7 +18,7 @@ Component({
       type: Object,
       value: {
         name: '队伍2',
-        logo: '/static/images/logob.png',
+        logo: config.getImageUrl('logob.png'),
         wins: 0
       }
     },

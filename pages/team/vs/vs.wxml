@@ -5,7 +5,7 @@
     <!-- 队伍1 -->
     <view class="team-section">
       <view class="team-badge" style="background: {{team1Info.color}};">
-        <image src="{{team1Info.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+        <image src="{{team1Info.logo || images.defaultTeam}}" mode="aspectFit"></image>
       </view>
       <view class="team-name">{{team1Info.name}}</view>
       <view class="team-wins">{{vsStats.team1Wins}}胜</view>
@@ -20,7 +20,7 @@
     <!-- 队伍2 -->
     <view class="team-section">
       <view class="team-badge" style="background: {{team2Info.color}};">
-        <image src="{{team2Info.logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+        <image src="{{team2Info.logo || images.defaultTeam}}" mode="aspectFit"></image>
       </view>
       <view class="team-name">{{team2Info.name}}</view>
       <view class="team-wins">{{vsStats.team2Wins}}胜</view>
@@ -75,7 +75,7 @@
         <view class="match-content">
           <view class="match-teams">
             <view class="team-info left">
-              <image class="team-logo" src="{{item.team1Logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+              <image class="team-logo" src="{{item.team1Logo || images.defaultTeam}}" mode="aspectFit"></image>
               <text class="team-name-small">{{item.team1Name}}</text>
             </view>
 
@@ -91,7 +91,7 @@
 
             <view class="team-info right">
               <text class="team-name-small">{{item.team2Name}}</text>
-              <image class="team-logo" src="{{item.team2Logo || '/static/images/default-team.png'}}" mode="aspectFit"></image>
+              <image class="team-logo" src="{{item.team2Logo || images.defaultTeam}}" mode="aspectFit"></image>
             </view>
           </view>
 
@@ -113,7 +113,7 @@
 
     <!-- 空状态 -->
     <view class="empty-state" wx:else>
-      <image class="empty-icon" src="/static/images/empty-match.png" mode="aspectFit"></image>
+      <image class="empty-icon" src="{{images.emptyMatch}}" mode="aspectFit"></image>
       <text class="empty-text">暂无对战记录</text>
     </view>
   </view>

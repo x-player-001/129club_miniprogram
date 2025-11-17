@@ -4,6 +4,8 @@ const userAPI = require('../../api/user.js');
 const matchAPI = require('../../api/match.js');
 const statsAPI = require('../../api/stats.js');
 const seasonAPI = require('../../api/season.js');
+const { getTeamLogoUrl } = require('../../utils/dataFormatter.js');
+const config = require('../../utils/config.js');
 
 Page({
   data: {
@@ -15,7 +17,24 @@ Page({
     unreadCount: 0,
     isLoading: false,
     hasLoaded: false,
-    currentSeason: null  // 当前赛季
+    currentSeason: null,  // 当前赛季
+    // 图标URL
+    icons: {
+      bell: config.getIconUrl('bell.png'),
+      crown: config.getIconUrl('crown.png'),
+      arrowRight: config.getIconUrl('arrow-right.png'),
+      footballWhite: config.getIconUrl('football-white.png'),
+      chartWhite: config.getIconUrl('chart-white.png'),
+      trophyWhite: config.getIconUrl('trophy-white.png'),
+      teamWhite: config.getIconUrl('team-white.png')
+    },
+    // 图片URL
+    images: {
+      defaultAvatar: config.getImageUrl('default-avatar.png'),
+      defaultTeam: config.getImageUrl('default-team.png'),
+      emptyTeam: config.getImageUrl('empty-team.png'),
+      emptyMatch: config.getImageUrl('empty-match.png')
+    }
   },
 
   onLoad() {
@@ -113,9 +132,10 @@ Page({
 
         // 设置当前队伍信息（从 userInfo.currentTeam）
         if (userInfo.currentTeam) {
-          // 处理队长信息，使用 realName
+          // 处理队长信息和logo，使用 realName
           const currentTeam = {
             ...userInfo.currentTeam,
+            logo: getTeamLogoUrl(userInfo.currentTeam.logo),
             captainName: userInfo.currentTeam.captain?.realName || userInfo.currentTeam.captain?.nickname || '未知'
           };
           this.setData({ currentTeam });
@@ -138,25 +158,25 @@ Page({
           // 格式化为 stats-grid 组件数据
           const statsGridData = [
             {
-              icon: '/static/icons/goal.png',
+              icon: config.getIconUrl('goal.png'),
               iconClass: 'goal-icon',
               value: personalStats.goals,
               label: '进球'
             },
             {
-              icon: '/static/icons/assist.png',
+              icon: config.getIconUrl('assist.png'),
               iconClass: 'assist-icon',
               value: personalStats.assists,
               label: '助攻'
             },
             {
-              icon: '/static/icons/match.png',
+              icon: config.getIconUrl('match.png'),
               iconClass: 'match-icon',
               value: personalStats.matches,
               label: '出场'
             },
             {
-              icon: '/static/icons/star.png',
+              icon: config.getIconUrl('star.png'),
               iconClass: 'mvp-icon',
               value: personalStats.mvpCount,
               label: 'MVP'
@@ -188,7 +208,7 @@ Page({
       // 合并队伍基本信息和统计数据
       const teamStats = {
         name: teamInfo.name,
-        logo: teamInfo.logo,
+        logo: getTeamLogoUrl(teamInfo.logo),
         wins: statsInfo.wins || 0,
         draws: statsInfo.draws || 0,
         losses: statsInfo.losses || 0,
@@ -284,8 +304,8 @@ Page({
           time: `${hours}:${minutes}`,
           location: match.location,
           status: statusMap[match.status] || match.status,
-          team1: match.team1 || { name: match.team1Name, logo: match.team1Logo },
-          team2: match.team2 || { name: match.team2Name, logo: match.team2Logo },
+          team1: match.team1 ? { ...match.team1, logo: getTeamLogoUrl(match.team1.logo) } : { name: match.team1Name, logo: getTeamLogoUrl(match.team1Logo) },
+          team2: match.team2 ? { ...match.team2, logo: getTeamLogoUrl(match.team2.logo) } : { name: match.team2Name, logo: getTeamLogoUrl(match.team2Logo) },
           team1Score: match.team1Score,
           team2Score: match.team2Score,
           team1FinalScore: match.result?.team1FinalScore || match.team1Score,

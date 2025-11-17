@@ -1,10 +1,14 @@
 // pages/startup/startup.js
 const app = getApp();
 const userAPI = require('../../api/user.js');
+const config = require('../../utils/config.js');
 
 Page({
   data: {
-    loadingText: '正在初始化...'
+    loadingText: '正在初始化...',
+    images: {
+      logo: config.getImageUrl('logo.png')
+    }
   },
 
   onLoad() {

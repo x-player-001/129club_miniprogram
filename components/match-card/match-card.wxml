@@ -1,5 +1,5 @@
 <!-- components/match-card/match-card.wxml -->
-<view class="match-card {{mode}}" bindtap="onCardTap">
+<view class="match-card {{mode}}" catchtap="onCardTap">
   <!-- 完整版布局 -->
   <block wx:if="{{mode === 'full'}}">
     <!-- 比赛头部 -->
@@ -48,31 +48,12 @@
           <text class="goal-number" wx:if="{{matchData.team2TotalGoals !== undefined}}">({{matchData.team2TotalGoals}}球)</text>
         </view>
       </view>
-    </view>
-
-    <!-- 比赛信息 -->
-    <view class="match-info">
-      <view class="info-item">
-        <image class="info-icon" src="/static/icons/match.png" mode="aspectFit"></image>
-        <text>{{matchData.dateMonth}}{{matchData.dateDay}}日 {{matchData.time}}</text>
-      </view>
-      <view class="info-item">
-        <image class="info-icon" src="/static/icons/location.png" mode="aspectFit"></image>
-        <text>{{matchData.location}}</text>
-      </view>
-      <view class="info-item">
-        <image class="info-icon" src="/static/icons/match.png" mode="aspectFit"></image>
-        <text>{{matchData.maxPlayersPerTeam || 11}}人制</text>
-      </view>
-      <view class="info-item" wx:if="{{matchData.status === 'ongoing'}}">
-        <text class="live-indicator">●</text>
-        <text class="live-text">第{{matchData.currentMinute}}'分钟</text>
-      </view>
+      
     </view>
 
     <!-- 点球大战比分（完整版） -->
     <view class="penalty-shootout" wx:if="{{matchData.penaltyShootout && matchData.penaltyShootout.enabled}}">
-      <view class="penalty-label">⚽ 点球大战</view>
+      <view class="penalty-label">点球大战</view>
       <view class="penalty-score">
         <view class="penalty-team {{matchData.penaltyShootout.winner === 'team1' ? 'winner' : ''}}">
           {{matchData.penaltyShootout.team1Score}}
@@ -86,10 +67,31 @@
         🏆 {{matchData.penaltyShootout.winner === 'team1' ? matchData.team1.name : matchData.team2.name}} 点球获胜
       </view>
     </view>
+    
+    <!-- 比赛信息 -->
+    <view class="match-info">
+      <view class="info-item">
+        <image class="info-icon" src="{{icons.match}}" mode="aspectFit"></image>
+        <text>{{matchData.dateMonth}}{{matchData.dateDay}}日 {{matchData.time}}</text>
+      </view>
+      <view class="info-item">
+        <image class="info-icon" src="{{icons.location}}" mode="aspectFit"></image>
+        <text>{{matchData.location}}</text>
+      </view>
+      <view class="info-item">
+        <image class="info-icon" src="{{icons.match}}" mode="aspectFit"></image>
+        <text>{{matchData.maxPlayersPerTeam || 11}}人制</text>
+      </view>
+      <view class="info-item" wx:if="{{matchData.status === 'ongoing'}}">
+        <text class="live-indicator">●</text>
+        <text class="live-text">第{{matchData.currentMinute}}'分钟</text>
+      </view>
+    </view>
+
 
     <!-- MVP显示（已结束的比赛） -->
     <view class="match-mvp" wx:if="{{matchData.status === 'finished' && matchData.mvp}}">
-      <image class="mvp-icon" src="/static/icons/star.png" mode="aspectFit"></image>
+      <image class="mvp-icon" src="{{icons.star}}" mode="aspectFit"></image>
       <text class="mvp-label">MVP：</text>
       <image class="mvp-avatar" src="{{matchData.mvp.avatar}}" mode="aspectFill"></image>
       <text class="mvp-name">{{matchData.mvp.name}}</text>

@@ -1,6 +1,8 @@
 // pages/match/detail/detail.js
 const app = getApp();
 const matchAPI = require('../../../api/match.js');
+const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
@@ -15,7 +17,12 @@ Page({
     isRegistered: false,
     canRegister: true,
     isAdmin: true, // 管理员权限（测试用）
-    _isFirstLoad: true // 标记是否首次加载
+    _isFirstLoad: true, // 标记是否首次加载
+    needRefresh: false, // 标记是否需要刷新
+    // 图片URL
+    images: {
+      defaultAvatar: config.getImageUrl('default-avatar.png')
+    }
   },
 
   onLoad(options) {
@@ -43,7 +50,13 @@ Page({
       console.log('[Match Detail] onShow: 首次加载，跳过');
       return;
     }
-    // 如果需要刷新，用户可以使用下拉刷新
+
+    // 检查是否需要刷新（从录入比赛记录页面返回）
+    if (this.data.needRefresh) {
+      console.log('[Match Detail] onShow: 检测到需要刷新，重新加载数据');
+      this.setData({ needRefresh: false });
+      this.loadMatchDetail();
+    }
   },
 
   // 确保 App 初始化完成
@@ -100,6 +113,9 @@ Page({
       // 检查管理员权限
       const isAdmin = userInfo?.role === 'super_admin' || userInfo?.role === 'captain';
 
+      // 检查是否可以录入比赛记录（仅超级管理员）
+      const canRecordMatch = userInfo?.role === 'super_admin';
+
       // 处理点球大战数据
       let penaltyShootout = {
         enabled: false,
@@ -144,13 +160,13 @@ Page({
         team1: {
           id: match.team1?.id || match.team1Id,
           name: match.team1?.name || match.team1Name,
-          logo: match.team1?.logo || match.team1Logo || '/static/images/default-team.png',
+          logo: getTeamLogoUrl(match.team1?.logo || match.team1Logo),
           color: match.team1?.color || match.team1Color || '#ff6b6b'
         },
         team2: {
           id: match.team2?.id || match.team2Id,
           name: match.team2?.name || match.team2Name,
-          logo: match.team2?.logo || match.team2Logo || '/static/images/default-team.png',
+          logo: getTeamLogoUrl(match.team2?.logo || match.team2Logo),
           color: match.team2?.color || match.team2Color || '#3498db'
         },
         status: this.convertStatus(match.status),
@@ -168,7 +184,7 @@ Page({
         description: match.description,
         creator: {
           name: match.creator?.nickname || match.creator?.realName || '管理员',
-          avatar: match.creator?.avatar || '/static/images/default-avatar.png'
+          avatar: match.creator?.avatar ? config.getStaticUrl(match.creator.avatar, 'avatars') : config.getImageUrl('default-avatar.png')
         },
         createdAt: match.createdAt,
         // 比赛结果数据（已完成的比赛）
@@ -186,7 +202,8 @@ Page({
 
       this.setData({
         matchInfo,
-        isAdmin
+        isAdmin,
+        canRecordMatch
       });
 
       // 如果比赛是进行中或已完成，加载比赛数据（节次、事件、MVP等）
@@ -260,10 +277,28 @@ Page({
       // 格式化比赛结果数据
       const result = data.result || {
         quarters: data.quarters || [],
-        mvp: data.mvp || null,
+        mvp: data.mvp ? {
+          ...data.mvp,
+          avatar: data.mvp.avatar ? config.getStaticUrl(data.mvp.avatar, 'avatars') : config.getImageUrl('default-avatar.png')
+        } : null,
         mvpUserIds: data.mvpUserIds || [],
-        attendance: data.attendance || null
+        attendance: data.attendance || null,
+        photos: [] // 默认空数组
       };
+
+      // 处理比赛照片URL
+      if (data.result && data.result.photos && data.result.photos.length > 0) {
+        result.photos = data.result.photos.map(photoUrl =>
+          config.getStaticUrl(photoUrl, 'matchPhotos')
+        );
+      } else {
+        result.photos = [];
+      }
+
+      // 保留其他 result 字段
+      if (data.result) {
+        result.summary = data.result.summary || '';
+      }
 
       // 基于 quarters 数据创建 quarterEvents（即使没有事件也要显示节次）
       const quarterEvents = [];
@@ -332,15 +367,18 @@ Page({
     ]).then(([registrationRes, participantsRes]) => {
       // API返回的数据结构是 {team1: [], team2: [], team1Count: 7, team2Count: 6}
       const data = registrationRes.data || {};
-      const team1Players = data.team1 || [];
-      const team2Players = data.team2 || [];
+      const team1Registrations = data.team1 || [];
+      const team2Registrations = data.team2 || [];
 
-      // 获取实际到场人员ID列表
+      // 获取实际到场人员列表
+      let team1Participants = [];
+      let team2Participants = [];
       const attendanceIds = [];
+
       if (matchInfo.status === 'finished' && participantsRes) {
         const participantsData = participantsRes.data || {};
-        const team1Participants = participantsData.team1 || [];
-        const team2Participants = participantsData.team2 || [];
+        team1Participants = participantsData.team1 || [];
+        team2Participants = participantsData.team2 || [];
 
         // 收集所有到场球员的ID
         team1Participants.forEach(p => {
@@ -360,15 +398,20 @@ Page({
         console.log('[Match Detail] MVP球员ID列表:', mvpIds);
       }
 
-      // 格式化球员数据,添加isAttended和isMvp标记
-      const team1PlayersData = team1Players.map(player => {
+      // 使用 Map 合并报名和到场数据（方案1：显示所有报名+临时参加的球员）
+      const team1PlayersMap = new Map();
+      const team2PlayersMap = new Map();
+
+      // 1. 先添加所有报名球员
+      team1Registrations.forEach(player => {
         const playerId = player.userId || player.user?.id;
-        return {
+        const avatarPath = player.user?.avatar || player.avatar;
+        team1PlayersMap.set(playerId, {
           id: playerId,
           realName: player.user?.realName || player.realName,
           nickname: player.user?.nickname || player.nickname,
           name: player.user?.realName || player.user?.nickname || player.name,
-          avatar: player.user?.avatar || '/static/images/default-avatar.png',
+          avatar: avatarPath ? config.getStaticUrl(avatarPath, 'avatars') : config.getImageUrl('default-avatar.png'),
           jerseyNumber: player.user?.jerseyNumber || player.jerseyNumber,
           position: player.user?.position || player.position,
           isCaptain: player.isCaptain || false,
@@ -376,19 +419,21 @@ Page({
           teamColor: matchInfo.team1.color,
           isAttended: matchInfo.status === 'finished' ? attendanceIds.includes(playerId) : true,
           isMvp: matchInfo.status === 'finished' ? mvpIds.includes(playerId) : false,
+          isWalkIn: false, // 报名球员，非临时参加
           leftFootSkill: Number(player.user?.leftFootSkill || player.leftFootSkill || 0),
           rightFootSkill: Number(player.user?.rightFootSkill || player.rightFootSkill || 0)
-        };
+        });
       });
 
-      const team2PlayersData = team2Players.map(player => {
+      team2Registrations.forEach(player => {
         const playerId = player.userId || player.user?.id;
-        return {
+        const avatarPath = player.user?.avatar || player.avatar;
+        team2PlayersMap.set(playerId, {
           id: playerId,
           realName: player.user?.realName || player.realName,
           nickname: player.user?.nickname || player.nickname,
           name: player.user?.realName || player.user?.nickname || player.name,
-          avatar: player.user?.avatar || '/static/images/default-avatar.png',
+          avatar: avatarPath ? config.getStaticUrl(avatarPath, 'avatars') : config.getImageUrl('default-avatar.png'),
           jerseyNumber: player.user?.jerseyNumber || player.jerseyNumber,
           position: player.user?.position || player.position,
           isCaptain: player.isCaptain || false,
@@ -396,32 +441,90 @@ Page({
           teamColor: matchInfo.team2.color,
           isAttended: matchInfo.status === 'finished' ? attendanceIds.includes(playerId) : true,
           isMvp: matchInfo.status === 'finished' ? mvpIds.includes(playerId) : false,
+          isWalkIn: false, // 报名球员，非临时参加
           leftFootSkill: Number(player.user?.leftFootSkill || player.leftFootSkill || 0),
           rightFootSkill: Number(player.user?.rightFootSkill || player.rightFootSkill || 0)
-        };
+        });
       });
+
+      // 2. 添加临时参加的球员（到场但未报名）
+      if (matchInfo.status === 'finished') {
+        team1Participants.forEach(participant => {
+          const playerId = participant.userId || participant.user?.id;
+          // 如果这个球员没有报名，添加为临时参加
+          if (!team1PlayersMap.has(playerId)) {
+            const avatarPath = participant.user?.avatar || participant.avatar;
+            team1PlayersMap.set(playerId, {
+              id: playerId,
+              realName: participant.user?.realName || participant.realName,
+              nickname: participant.user?.nickname || participant.nickname,
+              name: participant.user?.realName || participant.user?.nickname || participant.name,
+              avatar: avatarPath ? config.getStaticUrl(avatarPath, 'avatars') : config.getImageUrl('default-avatar.png'),
+              jerseyNumber: participant.user?.jerseyNumber || participant.jerseyNumber,
+              position: participant.user?.position || participant.position,
+              isCaptain: false,
+              teamName: matchInfo.team1.name,
+              teamColor: matchInfo.team1.color,
+              isAttended: true, // 临时参加的球员一定是到场的
+              isMvp: mvpIds.includes(playerId),
+              isWalkIn: true, // 标记为临时参加
+              leftFootSkill: Number(participant.user?.leftFootSkill || participant.leftFootSkill || 0),
+              rightFootSkill: Number(participant.user?.rightFootSkill || participant.rightFootSkill || 0)
+            });
+          }
+        });
+
+        team2Participants.forEach(participant => {
+          const playerId = participant.userId || participant.user?.id;
+          // 如果这个球员没有报名，添加为临时参加
+          if (!team2PlayersMap.has(playerId)) {
+            const avatarPath = participant.user?.avatar || participant.avatar;
+            team2PlayersMap.set(playerId, {
+              id: playerId,
+              realName: participant.user?.realName || participant.realName,
+              nickname: participant.user?.nickname || participant.nickname,
+              name: participant.user?.realName || participant.user?.nickname || participant.name,
+              avatar: avatarPath ? config.getStaticUrl(avatarPath, 'avatars') : config.getImageUrl('default-avatar.png'),
+              jerseyNumber: participant.user?.jerseyNumber || participant.jerseyNumber,
+              position: participant.user?.position || participant.position,
+              isCaptain: false,
+              teamName: matchInfo.team2.name,
+              teamColor: matchInfo.team2.color,
+              isAttended: true, // 临时参加的球员一定是到场的
+              isMvp: mvpIds.includes(playerId),
+              isWalkIn: true, // 标记为临时参加
+              leftFootSkill: Number(participant.user?.leftFootSkill || participant.leftFootSkill || 0),
+              rightFootSkill: Number(participant.user?.rightFootSkill || participant.rightFootSkill || 0)
+            });
+          }
+        });
+      }
+
+      // 3. 转换 Map 为数组
+      const team1PlayersData = Array.from(team1PlayersMap.values());
+      const team2PlayersData = Array.from(team2PlayersMap.values());
 
       // 判断当前用户所属队伍 - 增加安全检查
       const myTeamId = userInfo?.teamId || userInfo?.currentTeam?.id || app.globalData.currentTeam?.id || '';
 
-      // 判断是否已报名（检查两个队伍的数据） - 增加安全检查
-      const allPlayers = [...team1Players, ...team2Players];
+      // 判断是否已报名（检查两个队伍的报名数据） - 增加安全检查
+      const allRegistrations = [...team1Registrations, ...team2Registrations];
       const userId = userInfo?.id || '';
-      const isRegistered = userId ? allPlayers.some(reg =>
+      const isRegistered = userId ? allRegistrations.some(reg =>
         (reg.userId || reg.user?.id) === userId
       ) : false;
 
-      // 判断是否可以报名 - 增加安全检查
-      const myTeamPlayers = myTeamId === matchInfo.team1.id ? team1Players : team2Players;
+      // 判断是否可以报名 - 增加安全检查（基于报名人数，不包括临时参加）
+      const myTeamRegistrations = myTeamId === matchInfo.team1.id ? team1Registrations : team2Registrations;
       const canRegister = matchInfo.status === 'upcoming' &&
                          !isRegistered &&
                          userId &&
-                         myTeamPlayers.length < matchInfo.maxPlayers;
+                         myTeamRegistrations.length < matchInfo.maxPlayers;
 
-      // 更新比赛信息中的报名人数
+      // 更新比赛信息中的报名人数（仅报名球员，不包括临时参加）
       this.setData({
-        'matchInfo.team1RegisteredCount': data.team1Count || team1Players.length,
-        'matchInfo.team2RegisteredCount': data.team2Count || team2Players.length
+        'matchInfo.team1RegisteredCount': data.team1Count || team1Registrations.length,
+        'matchInfo.team2RegisteredCount': data.team2Count || team2Registrations.length
       });
 
       // 确定默认显示的队伍（优先显示用户所在队伍）
@@ -433,6 +536,17 @@ Page({
       // 计算当前显示的球员列表
       const currentPlayers = currentTeam === 'team1' ? team1PlayersData : team2PlayersData;
 
+      // 计算实际到场人数（仅已完成的比赛）
+      let team1AttendedCount = team1PlayersData.length;
+      let team2AttendedCount = team2PlayersData.length;
+      let totalAttendedCount = team1PlayersData.length + team2PlayersData.length;
+
+      if (matchInfo.status === 'finished') {
+        team1AttendedCount = team1PlayersData.filter(p => p.isAttended).length;
+        team2AttendedCount = team2PlayersData.filter(p => p.isAttended).length;
+        totalAttendedCount = team1AttendedCount + team2AttendedCount;
+      }
+
       this.setData({
         team1Players: team1PlayersData,
         team2Players: team2PlayersData,
@@ -440,7 +554,11 @@ Page({
         currentPlayers: currentPlayers,
         myTeamId: myTeamId,
         isRegistered: isRegistered,
-        canRegister: canRegister
+        canRegister: canRegister,
+        // 添加到场人数统计
+        team1AttendedCount: team1AttendedCount,
+        team2AttendedCount: team2AttendedCount,
+        totalAttendedCount: totalAttendedCount
       });
 
       wx.hideLoading();
@@ -454,6 +572,45 @@ Page({
   onGoToRegister() {
     wx.navigateTo({
       url: `/pages/match/register/register?id=${this.data.matchId}`
+    });
+  },
+
+  // 取消报名
+  onCancelRegister() {
+    wx.showModal({
+      title: '确认取消报名',
+      content: '确定要取消报名吗？',
+      success: (res) => {
+        if (res.confirm) {
+          this.cancelRegistration();
+        }
+      }
+    });
+  },
+
+  // 执行取消报名
+  cancelRegistration() {
+    const matchAPI = require('../../../api/match.js');
+    wx.showLoading({ title: '取消中...' });
+
+    matchAPI.cancelRegister(this.data.matchId).then(() => {
+      wx.hideLoading();
+      wx.showToast({
+        title: '取消成功',
+        icon: 'success',
+        duration: 1500
+      });
+
+      // 刷新页面数据
+      setTimeout(() => {
+        this.loadMatchDetail();
+      }, 1500);
+    }).catch(err => {
+      wx.hideLoading();
+      wx.showToast({
+        title: err.message || '取消失败',
+        icon: 'none'
+      });
     });
   },
 
@@ -483,15 +640,6 @@ Page({
     });
   },
 
-  // 分享按钮
-  onShare() {
-    // 触发页面的分享功能
-    // 微信小程序会自动调用 onShareAppMessage
-    wx.showShareMenu({
-      withShareTicket: true,
-      menus: ['shareAppMessage', 'shareTimeline']
-    });
-  },
 
   // 查看地图
   onViewMap() {
@@ -512,8 +660,21 @@ Page({
   onViewPlayer(e) {
     const id = e.currentTarget.dataset.id;
     wx.navigateTo({
-      url: `/pages/user/stats/stats?userId=${id}`
+      url: `/pages/user/stats/stats?id=${id}`  // 使用 id 而不是 userId
     });
+  },
+
+  // 预览比赛照片
+  onPreviewPhoto(e) {
+    const index = e.currentTarget.dataset.index;
+    const photos = this.data.matchInfo.result?.photos || [];
+
+    if (photos.length > 0) {
+      wx.previewImage({
+        urls: photos,
+        current: photos[index]
+      });
+    }
   },
 
   // player-card 组件点击事件 - 防止重复跳转
@@ -536,7 +697,7 @@ Page({
 
     console.log('[Match Detail] 正在跳转到球员统计:', playerId);
     wx.navigateTo({
-      url: `/pages/user/stats/stats?userId=${playerId}`,
+      url: `/pages/user/stats/stats?id=${playerId}`,  // 使用 id 而不是 userId
       success: () => {
         console.log('[Match Detail] 跳转成功');
         setTimeout(() => {
@@ -557,30 +718,47 @@ Page({
     });
   },
 
+  // 获取分享图片URL（根据比赛状态）
+  getShareImageUrl(status, customImage) {
+    // 优先使用自定义图片
+    if (customImage) {
+      return config.getStaticUrl(customImage, 'shareImages');
+    }
+
+    // 根据比赛状态返回对应图片
+    const imageMap = {
+      'upcoming': config.getStaticUrl('/share_images/registration.png', 'shareImages'),
+      'ongoing': config.getStaticUrl('/share_images/ongoing.png', 'shareImages'),
+      'finished': config.getStaticUrl('/share_images/finished.png', 'shareImages')
+    };
+
+    return imageMap[status] || config.getStaticUrl('/share_images/registration.png', 'shareImages');
+  },
+
   // 分享比赛
   onShareAppMessage() {
     const matchInfo = this.data.matchInfo;
 
     // 根据比赛状态生成不同的分享标题
     let title = '';
+
     if (matchInfo.status === 'upcoming') {
-      // 报名中的比赛
+      // 未开始的比赛
       const team1Count = matchInfo.team1RegisteredCount || 0;
       const team2Count = matchInfo.team2RegisteredCount || 0;
       const totalRegistered = team1Count + team2Count;
       const maxTotal = (matchInfo.maxPlayersPerTeam || 11) * 2;
-      const stillNeed = maxTotal - totalRegistered;
 
-      if (stillNeed > 0) {
-        title = `⚽ ${matchInfo.title} | 还差${stillNeed}人，快来报名！`;
-      } else {
+      if (totalRegistered >= maxTotal) {
         title = `⚽ ${matchInfo.title} | 报名已满，等你来战！`;
+      } else {
+        title = `⚽ ${matchInfo.title} | 已集结${totalRegistered}人，快来报名！`;
       }
     } else if (matchInfo.status === 'ongoing') {
-      // 进行中
+      // 进行中的比赛
       title = `🔥 ${matchInfo.title} 正在激烈进行中！`;
     } else if (matchInfo.status === 'finished') {
-      // 已结束
+      // 已结束的比赛
       const score1 = matchInfo.team1FinalScore || matchInfo.team1Score || 0;
       const score2 = matchInfo.team2FinalScore || matchInfo.team2Score || 0;
       title = `📊 ${matchInfo.title} | 比分 ${score1}:${score2}`;
@@ -591,17 +769,18 @@ Page({
     return {
       title: title,
       path: `/pages/match/detail/detail?id=${this.data.matchId}`,
-      imageUrl: matchInfo.shareImage || '/static/images/share-match.png'
+      imageUrl: this.getShareImageUrl(matchInfo.status, matchInfo.shareImage)
     };
   },
 
   // 分享到朋友圈
   onShareTimeline() {
     const matchInfo = this.data.matchInfo;
+
     return {
       title: `${matchInfo.title} | 129俱乐部`,
       query: `id=${this.data.matchId}`,
-      imageUrl: matchInfo.shareImage || '/static/images/share-match.png'
+      imageUrl: this.getShareImageUrl(matchInfo.status, matchInfo.shareImage)
     };
   }
 });

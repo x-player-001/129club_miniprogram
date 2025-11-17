@@ -1,10 +1,20 @@
 // pages/user/login/login.js
 const app = getApp();
 const userAPI = require('../../../api/user.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
-    privacyAgreed: false  // 是否同意隐私协议
+    privacyAgreed: false,  // 是否同意隐私协议
+
+    // 图标和图片URL
+    icons: {
+      wechat: config.getIconUrl('wechat.png')
+    },
+    images: {
+      logo: config.getImageUrl('logo.png'),
+      football: config.getImageUrl('football.png')
+    }
   },
 
   onLoad(options) {

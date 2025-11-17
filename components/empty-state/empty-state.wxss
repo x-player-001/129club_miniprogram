@@ -25,7 +25,7 @@
 /* ========== 文字 ========== */
 .empty-text {
   font-size: 28rpx;
-  color: #ffffff;
+  color: #95a5a6;
   margin-bottom: 16rpx;
 }
 

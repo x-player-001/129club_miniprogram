@@ -7,7 +7,7 @@
     <!-- 导航栏内容 -->
     <view class="navbar-inner">
       <view class="navbar-left" wx:if="{{type !== 'complete'}}" bindtap="onBack">
-        <image class="back-icon" src="/static/icons/back.png" mode="aspectFit"></image>
+        <image class="back-icon" src="{{icons.back}}" mode="aspectFit"></image>
       </view>
       <view class="navbar-title">{{type === 'complete' ? '完善信息' : '编辑资料'}}</view>
       <view class="navbar-right"></view>
@@ -20,9 +20,18 @@
     <view class="avatar-section">
       <view class="section-label">头像</view>
       <button class="avatar-upload-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
-        <image class="avatar" src="{{formData.avatar || '/static/images/default-avatar.png'}}" mode="aspectFill"></image>
-        <view class="avatar-mask">
-          <image class="camera-icon" src="/static/icons/camera.png" mode="aspectFit"></image>
+        <!-- 已上传头像 -->
+        <image wx:if="{{formData.avatar}}" class="avatar" src="{{formData.avatar}}" mode="aspectFill"></image>
+
+        <!-- 未上传头像 - 显示上传提示 -->
+        <view wx:else class="avatar-placeholder">
+          <image class="camera-icon-large" src="{{icons.camera}}" mode="aspectFit"></image>
+          <text class="upload-hint">点击上传</text>
+        </view>
+
+        <!-- 已上传头像时的遮罩层 -->
+        <view wx:if="{{formData.avatar}}" class="avatar-mask">
+          <image class="camera-icon" src="{{icons.camera}}" mode="aspectFit"></image>
           <text>点击修改</text>
         </view>
       </button>
@@ -92,7 +101,7 @@
         <view class="item-label">场上位置</view>
         <view class="item-picker {{formData.position ? '' : 'placeholder'}}">
           <text>{{formData.position || '请选择场上位置'}}</text>
-          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+          <image class="arrow-icon" src="{{icons.arrowRight}}" mode="aspectFit"></image>
         </view>
       </view>
 
@@ -108,7 +117,7 @@
               <view class="footprint-wrapper">
                 <image
                   class="footprint-image left-foot"
-                  src="/static/icons/foot-print-{{formData.leftFootLevel < 5 ? 0 : 5}}.png"
+                  src="{{leftFootIcon}}"
                   mode="aspectFit">
                 </image>
                 <view class="level-value">{{formData.leftFootLevel}}</view>
@@ -125,7 +134,7 @@
               <view class="footprint-wrapper">
                 <image
                   class="footprint-image"
-                  src="/static/icons/foot-print-{{formData.rightFootLevel < 5 ? 0 : 5}}.png"
+                  src="{{rightFootIcon}}"
                   mode="aspectFit">
                 </image>
                 <view class="level-value">{{formData.rightFootLevel}}</view>
@@ -172,7 +181,7 @@
       <view class="picker-header">
         <text class="picker-title">选择场上位置（可多选）</text>
         <view class="close-btn" catchtap="onClosePositionPicker">
-          <image src="/static/icons/close.png" mode="aspectFit"></image>
+          <image src="{{icons.close}}" mode="aspectFit"></image>
         </view>
       </view>
 
