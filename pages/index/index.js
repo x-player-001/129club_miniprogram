@@ -345,6 +345,13 @@ Page({
     });
   },
 
+  // 游客点击"登录后查看更多"跳转到登录页
+  onGoToLogin() {
+    wx.navigateTo({
+      url: '/pages/user/login/login?autoLogin=false'
+    });
+  },
+
   // 跳转到队伍详情 - 防止重复跳转
   onGoToTeamDetail() {
     if (!this.data.currentTeam) return;

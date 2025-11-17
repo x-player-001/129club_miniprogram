@@ -62,6 +62,15 @@
   color: #95a5a6;
 }
 
+/* 游客模式下的"登录后查看更多"可点击样式 */
+.no-team text {
+  transition: color 0.2s;
+}
+
+.no-team:active text {
+  color: var(--theme-color);
+}
+
 .message-icon {
   position: relative;
   width: 72rpx;

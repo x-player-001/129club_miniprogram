@@ -14,7 +14,7 @@
           <text class="team-dot" style="background: {{currentTeam.color}};"></text>
           <text>{{currentTeam.name}}</text>
         </view>
-        <view class="no-team" wx:else>
+        <view class="no-team" wx:else bindtap="{{!isLogin ? 'onGoToLogin' : ''}}">
           <text>{{isLogin ? '暂未分配队伍' : '登录后查看更多'}}</text>
         </view>
       </view>
