@@ -13,7 +13,7 @@ yarn-error.log*
 *.swo
 
 # Claude本地设置
-.claude/settings.local.json
+.claude/
 
 # 临时文件
 *.tmp
