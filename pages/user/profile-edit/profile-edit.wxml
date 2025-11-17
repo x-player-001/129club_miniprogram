@@ -19,7 +19,7 @@
     <!-- 头像上传 -->
     <view class="avatar-section">
       <view class="section-label">头像</view>
-      <view class="avatar-upload-btn" bindtap="onChooseAvatar">
+      <button class="avatar-upload-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
         <!-- 已上传头像 -->
         <image wx:if="{{formData.avatar}}" class="avatar" src="{{formData.avatar}}" mode="aspectFill"></image>
 
@@ -34,7 +34,7 @@
           <image class="camera-icon" src="{{icons.camera}}" mode="aspectFit"></image>
           <text>点击修改</text>
         </view>
-      </view>
+      </button>
     </view>
 
     <!-- 表单区域 -->
