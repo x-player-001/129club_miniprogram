@@ -14,6 +14,7 @@ Page({
     rankingList: [],
     isCaptain: false,
     canEdit: false, // 是否可以编辑（队长或管理员）
+    _isFirstLoad: true, // 标记是否首次加载
 
     // 图标URL
     icons: {
@@ -34,6 +35,20 @@ Page({
       this.ensureAppReady().then(() => {
         this.loadTeamData();
       });
+    }
+  },
+
+  onShow() {
+    // 首次加载时不刷新（onLoad已经加载过了）
+    if (this.data._isFirstLoad) {
+      this.setData({ _isFirstLoad: false });
+      return;
+    }
+
+    // 非首次加载，说明是从其他页面返回，刷新数据
+    console.log('[Team Detail] 页面显示，刷新数据');
+    if (this.data.teamId) {
+      this.loadTeamData();
     }
   },
 
@@ -125,7 +140,7 @@ Page({
 
       // 处理队员数据（从 teamInfo.members 中提取）
       const members = teamInfo.members || [];
-      const membersCardData = this.formatMembersData(members);
+      const membersCardData = this.formatMembersData(members, teamInfo);
 
       this.setData({
         teamInfo: {
@@ -153,7 +168,7 @@ Page({
   },
 
   // 格式化队员数据给 player-card 组件
-  formatMembersData(members) {
+  formatMembersData(members, teamInfo) {
     return members.map(member => {
       // 处理位置数据，兼容字符串和数组格式
       let position = member.user?.position || member.position || '';
@@ -185,6 +200,10 @@ Page({
       const avatarPath = member.user?.avatar;
       const avatar = avatarPath ? config.getStaticUrl(avatarPath, 'avatars') : config.getImageUrl('default-avatar.png');
 
+      // 从 user 对象中获取 memberType（优先），否则从 member 顶层获取
+      const memberType = member.user?.memberType || member.memberType || 'regular';
+      const teamColor = teamInfo?.color || '';
+
       return {
         id: member.userId || member.user?.id,
         realName: member.user?.realName,
@@ -192,6 +211,8 @@ Page({
         avatar: avatar,
         jerseyNumber: member.user?.jerseyNumber,
         position: position,
+        memberType: memberType,  // 添加 memberType 字段
+        teamColor: teamColor,  // 添加队伍颜色
         isCaptain: member.role === 'captain',
         totalGoals: member.user?.stats?.goals || 0,
         totalAssists: member.user?.stats?.assists || 0,

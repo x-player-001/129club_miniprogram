@@ -23,7 +23,7 @@
 
   <!-- 队伍2信息 -->
   <view class="team-info team-right">
-    <text class="team-name">{{team2.name}}</text>
     <image class="team-logo" src="{{team2.logo}}" mode="aspectFill"></image>
+    <text class="team-name">{{team2.name}}</text>
   </view>
 </view>

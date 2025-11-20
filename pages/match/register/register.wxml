@@ -74,49 +74,79 @@
         <text class="roster-title">出战阵容 - {{currentTeamView === 'team1' ? matchInfo.team1.name : matchInfo.team2.name}}</text>
       </view>
 
-      <view class="registered-grid" wx:if="{{registeredPlayers.length > 0}}">
-        <view class="player-card fade-in-up" wx:for="{{registeredPlayers}}" wx:key="id" style="animation-delay: {{index * 0.05}}s;">
-          <view class="player-avatar-wrapper">
-            <image class="player-avatar-new" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
-            <view class="avatar-ring"></view>
-            <text class="player-jersey" wx:if="{{item.jerseyNumber}}">{{item.jerseyNumber}}</text>
-          </view>
-          <view class="player-details">
-            <text class="player-name-new">{{item.realName || item.nickname}}</text>
-            <view class="player-tags">
-              <position-tag wx:if="{{item.position}}" code="{{item.position}}" size="small"></position-tag>
+      <!-- 阵容容器（可能被遮罩） -->
+      <view class="roster-wrapper {{isOpponentTeam ? 'opponent-team' : ''}}">
+        <view class="registered-grid" wx:if="{{registeredPlayers.length > 0}}">
+          <view class="player-card fade-in-up" wx:for="{{registeredPlayers}}" wx:key="id" style="animation-delay: {{index * 0.05}}s;">
+            <view class="player-avatar-wrapper">
+              <image class="player-avatar-new" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
+              <view class="avatar-ring"></view>
+              <!-- 球衣号码（仅正式队员显示） -->
+              <text class="player-jersey" wx:if="{{item.jerseyNumber && item.memberType === 'regular'}}">{{item.jerseyNumber}}</text>
             </view>
-            <text class="player-nickname-new" wx:if="{{item.realName && item.nickname}}">@{{item.nickname}}</text>
-            <!-- 备注信息 -->
-            <view class="player-notes" wx:if="{{item.notes}}">
-              <text class="notes-icon">💬</text>
-              <text class="notes-text">{{item.notes}}</text>
+            <view class="player-details">
+              <text class="player-name-new">{{item.realName || item.nickname}}</text>
+              <view class="player-tags">
+                <position-tag wx:if="{{item.position}}" code="{{item.position}}" size="small"></position-tag>
+              </view>
+              <text class="player-nickname-new" wx:if="{{item.realName && item.nickname}}">@{{item.nickname}}</text>
+              <!-- 备注信息 -->
+              <view class="player-notes" wx:if="{{item.notes}}">
+                <text class="notes-icon">💬</text>
+                <text class="notes-text">{{item.notes}}</text>
+              </view>
             </view>
           </view>
         </view>
-      </view>
 
-      <view class="empty-roster" wx:else>
-        <view class="empty-icon">👥</view>
-        <text class="empty-title">还没有队员报名</text>
-        <text class="empty-subtitle">成为第一个报名的队员吧！</text>
+        <view class="empty-roster" wx:else>
+          <view class="empty-icon">👥</view>
+          <text class="empty-title">还没有队员报名</text>
+          <text class="empty-subtitle">成为第一个报名的队员吧！</text>
+        </view>
+
+        <!-- 请假人员列表 -->
+        <view class="leave-list" wx:if="{{(currentTeamView === 'team1' && team1LeavePlayers.length > 0) || (currentTeamView === 'team2' && team2LeavePlayers.length > 0)}}">
+          <view class="leave-list-header">
+            <text class="leave-list-title">请假人员 ({{currentTeamView === 'team1' ? team1LeavePlayers.length : team2LeavePlayers.length}})</text>
+          </view>
+          <view class="leave-grid">
+            <view class="leave-card" wx:for="{{currentTeamView === 'team1' ? team1LeavePlayers : team2LeavePlayers}}" wx:key="id">
+              <view class="leave-player-info">
+                <image class="leave-avatar" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
+                <view class="leave-details">
+                  <text class="leave-name">{{item.realName || item.nickname}}</text>
+                  <text class="leave-reason">{{item.reason}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 对手阵容遮罩 -->
+        <view class="opponent-mask" wx:if="{{isOpponentTeam}}">
+          <view class="mask-content">
+            <view class="lock-icon">⛔</view>
+            <text class="mask-title">绝密军情</text>
+          </view>
+        </view>
       </view>
     </view>
 
-    <!-- 备注 - 只在未报名时显示 -->
-    <view class="remark-section" wx:if="{{!isRegistered}}">
+    <!-- 备注 - 只在未报名且未请假时显示 -->
+    <view class="remark-section" wx:if="{{!isRegistered && !isOnLeave}}">
       <view class="remark-header">
         <text class="remark-title">备注说明</text>
-        <text class="optional-tag">选填</text>
+        <text class="optional-tag">选填（请假时必填）</text>
       </view>
 
       <textarea
         class="remark-input"
-        placeholder="有什么想对队友说的吗？（例如：可能迟到、提前离开等）"
+        placeholder="报名备注或请假原因（例如：可能迟到、提前离开、临时有事等）"
         placeholder-class="remark-placeholder"
         value="{{notes}}"
         bindinput="onRemarkInput"
-        maxlength="200"
+        maxlength="20"
         auto-height
       />
     </view>
@@ -144,16 +174,28 @@
       <text class="btn-icon">📤</text>
     </button>
 
-    <!-- 未报名：显示报名按钮 -->
-    <view wx:if="{{!isRegistered}}" class="action-btn submit-btn-new" catchtap="onSubmit">
-      <view class="btn-glow"></view>
-      <text class="btn-text">立即报名</text>
-      <text class="btn-icon">⚡</text>
+    <!-- 未报名且未请假：显示报名和请假按钮 -->
+    <block wx:if="{{!isRegistered && !isOnLeave}}">
+      <view class="action-btn submit-btn-new" catchtap="onSubmit">
+        <view class="btn-glow"></view>
+        <text class="btn-text">立即报名</text>
+        <text class="btn-icon">⚡</text>
+      </view>
+      <view class="action-btn leave-btn" catchtap="onRequestLeave">
+        <text class="btn-text">请假</text>
+        <text class="btn-icon">📝</text>
+      </view>
+    </block>
+
+    <!-- 已报名但未请假：只显示取消报名按钮 -->
+    <view wx:elif="{{isRegistered && !isOnLeave}}" class="action-btn cancel-registered-btn" catchtap="onCancel">
+      <text class="btn-text">取消报名</text>
     </view>
 
-    <!-- 已报名：显示取消报名按钮 -->
-    <view wx:else class="action-btn cancel-registered-btn" catchtap="onCancel">
-      <text class="btn-text">取消报名</text>
+    <!-- 已请假：显示取消请假按钮 -->
+    <view wx:elif="{{isOnLeave}}" class="action-btn cancel-leave-btn" catchtap="onCancelLeave">
+      <text class="btn-text">取消请假</text>
+      <text class="btn-icon">✅</text>
     </view>
   </view>
 

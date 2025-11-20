@@ -1,5 +1,6 @@
 // components/player-card/player-card.js
 const config = require('../../utils/config.js');
+const app = getApp();
 
 Component({
   properties: {
@@ -13,11 +14,15 @@ Component({
           const leftFootSkill = Number(newVal.leftFootSkill || 0);
           const rightFootSkill = Number(newVal.rightFootSkill || 0);
 
+          // 获取队伍颜色
+          const teamColor = newVal.teamColor || '';
+
           this.setData({
             _processedPlayerData: {
               ...newVal,
               leftFootSkill: leftFootSkill,
-              rightFootSkill: rightFootSkill
+              rightFootSkill: rightFootSkill,
+              teamColor: teamColor || ''
             }
           });
         }

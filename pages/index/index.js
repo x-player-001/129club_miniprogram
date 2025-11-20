@@ -239,8 +239,9 @@ Page({
       return Promise.resolve();
     }
 
-    // 如果没有缓存，从API加载
-    return seasonAPI.getList({ status: 'active', limit: 1 })
+    // 如果没有缓存，从API加载最新的赛季（不限制状态）
+    // 优先获取活跃赛季，如果没有则获取最新完成的赛季
+    return seasonAPI.getList({ limit: 1, orderBy: 'createdAt', order: 'desc' })
       .then(res => {
         const seasons = res.data.list || [];
         if (seasons.length > 0) {
@@ -315,8 +316,9 @@ Page({
           team2: match.team2 ? { ...match.team2, logo: getTeamLogoUrl(match.team2.logo) } : { name: match.team2Name, logo: getTeamLogoUrl(match.team2Logo) },
           team1Score: match.team1Score,
           team2Score: match.team2Score,
-          team1FinalScore: match.result?.team1FinalScore || match.team1Score,
-          team2FinalScore: match.result?.team2FinalScore || match.team2Score,
+          // 使用严格判断，避免0被当作false
+          team1FinalScore: match.result?.team1FinalScore !== undefined ? match.result.team1FinalScore : match.team1Score,
+          team2FinalScore: match.result?.team2FinalScore !== undefined ? match.result.team2FinalScore : match.team2Score,
           team1TotalGoals: match.result?.team1TotalGoals,
           team2TotalGoals: match.result?.team2TotalGoals,
           team1RegisteredCount: match.team1RegisterCount || 0,

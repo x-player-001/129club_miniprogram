@@ -172,6 +172,23 @@ function supplementResult(matchId, data) {
   return post(`/match/${matchId}/supplement-result`, data);
 }
 
+/**
+ * 请假
+ * @param {String} matchId 比赛ID
+ * @param {Object} data {reason: '请假原因'}
+ */
+function requestLeave(matchId, data) {
+  return post(`/match/${matchId}/leave`, data);
+}
+
+/**
+ * 取消请假
+ * @param {String} matchId 比赛ID
+ */
+function cancelLeave(matchId) {
+  return del(`/match/${matchId}/leave`);
+}
+
 module.exports = {
   getMatchList,
   getMatchDetail,
@@ -192,5 +209,7 @@ module.exports = {
   getPlayerStats,
   getParticipants,
   setParticipants,
+  requestLeave,
+  cancelLeave,
   supplementResult
 };

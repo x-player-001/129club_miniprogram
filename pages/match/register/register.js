@@ -12,12 +12,16 @@ Page({
     registeredPlayers: [],
     notes: '',
     isRegistered: false, // 是否已报名
+    isOnLeave: false, // 是否已请假
     currentTeamView: 'team1', // 当前查看的队伍（team1 或 team2）
     team1Players: [], // 队伍1的报名人员
     team2Players: [], // 队伍2的报名人员
+    team1LeavePlayers: [], // 队伍1的请假人员
+    team2LeavePlayers: [], // 队伍2的请假人员
     hasTeam: false, // 用户是否有队伍
     showTeamSelector: false, // 是否显示队伍选择弹窗
     selectedTeamId: '', // 无队伍球员选择的队伍ID
+    isOpponentTeam: false, // 是否正在查看对手队伍
     // 图片URL
     images: {
       defaultAvatar: config.getImageUrl('default-avatar.png')
@@ -112,7 +116,8 @@ Page({
         nickname: reg.user?.nickname,
         jerseyNumber: reg.user?.jerseyNumber,
         position: Array.isArray(reg.user?.position) ? reg.user.position.join(', ') : reg.user?.position,
-        notes: reg.notes || '' // 添加备注字段
+        memberType: reg.user?.memberType || reg.memberType || 'regular',
+        notes: reg.notes || ''
       }));
 
       // 转换队伍2的数据格式
@@ -123,26 +128,65 @@ Page({
         nickname: reg.user?.nickname,
         jerseyNumber: reg.user?.jerseyNumber,
         position: Array.isArray(reg.user?.position) ? reg.user.position.join(', ') : reg.user?.position,
-        notes: reg.notes || '' // 添加备注字段
+        memberType: reg.user?.memberType || reg.memberType || 'regular',
+        notes: reg.notes || ''
+      }));
+
+      // 转换队伍1的请假人员数据格式
+      const team1LeavePlayers = (data.team1Leave || []).map(leave => ({
+        id: leave.userId,
+        avatar: leave.user?.avatar,
+        realName: leave.user?.realName,
+        nickname: leave.user?.nickname,
+        jerseyNumber: leave.user?.jerseyNumber,
+        memberType: leave.user?.memberType || 'regular',
+        reason: leave.notes || leave.reason || '', // 请假原因在 notes 字段
+        leaveTime: leave.createdAt
+      }));
+
+      // 转换队伍2的请假人员数据格式
+      const team2LeavePlayers = (data.team2Leave || []).map(leave => ({
+        id: leave.userId,
+        avatar: leave.user?.avatar,
+        realName: leave.user?.realName,
+        nickname: leave.user?.nickname,
+        jerseyNumber: leave.user?.jerseyNumber,
+        memberType: leave.user?.memberType || 'regular',
+        reason: leave.notes || leave.reason || '', // 请假原因在 notes 字段
+        leaveTime: leave.createdAt
       }));
 
       // 检查当前用户是否已报名
       const isRegistered = [...(data.team1 || []), ...(data.team2 || [])].some(reg => reg.userId === currentUserId);
 
+      // 检查当前用户是否已请假
+      const isOnLeave = [...(data.team1Leave || []), ...(data.team2Leave || [])].some(leave => leave.userId === currentUserId);
+
       // 根据当前队伍ID，默认显示对应队伍的人员
       const team1Id = this.data.matchInfo.team1.id;
+      const team2Id = this.data.matchInfo.team2.id;
       const currentTeamView = myTeamId === team1Id ? 'team1' : 'team2';
       const registeredPlayers = currentTeamView === 'team1' ? team1Players : team2Players;
+
+      // 判断初始显示的是否为对手队伍
+      const viewingTeamId = currentTeamView === 'team1' ? team1Id : team2Id;
+      const isOpponentTeam = myTeamId && viewingTeamId !== myTeamId;
 
       // 更新数据
       this.setData({
         team1Players,
         team2Players,
+        team1LeavePlayers,
+        team2LeavePlayers,
         registeredPlayers,
         currentTeamView,
         isRegistered,
+        isOnLeave,
+        isOpponentTeam,
         'matchInfo.team1RegisteredCount': data.team1Count || 0,
-        'matchInfo.team2RegisteredCount': data.team2Count || 0
+        'matchInfo.team2RegisteredCount': data.team2Count || 0,
+        'matchInfo.team1LeaveCount': data.team1LeaveCount || 0,
+        'matchInfo.team2LeaveCount': data.team2LeaveCount || 0
       });
     }).catch(err => {
       console.error('加载报名列表失败:', err);
@@ -157,9 +201,18 @@ Page({
     }
 
     const registeredPlayers = team === 'team1' ? this.data.team1Players : this.data.team2Players;
+
+    // 判断是否为对手队伍
+    const myTeamId = this.data.myTeamId;
+    const team1Id = this.data.matchInfo.team1.id;
+    const team2Id = this.data.matchInfo.team2.id;
+    const viewingTeamId = team === 'team1' ? team1Id : team2Id;
+    const isOpponentTeam = myTeamId && viewingTeamId !== myTeamId;
+
     this.setData({
       currentTeamView: team,
-      registeredPlayers
+      registeredPlayers,
+      isOpponentTeam
     });
   },
 
@@ -269,6 +322,111 @@ Page({
     wx.showLoading({ title: '取消中...' });
 
     matchAPI.cancelRegister(this.data.matchId).then(() => {
+      wx.hideLoading();
+      wx.showToast({
+        title: '取消成功',
+        icon: 'success',
+        duration: 1500
+      });
+
+      // 刷新页面数据
+      setTimeout(() => {
+        this.loadMatchInfo();
+
+        // 标记比赛详情页需要刷新
+        const pages = getCurrentPages();
+        if (pages.length >= 2) {
+          const prevPage = pages[pages.length - 2];
+          if (prevPage.loadMatchDetail) {
+            prevPage.setData({ needRefresh: true });
+          }
+        }
+      }, 1500);
+    }).catch(err => {
+      wx.hideLoading();
+      wx.showToast({
+        title: err.message || '取消失败',
+        icon: 'none'
+      });
+    });
+  },
+
+  // 请假
+  onRequestLeave() {
+    // 检查备注是否为空
+    const notes = this.data.notes.trim();
+    if (!notes) {
+      wx.showToast({
+        title: '请假需要填写备注说明',
+        icon: 'none'
+      });
+      return;
+    }
+
+    wx.showModal({
+      title: '确认请假',
+      content: `确定要请假吗？\n请假原因：${notes}`,
+      success: (res) => {
+        if (res.confirm) {
+          this.submitLeave(notes);
+        }
+      }
+    });
+  },
+
+  // 提交请假
+  submitLeave(reason) {
+    wx.showLoading({ title: '提交中...' });
+
+    matchAPI.requestLeave(this.data.matchId, { reason }).then(() => {
+      wx.hideLoading();
+      wx.showToast({
+        title: '请假成功',
+        icon: 'success',
+        duration: 1500
+      });
+
+      // 刷新页面数据
+      setTimeout(() => {
+        this.loadMatchInfo();
+        this.setData({ notes: '' }); // 清空备注
+
+        // 标记比赛详情页需要刷新
+        const pages = getCurrentPages();
+        if (pages.length >= 2) {
+          const prevPage = pages[pages.length - 2];
+          if (prevPage.loadMatchDetail) {
+            prevPage.setData({ needRefresh: true });
+          }
+        }
+      }, 1500);
+    }).catch(err => {
+      wx.hideLoading();
+      wx.showToast({
+        title: err.message || '请假失败',
+        icon: 'none'
+      });
+    });
+  },
+
+  // 取消请假
+  onCancelLeave() {
+    wx.showModal({
+      title: '确认取消请假',
+      content: '确定要取消请假吗？',
+      success: (res) => {
+        if (res.confirm) {
+          this.cancelLeaveRequest();
+        }
+      }
+    });
+  },
+
+  // 执行取消请假
+  cancelLeaveRequest() {
+    wx.showLoading({ title: '取消中...' });
+
+    matchAPI.cancelLeave(this.data.matchId).then(() => {
       wx.hideLoading();
       wx.showToast({
         title: '取消成功',

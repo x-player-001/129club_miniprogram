@@ -26,7 +26,10 @@
   </view>
 
   <!-- 我的队伍卡片 -->
-  <view class="my-team-card" wx:if="{{currentTeam}}" bindtap="onGoToTeamDetail">
+  <view class="my-team-card {{currentTeam.color ? 'custom-color' : ''}}"
+        wx:if="{{currentTeam}}"
+        bindtap="onGoToTeamDetail"
+        style="{{currentTeam.color ? 'background: linear-gradient(135deg, ' + currentTeam.color + ' 0%, ' + currentTeam.color + 'CC 100%); box-shadow: 0 8rpx 32rpx ' + currentTeam.color + '4D;' : ''}}">
     <!-- 队伍主信息 -->
     <view class="my-team-header">
       <view class="my-team-logo-wrapper">
@@ -112,7 +115,9 @@
     <view class="season-card-compact">
       <view class="season-header-compact">
         <view class="season-name-compact">{{currentSeason.name}}</view>
-        <view class="season-status active">进行中</view>
+        <view class="season-status {{currentSeason.status === 'active' ? 'active' : 'completed'}}">
+          {{currentSeason.status === 'active' ? '进行中' : '已完成'}}
+        </view>
       </view>
       <view class="season-info-compact">
         <text class="season-title-compact" wx:if="{{currentSeason.title}}">{{currentSeason.title}}</text>

@@ -163,26 +163,51 @@
         </view>
       </view>
 
-      <view class="players-grid">
-        <view class="player-card-mini {{!item.isAttended ? 'absent' : ''}} {{item.isMvp ? 'mvp-player' : ''}}" wx:for="{{currentPlayers}}" wx:key="id">
-          <view class="avatar-wrapper">
-            <image class="player-avatar-mini" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
-            <!-- 球衣号码徽章 -->
-            <view class="jersey-badge" wx:if="{{item.jerseyNumber}}">{{item.jerseyNumber}}</view>
-            <!-- 缺席标记（仅已完成的比赛显示） -->
-            <view class="absent-badge" wx:if="{{matchInfo.status === 'finished' && !item.isAttended}}">缺席</view>
-            <!-- 临时参加标记（仅已完成的比赛且为临时参加球员显示） -->
-            <view class="walkin-badge" wx:if="{{matchInfo.status === 'finished' && item.isWalkIn}}">临时</view>
-            <!-- MVP标记（仅已完成的比赛显示） -->
-            <view class="mvp-badge-mini" wx:if="{{matchInfo.status === 'finished' && item.isMvp}}">🏆</view>
+      <!-- 球员列表容器（可能被遮罩） -->
+      <view class="players-wrapper {{isOpponentTeam ? 'opponent-team' : ''}}">
+        <view class="players-grid" wx:if="{{currentPlayers.length > 0}}">
+          <view class="player-card-mini {{!item.isAttended ? 'absent' : ''}} {{item.isMvp ? 'mvp-player' : ''}}" wx:for="{{currentPlayers}}" wx:key="id">
+            <view class="avatar-wrapper">
+              <image class="player-avatar-mini" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
+              <!-- 球衣号码徽章（仅正式队员显示） -->
+              <view class="jersey-badge" wx:if="{{item.jerseyNumber && item.memberType === 'regular'}}">{{item.jerseyNumber}}</view>
+              <!-- 缺席标记（仅已完成的比赛显示） -->
+              <view class="absent-badge" wx:if="{{matchInfo.status === 'finished' && !item.isAttended}}">缺席</view>
+              <!-- 临时参加标记（仅已完成的比赛且为临时参加球员显示） -->
+              <view class="walkin-badge" wx:if="{{matchInfo.status === 'finished' && item.isWalkIn}}">临时</view>
+              <!-- MVP标记（仅已完成的比赛显示） -->
+              <view class="mvp-badge-mini" wx:if="{{matchInfo.status === 'finished' && item.isMvp}}">🏆</view>
+            </view>
+            <text class="player-name-mini">{{item.realName || item.nickname}}</text>
           </view>
-          <text class="player-name-mini">{{item.realName || item.nickname}}</text>
         </view>
-      </view>
 
-      <view class="empty-state" wx:if="{{currentPlayers.length === 0}}">
-        <text class="empty-icon">👥</text>
-        <text class="empty-text">暂无人报名</text>
+        <view class="empty-state" wx:else>
+          <text class="empty-icon">👥</text>
+          <text class="empty-text">暂无人报名</text>
+        </view>
+
+        <!-- 请假人员列表 -->
+        <view class="leave-list-detail" wx:if="{{(currentTeam === 'team1' && team1LeavePlayers.length > 0) || (currentTeam === 'team2' && team2LeavePlayers.length > 0)}}">
+          <view class="leave-players-grid">
+            <view class="player-card-mini leave-player" wx:for="{{currentTeam === 'team1' ? team1LeavePlayers : team2LeavePlayers}}" wx:key="id">
+              <view class="avatar-wrapper">
+                <image class="player-avatar-mini" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
+                <!-- 请假标记 -->
+                <view class="leave-badge-detail">假</view>
+              </view>
+              <text class="player-name-mini">{{item.realName || item.nickname}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 对手阵容遮罩（仅未开始的比赛且查看对手队伍时显示） -->
+        <view class="opponent-mask-detail" wx:if="{{isOpponentTeam && matchInfo.status === 'upcoming'}}">
+          <view class="mask-content">
+            <view class="lock-icon">⛔</view>
+            <text class="mask-title">绝密军情</text>
+          </view>
+        </view>
       </view>
     </view>
 

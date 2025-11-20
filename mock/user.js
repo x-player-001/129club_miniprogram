@@ -29,6 +29,9 @@ const mockUsers = [
 
 // 生成21个测试用户
 for (let i = 2; i <= 21; i++) {
+  // 让第5和第10个球员成为外援
+  const isTemporary = i === 5 || i === 10;
+
   mockUsers.push({
     id: String(i),
     nickname: `球员${i}`,
@@ -37,6 +40,7 @@ for (let i = 2; i <= 21; i++) {
     avatar: `/static/images/avatar/${i}.png`,
     position: ['forward', 'midfielder', 'defender', 'goalkeeper'][i % 4],
     jerseyNumber: i,
+    memberType: isTemporary ? 'temporary' : 'regular',  // 添加 memberType 字段
     currentTeam: {
       id: i % 2 === 0 ? '2' : '1',
       name: i % 2 === 0 ? '长江黄河' : '嘉陵摩托',

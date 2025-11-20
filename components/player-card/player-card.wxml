@@ -12,9 +12,18 @@
         <text class="player-name">{{_processedPlayerData.realName || _processedPlayerData.nickname || playerData.realName || playerData.nickname}}</text>
         <image wx:if="{{_processedPlayerData.isCaptain || playerData.isCaptain}}" class="captain-badge" src="{{icons.crownSmall}}" mode="aspectFit"></image>
       </view>
-      <!-- 第二行：号码 -->
+      <!-- 第二行：号码或外援标签 -->
       <view class="player-number-row">
-        <text class="jersey-number">{{_processedPlayerData.jerseyNumber || playerData.jerseyNumber}}号</text>
+        <view wx:if="{{(_processedPlayerData.memberType || playerData.memberType) === 'temporary'}}"
+              class="jersey-number foreign-player {{(_processedPlayerData.teamColor || playerData.teamColor) ? '' : 'default'}}"
+              style="{{(_processedPlayerData.teamColor || playerData.teamColor) ? 'color: ' + (_processedPlayerData.teamColor || playerData.teamColor) + '; background: ' + (_processedPlayerData.teamColor || playerData.teamColor) + '15;' : ''}}">
+          外援
+        </view>
+        <view wx:else
+              class="jersey-number {{(_processedPlayerData.teamColor || playerData.teamColor) ? '' : 'default'}}"
+              style="{{(_processedPlayerData.teamColor || playerData.teamColor) ? 'color: ' + (_processedPlayerData.teamColor || playerData.teamColor) + '; background: ' + (_processedPlayerData.teamColor || playerData.teamColor) + '15;' : ''}}">
+          {{_processedPlayerData.jerseyNumber || playerData.jerseyNumber}}号
+        </view>
       </view>
     </view>
 

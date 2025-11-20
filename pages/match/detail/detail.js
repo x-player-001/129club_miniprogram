@@ -10,6 +10,8 @@ Page({
     matchInfo: {},
     team1Players: [],
     team2Players: [],
+    team1LeavePlayers: [], // 队伍1请假人员
+    team2LeavePlayers: [], // 队伍2请假人员
     currentTeam: 'team1', // 当前显示的队伍
     currentPlayers: [], // 当前显示的球员列表
     currentQuarter: 1, // 当前显示的节次
@@ -18,6 +20,7 @@ Page({
     canRegister: true,
     isAdmin: true, // 管理员权限（测试用）
     isLogin: false, // 是否登录
+    isOpponentTeam: false, // 是否正在查看对手队伍
     _isFirstLoad: true, // 标记是否首次加载
     needRefresh: false, // 标记是否需要刷新
     // 图片URL
@@ -372,10 +375,14 @@ Page({
       matchAPI.getRegistrationList(this.data.matchId),
       participantsPromise
     ]).then(([registrationRes, participantsRes]) => {
-      // API返回的数据结构是 {team1: [], team2: [], team1Count: 7, team2Count: 6}
+      // API返回的数据结构是 {team1: [], team2: [], team1Leave: [], team2Leave: [], team1Count: 7, team2Count: 6}
       const data = registrationRes.data || {};
       const team1Registrations = data.team1 || [];
       const team2Registrations = data.team2 || [];
+
+      // 获取请假人员数据
+      const team1Leave = data.team1Leave || [];
+      const team2Leave = data.team2Leave || [];
 
       // 获取实际到场人员列表
       let team1Participants = [];
@@ -427,6 +434,7 @@ Page({
           isAttended: matchInfo.status === 'finished' ? attendanceIds.includes(playerId) : true,
           isMvp: matchInfo.status === 'finished' ? mvpIds.includes(playerId) : false,
           isWalkIn: false, // 报名球员，非临时参加
+          memberType: player.user?.memberType || player.memberType || 'regular', // 添加 memberType 字段
           leftFootSkill: Number(player.user?.leftFootSkill || player.leftFootSkill || 0),
           rightFootSkill: Number(player.user?.rightFootSkill || player.rightFootSkill || 0)
         });
@@ -449,6 +457,7 @@ Page({
           isAttended: matchInfo.status === 'finished' ? attendanceIds.includes(playerId) : true,
           isMvp: matchInfo.status === 'finished' ? mvpIds.includes(playerId) : false,
           isWalkIn: false, // 报名球员，非临时参加
+          memberType: player.user?.memberType || player.memberType || 'regular', // 添加 memberType 字段
           leftFootSkill: Number(player.user?.leftFootSkill || player.leftFootSkill || 0),
           rightFootSkill: Number(player.user?.rightFootSkill || player.rightFootSkill || 0)
         });
@@ -475,6 +484,7 @@ Page({
               isAttended: true, // 临时参加的球员一定是到场的
               isMvp: mvpIds.includes(playerId),
               isWalkIn: true, // 标记为临时参加
+              memberType: participant.user?.memberType || participant.memberType || 'regular', // 添加 memberType 字段
               leftFootSkill: Number(participant.user?.leftFootSkill || participant.leftFootSkill || 0),
               rightFootSkill: Number(participant.user?.rightFootSkill || participant.rightFootSkill || 0)
             });
@@ -500,6 +510,7 @@ Page({
               isAttended: true, // 临时参加的球员一定是到场的
               isMvp: mvpIds.includes(playerId),
               isWalkIn: true, // 标记为临时参加
+              memberType: participant.user?.memberType || participant.memberType || 'regular', // 添加 memberType 字段
               leftFootSkill: Number(participant.user?.leftFootSkill || participant.leftFootSkill || 0),
               rightFootSkill: Number(participant.user?.rightFootSkill || participant.rightFootSkill || 0)
             });
@@ -507,9 +518,21 @@ Page({
         });
       }
 
-      // 3. 转换 Map 为数组
-      const team1PlayersData = Array.from(team1PlayersMap.values());
-      const team2PlayersData = Array.from(team2PlayersMap.values());
+      // 3. 转换 Map 为数组，并将MVP排到最前面
+      const team1PlayersData = Array.from(team1PlayersMap.values()).sort((a, b) => {
+        // MVP优先
+        if (a.isMvp && !b.isMvp) return -1;
+        if (!a.isMvp && b.isMvp) return 1;
+        // 其他按原顺序
+        return 0;
+      });
+      const team2PlayersData = Array.from(team2PlayersMap.values()).sort((a, b) => {
+        // MVP优先
+        if (a.isMvp && !b.isMvp) return -1;
+        if (!a.isMvp && b.isMvp) return 1;
+        // 其他按原顺序
+        return 0;
+      });
 
       // 判断当前用户所属队伍 - 增加安全检查
       const myTeamId = userInfo?.teamId || userInfo?.currentTeam?.id || app.globalData.currentTeam?.id || '';
@@ -543,6 +566,35 @@ Page({
       // 计算当前显示的球员列表
       const currentPlayers = currentTeam === 'team1' ? team1PlayersData : team2PlayersData;
 
+      // 判断默认显示的队伍是否为对手队伍（仅未开始的比赛需要判断）
+      const team1Id = matchInfo.team1.id;
+      const team2Id = matchInfo.team2.id;
+      const viewingTeamId = currentTeam === 'team1' ? team1Id : team2Id;
+      const isOpponentTeam = myTeamId && viewingTeamId !== myTeamId && matchInfo.status === 'upcoming';
+
+      // 转换请假人员数据
+      const team1LeavePlayers = team1Leave.map(leave => ({
+        id: leave.userId,
+        avatar: leave.user?.avatar ? config.getStaticUrl(leave.user.avatar, 'avatars') : config.getImageUrl('default-avatar.png'),
+        realName: leave.user?.realName,
+        nickname: leave.user?.nickname,
+        jerseyNumber: leave.user?.jerseyNumber,
+        memberType: leave.user?.memberType || 'regular',
+        reason: leave.notes || leave.reason || '',
+        isOnLeave: true
+      }));
+
+      const team2LeavePlayers = team2Leave.map(leave => ({
+        id: leave.userId,
+        avatar: leave.user?.avatar ? config.getStaticUrl(leave.user.avatar, 'avatars') : config.getImageUrl('default-avatar.png'),
+        realName: leave.user?.realName,
+        nickname: leave.user?.nickname,
+        jerseyNumber: leave.user?.jerseyNumber,
+        memberType: leave.user?.memberType || 'regular',
+        reason: leave.notes || leave.reason || '',
+        isOnLeave: true
+      }));
+
       // 计算实际到场人数（仅已完成的比赛）
       let team1AttendedCount = team1PlayersData.length;
       let team2AttendedCount = team2PlayersData.length;
@@ -557,11 +609,14 @@ Page({
       this.setData({
         team1Players: team1PlayersData,
         team2Players: team2PlayersData,
+        team1LeavePlayers: team1LeavePlayers,
+        team2LeavePlayers: team2LeavePlayers,
         currentTeam: currentTeam,
         currentPlayers: currentPlayers,
         myTeamId: myTeamId,
         isRegistered: isRegistered,
         canRegister: canRegister,
+        isOpponentTeam: isOpponentTeam,
         // 添加到场人数统计
         team1AttendedCount: team1AttendedCount,
         team2AttendedCount: team2AttendedCount,
@@ -635,9 +690,18 @@ Page({
     }
 
     const currentPlayers = team === 'team1' ? this.data.team1Players : this.data.team2Players;
+
+    // 判断是否为对手队伍（仅未开始的比赛需要判断）
+    const myTeamId = this.data.myTeamId;
+    const team1Id = this.data.matchInfo.team1.id;
+    const team2Id = this.data.matchInfo.team2.id;
+    const viewingTeamId = team === 'team1' ? team1Id : team2Id;
+    const isOpponentTeam = myTeamId && viewingTeamId !== myTeamId && this.data.matchInfo.status === 'upcoming';
+
     this.setData({
       currentTeam: team,
-      currentPlayers: currentPlayers
+      currentPlayers: currentPlayers,
+      isOpponentTeam: isOpponentTeam
     });
   },
 

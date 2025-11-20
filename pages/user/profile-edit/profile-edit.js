@@ -427,6 +427,16 @@ Page({
       return false;
     }
 
+    // 验证球衣号码范围（1-999）
+    const jerseyNum = parseInt(jerseyNumber);
+    if (isNaN(jerseyNum) || jerseyNum < 1 || jerseyNum > 999) {
+      wx.showToast({
+        title: '球衣号码需在1-999之间',
+        icon: 'none'
+      });
+      return false;
+    }
+
     if (!position) {
       wx.showToast({
         title: '请选择场上位置',

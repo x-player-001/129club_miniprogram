@@ -41,20 +41,20 @@ Page({
   loadData() {
     wx.showLoading({ title: '加载中...' });
 
-    return Promise.all([
-      this.loadTeams(),
-      this.loadMembers()
-    ]).then(() => {
-      this.filterMembers();
-    }).catch(err => {
-      console.error('加载数据失败:', err);
-      wx.showToast({
-        title: '加载失败',
-        icon: 'none'
+    // 先加载队伍列表，再加载成员列表（成员需要用到队伍颜色）
+    return this.loadTeams()
+      .then(() => this.loadMembers())
+      .then(() => {
+        this.filterMembers();
+      }).catch(err => {
+        console.error('加载数据失败:', err);
+        wx.showToast({
+          title: '加载失败',
+          icon: 'none'
+        });
+      }).finally(() => {
+        wx.hideLoading();
       });
-    }).finally(() => {
-      wx.hideLoading();
-    });
   },
 
   // 加载队伍列表
@@ -115,6 +115,13 @@ Page({
         const leftFootSkill = Number(leftFootSkillRaw);
         const rightFootSkill = Number(rightFootSkillRaw);
 
+        const memberType = member.memberType || member.user?.memberType || 'regular';
+
+        // 从 teams 数组中查找对应队伍的颜色
+        const currentTeamId = member.currentTeamId || member.teamId;
+        const team = this.data.teams.find(t => t.id === currentTeamId);
+        const teamColor = team?.color || '';
+
         return {
           id: member.user?.id || member.id,
           realName: member.user?.realName || member.realName,
@@ -123,8 +130,9 @@ Page({
           jerseyNumber: member.user?.jerseyNumber || member.jerseyNumber,
           position: position,
           teamId: member.currentTeamId || member.teamId,  // API返回的是 currentTeamId
-          teamName: member.team?.name || member.teamName,
-          teamColor: member.team?.color || member.teamColor,
+          teamName: member.currentTeam?.name || member.team?.name || member.teamName,
+          teamColor: teamColor,
+          memberType: memberType,  // 添加 memberType 字段
           isCaptain: member.role === 'captain' || member.isCaptain || false,
           totalGoals: member.user?.stats?.goals || member.stats?.goals || 0,
           totalAssists: member.user?.stats?.assists || member.stats?.assists || 0,

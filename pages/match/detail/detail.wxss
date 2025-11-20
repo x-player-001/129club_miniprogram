@@ -713,6 +713,18 @@
   color: #ffffff;
 }
 
+/* 球员列表容器（用于遮罩定位） */
+.players-wrapper {
+  position: relative;
+  min-height: 200rpx; /* 设置最小高度，确保遮罩有足够空间显示 */
+}
+
+/* 对手队伍：只模糊不降低透明度，保留隐约可见的效果 */
+.players-wrapper.opponent-team .players-grid,
+.players-wrapper.opponent-team .empty-state {
+  filter: blur(16rpx);
+}
+
 /* 球员网格 */
 .players-grid {
   display: grid;
@@ -829,8 +841,8 @@
   align-items: center;
   justify-content: center;
   font-size: 24rpx;
-  border: 3rpx solid #ffffff;
-  box-shadow: 0 4rpx 12rpx rgba(255, 215, 0, 0.6);
+  border: 3rpx solid #f20810;
+  box-shadow: 0 6rpx 16rpx rgba(255, 215, 0, 0.8);
   z-index: 3;
   animation: mvpPulse 2s ease-in-out infinite;
 }
@@ -838,11 +850,11 @@
 @keyframes mvpPulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 4rpx 12rpx rgba(255, 215, 0, 0.6);
+    box-shadow: 0 6rpx 16rpx rgba(255, 215, 0, 0.8);
   }
   50% {
     transform: scale(1.1);
-    box-shadow: 0 6rpx 16rpx rgba(255, 215, 0, 0.8);
+    box-shadow: 0 8rpx 20rpx rgba(255, 215, 0, 1);
   }
 }
 
@@ -1065,4 +1077,180 @@
 
 .modal-cancel:active {
   opacity: 0.8;
+}
+
+/* ========== 对手阵容遮罩 ========== */
+.opponent-mask-detail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.75) 50%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border-radius: 20rpx;
+  z-index: 100;
+  overflow: hidden;
+}
+
+/* 警戒条纹背景 */
+.opponent-mask-detail::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 40rpx,
+    rgba(255, 193, 7, 0.08) 40rpx,
+    rgba(255, 193, 7, 0.08) 80rpx
+  );
+  animation: stripe-move 20s linear infinite;
+  pointer-events: none;
+}
+
+/* 顶部警戒条 */
+.opponent-mask-detail::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8rpx;
+  background: repeating-linear-gradient(
+    90deg,
+    #ff9800 0rpx,
+    #ff9800 40rpx,
+    #000000 40rpx,
+    #000000 80rpx
+  );
+  box-shadow: 0 0 20rpx rgba(255, 152, 0, 0.6);
+}
+
+@keyframes stripe-move {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(40rpx, 40rpx);
+  }
+}
+
+.opponent-mask-detail .mask-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  z-index: 2;
+  animation: pulse-detail 2s ease-in-out infinite;
+}
+
+@keyframes pulse-detail {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.opponent-mask-detail .lock-icon {
+  font-size: 80rpx;
+  animation: shake-detail 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20rpx rgba(255, 193, 7, 0.6));
+}
+
+@keyframes shake-detail {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+.opponent-mask-detail .mask-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #ff9800;
+  text-shadow: 0 0 20rpx rgba(255, 152, 0, 0.8);
+  letter-spacing: 4rpx;
+}
+
+.opponent-mask-detail .mask-subtitle {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 2rpx;
+}
+
+/* ========== 请假人员列表 ========== */
+.leave-list-detail {
+  margin-top: 32rpx;
+  padding-top: 32rpx;
+  position: relative;
+}
+
+/* 分割线样式 - 渐变虚线效果 */
+.leave-list-detail::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1rpx;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(189, 195, 199, 0.3) 20%,
+    rgba(189, 195, 199, 0.6) 50%,
+    rgba(189, 195, 199, 0.3) 80%,
+    transparent 100%
+  );
+}
+
+.leave-players-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16rpx;
+}
+
+/* 请假球员卡片 */
+.player-card-mini.leave-player {
+  opacity: 0.8;
+}
+
+/* 请假标记 - 头像右下角圆形徽章 */
+.leave-badge-detail {
+  position: absolute;
+  bottom: -4rpx;
+  right: -4rpx;
+  width: 32rpx;
+  height: 32rpx;
+  background: #f39c12;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16rpx;
+  font-weight: 700;
+  color: #ffffff;
+  border: 3rpx solid #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(243, 156, 18, 0.4);
+  z-index: 2;
 }

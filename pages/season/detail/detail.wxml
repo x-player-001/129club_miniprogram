@@ -17,7 +17,7 @@
       </view>
       <view class="info-item">
         <text class="info-label">已进行</text>
-        <text class="info-value">{{seasonInfo.matchCount || 0}} 场</text>
+        <text class="info-value">{{seasonInfo.completedMatches || 0}} 场</text>
       </view>
     </view>
 
@@ -62,7 +62,7 @@
           </view>
         </view>
         <view class="match-teams">
-          <view class="team">
+          <view class="team team-left">
             <image class="team-logo" src="{{item.team1.logo}}" mode="aspectFill"></image>
             <text class="team-name">{{item.team1.name}}</text>
           </view>
@@ -71,7 +71,7 @@
             <text class="separator">:</text>
             <text class="score">{{item.team2FinalScore !== undefined ? item.team2FinalScore : 0}}</text>
           </view>
-          <view class="team">
+          <view class="team team-right">
             <text class="team-name">{{item.team2.name}}</text>
             <image class="team-logo" src="{{item.team2.logo}}" mode="aspectFill"></image>
           </view>

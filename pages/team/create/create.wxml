@@ -51,21 +51,6 @@
         </view>
       </view>
 
-      <!-- 赛季 -->
-      <view class="form-item">
-        <view class="form-label">
-          <text class="label-text">赛季</text>
-          <text class="required">*</text>
-        </view>
-        <input
-          class="form-input"
-          placeholder="例如：2025赛季"
-          value="{{formData.season}}"
-          bindinput="onSeasonInput"
-          maxlength="20"
-        />
-      </view>
-
       <!-- 队长 -->
       <view class="form-item">
         <view class="form-label">

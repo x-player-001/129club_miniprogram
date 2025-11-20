@@ -2,6 +2,7 @@
 const API = require('../../../api/index');
 const app = getApp();
 const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
+const config = require('../../../utils/config.js');
 
 Page({
   /**
@@ -41,15 +42,14 @@ Page({
   },
 
   /**
-   * 检查管理员权限（超级管理员或队长）
+   * 检查管理员权限（仅超级管理员）
    */
   checkAdminRole() {
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
     const isSuperAdmin = userInfo && userInfo.role === 'super_admin';
-    const isCaptain = userInfo && userInfo.role === 'captain';
 
     this.setData({
-      isAdmin: isSuperAdmin || isCaptain
+      isAdmin: isSuperAdmin
     });
   },
 
@@ -131,7 +131,16 @@ Page({
             // 保留进球数用于其他显示
             team1TotalGoals: match.result?.team1TotalGoals,
             team2TotalGoals: match.result?.team2TotalGoals,
-            penaltyShootout: penaltyShootout
+            penaltyShootout: penaltyShootout,
+            // 处理队伍logo
+            team1: match.team1 ? {
+              ...match.team1,
+              logo: getTeamLogoUrl(match.team1.logo)
+            } : match.team1,
+            team2: match.team2 ? {
+              ...match.team2,
+              logo: getTeamLogoUrl(match.team2.logo)
+            } : match.team2
           };
         });
 
@@ -139,8 +148,8 @@ Page({
         const rankings = seasonInfo.rankings || [];
 
         // 从 rankings 中提取队伍信息和总比分
-        let team1Data = { name: '队伍1', logo: getTeamLogoUrl('/static/images/logoa.png'), wins: 0 };
-        let team2Data = { name: '队伍2', logo: getTeamLogoUrl('/static/images/logob.png'), wins: 0 };
+        let team1Data = { name: '队伍1', logo: config.getImageUrl('logoa.png'), wins: 0 };
+        let team2Data = { name: '队伍2', logo: config.getImageUrl('logob.png'), wins: 0 };
 
         if (rankings.length >= 2) {
           // 假设 rankings 中第一个是长江黄河，第二个是嘉陵摩托

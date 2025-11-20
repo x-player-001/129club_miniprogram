@@ -19,10 +19,15 @@
 
 .team-left {
   flex-direction: row;
+  justify-content: flex-start;
 }
 
 .team-right {
   flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+.team-right .team-name {
   text-align: right;
 }
 

@@ -191,8 +191,14 @@ Page({
       // 处理成就（复用数据总览页的emoji映射逻辑）
       const achievementsData = data.achievements || [];
       const achievements = achievementsData.map(ach => {
-        const icon = ach.icon || this.getAchievementEmoji(ach.code);
+        let icon = ach.icon || this.getAchievementEmoji(ach.code);
         const isImageIcon = icon && (icon.includes('/') || icon.startsWith('http'));
+
+        // 如果是图片路径，转换为完整URL
+        if (isImageIcon) {
+          icon = config.getStaticUrl(icon, 'images');
+        }
+
         return {
           id: ach.code || ach.id,
           icon: icon,

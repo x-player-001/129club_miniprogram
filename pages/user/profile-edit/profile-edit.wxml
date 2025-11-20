@@ -78,7 +78,7 @@
           value="{{formData.jerseyNumber}}"
           bindinput="onInputChange"
           data-field="jerseyNumber"
-          maxlength="2"
+          maxlength="3"
         />
       </view>
 

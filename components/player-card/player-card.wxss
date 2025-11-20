@@ -75,13 +75,22 @@
 }
 
 .jersey-number {
-  font-size: 24rpx;
+  font-size: 20rpx;
   font-weight: 600;
-  color: #636e72;
   padding: 4rpx 12rpx;
-  background: #f1f3f5;
   border-radius: 8rpx;
   white-space: nowrap;  /* 号码不换行 */
+}
+
+/* 默认样式 - 没有传入队伍颜色时使用灰色 */
+.jersey-number.default {
+  color: #636e72;
+  background: #f1f3f5;
+}
+
+/* 外援标签 - 使用队伍颜色（通过 style 内联设置 color 和 background） */
+.jersey-number.foreign-player {
+  /* color 和 background 由内联 style 设置，使用队伍颜色 */
 }
 
 /* 中列：位置（垂直居中，允许多个位置换行） */
