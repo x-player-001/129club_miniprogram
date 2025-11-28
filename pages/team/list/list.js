@@ -127,23 +127,29 @@ Page({
   loadActiveTeams() {
     return teamAPI.getTeamList({ status: 'active' }).then(res => {
       const teamList = res.data?.list || res.data || [];
-      const teams = teamList.map(team => ({
-        id: team.id,
-        name: team.name,
-        logo: getTeamLogoUrl(team.logo),
-        color: team.color || '#ff6b6b',
-        colorDark: this.darkenColor(team.color || '#ff6b6b'),
-        captainName: team.captain?.realName || team.captain?.nickname || team.captainName || '未设置',
-        season: team.season,
-        memberCount: team.memberCount || 0,
-        stats: team.stats || {
-          totalMatches: 0,
-          wins: 0,
-          draws: 0,
-          losses: 0,
-          winRate: 0
-        }
-      }));
+      const teams = teamList.map(team => {
+        // 处理统计数据，兼容不同字段名（后端可能返回 matchesPlayed 或 totalMatches）
+        const rawStats = team.stats || {};
+        const stats = {
+          totalMatches: rawStats.totalMatches || rawStats.matchesPlayed || 0,
+          wins: rawStats.wins || 0,
+          draws: rawStats.draws || 0,
+          losses: rawStats.losses || 0,
+          winRate: rawStats.winRate || 0
+        };
+
+        return {
+          id: team.id,
+          name: team.name,
+          logo: getTeamLogoUrl(team.logo),
+          color: team.color || '#ff6b6b',
+          colorDark: this.darkenColor(team.color || '#ff6b6b'),
+          captainName: team.captain?.realName || team.captain?.nickname || team.captainName || '未设置',
+          season: team.season,
+          memberCount: team.memberCount || 0,
+          stats
+        };
+      });
       this.setData({ activeTeams: teams });
     });
   },
@@ -157,22 +163,28 @@ Page({
 
     return teamAPI.getTeamList(params).then(res => {
       const teamList = res.data?.list || res.data || [];
-      const teams = teamList.map(team => ({
-        id: team.id,
-        name: team.name,
-        logo: getTeamLogoUrl(team.logo),
-        color: team.color || '#95a5a6',
-        colorDark: this.darkenColor(team.color || '#95a5a6'),
-        season: team.season,
-        period: this.formatPeriod(team.createdAt, team.disbandedAt),
-        stats: team.stats || {
-          totalMatches: 0,
-          wins: 0,
-          draws: 0,
-          losses: 0,
-          winRate: 0
-        }
-      }));
+      const teams = teamList.map(team => {
+        // 处理统计数据，兼容不同字段名
+        const rawStats = team.stats || {};
+        const stats = {
+          totalMatches: rawStats.totalMatches || rawStats.matchesPlayed || 0,
+          wins: rawStats.wins || 0,
+          draws: rawStats.draws || 0,
+          losses: rawStats.losses || 0,
+          winRate: rawStats.winRate || 0
+        };
+
+        return {
+          id: team.id,
+          name: team.name,
+          logo: getTeamLogoUrl(team.logo),
+          color: team.color || '#95a5a6',
+          colorDark: this.darkenColor(team.color || '#95a5a6'),
+          season: team.season,
+          period: this.formatPeriod(team.createdAt, team.disbandedAt),
+          stats
+        };
+      });
       this.setData({ historyTeams: teams });
     });
   },
