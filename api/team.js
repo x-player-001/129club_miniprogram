@@ -51,7 +51,28 @@ function pickPlayer(data) {
 }
 
 /**
- * 完成队伍重组
+ * 获取Draft会话信息
+ * @param {String} sessionId 会话ID
+ */
+function getDraftSession(sessionId) {
+  return get(`/team/reshuffle/${sessionId}`);
+}
+
+/**
+ * 完成队伍重组并发布队伍
+ * @param {Object} data 发布数据
+ * @param {String} data.sessionId 会话ID
+ * @param {String} data.team1Name 队伍1名称
+ * @param {String} data.team2Name 队伍2名称
+ * @param {String} data.team1Color 队伍1颜色（可选）
+ * @param {String} data.team2Color 队伍2颜色（可选）
+ */
+function publishDraftTeams(data) {
+  return post('/team/reshuffle/publish', data);
+}
+
+/**
+ * 完成队伍重组（旧接口，保留兼容）
  * @param {String} reshuffleId 重组ID
  */
 function completeReshuffle(reshuffleId) {
@@ -82,15 +103,33 @@ function getCurrentTeam() {
   return get('/team/current');
 }
 
+/**
+ * 批量创建两个队伍
+ * @param {Object} data 批量创建数据
+ * @param {String} data.season 赛季名称
+ * @param {String} data.team1Name 队伍1名称
+ * @param {String} data.team1CaptainId 队伍1队长ID
+ * @param {String} data.team1Color 队伍1颜色（可选）
+ * @param {String} data.team2Name 队伍2名称
+ * @param {String} data.team2CaptainId 队伍2队长ID
+ * @param {String} data.team2Color 队伍2颜色（可选）
+ */
+function batchCreateTwoTeams(data) {
+  return post('/team/batch/create-two', data);
+}
+
 module.exports = {
   getTeamList,
   getTeamDetail,
   createTeam,
   updateTeam,
   startReshuffle,
+  getDraftSession,
   pickPlayer,
+  publishDraftTeams,
   completeReshuffle,
   getTeamVsRecord,
   getTeamMembers,
-  getCurrentTeam
+  getCurrentTeam,
+  batchCreateTwoTeams
 };

@@ -1,0 +1,146 @@
+<!-- 号码墙页面 -->
+<view class="jersey-wall-container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <view class="header-content">
+      <text class="header-title">号码墙</text>
+      <text class="header-subtitle">JERSEY WALL</text>
+    </view>
+    <view class="header-decoration"></view>
+  </view>
+
+  <!-- 筛选按钮 -->
+  <view class="filter-bar">
+    <view class="filter-tabs">
+      <view
+        class="filter-tab {{filterType === 'all' ? 'active' : ''}}"
+        data-type="all"
+        bindtap="onFilterChange">
+        <text class="tab-text">全部</text>
+        <text class="tab-count">{{totalCount}}</text>
+      </view>
+      <view
+        class="filter-tab {{filterType === 'used' ? 'active' : ''}}"
+        data-type="used"
+        bindtap="onFilterChange">
+        <text class="tab-text">已使用</text>
+        <text class="tab-count">{{usedCount}}</text>
+      </view>
+      <view
+        class="filter-tab {{filterType === 'available' ? 'active' : ''}}"
+        data-type="available"
+        bindtap="onFilterChange">
+        <text class="tab-text">可选择</text>
+        <text class="tab-count">{{availableCount}}</text>
+      </view>
+      <view
+        class="filter-tab {{filterType === 'honorary' ? 'active' : ''}}"
+        data-type="honorary"
+        bindtap="onFilterChange"
+        wx:if="{{honoraryPlayers.length > 0}}">
+        <text class="tab-text">荣誉</text>
+        <text class="tab-count">{{honoraryPlayers.length}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 荣誉球员网格 -->
+  <view class="jersey-grid" wx:if="{{filterType === 'honorary'}}">
+    <block wx:for="{{honoraryPlayers}}" wx:key="index">
+      <view class="jersey-item honorary">
+        <!-- 球衣外框 -->
+        <view class="jersey-card">
+          <!-- 球衣图形 -->
+          <view class="jersey-shape">
+            <!-- 球衣主体 -->
+            <view class="jersey-body honorary-color">
+              <!-- 领口 -->
+              <view class="jersey-collar"></view>
+
+              <!-- 用户名字 -->
+              <view class="jersey-name">
+                <text class="name-text">{{item.user.realName || item.user.nickname}}</text>
+              </view>
+
+              <!-- 号码 -->
+              <view class="jersey-number">
+                <text class="number-text">{{item.number}}</text>
+              </view>
+
+              <!-- 装饰条纹 -->
+              <view class="jersey-stripes">
+                <view class="stripe"></view>
+                <view class="stripe"></view>
+              </view>
+            </view>
+
+            <!-- 袖子 -->
+            <view class="jersey-sleeves">
+              <view class="sleeve left honorary-color"></view>
+              <view class="sleeve right honorary-color"></view>
+            </view>
+          </view>
+
+          <!-- 光晕效果 -->
+          <view class="jersey-glow glow-gold"></view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 球衣网格 -->
+  <view class="jersey-grid" wx:if="{{filterType !== 'honorary'}}">
+    <block wx:for="{{jerseyList}}" wx:key="index">
+      <view
+        class="jersey-item {{item.isUsed ? 'used' : 'available'}} {{filterType !== 'all' && ((filterType === 'used' && !item.isUsed) || (filterType === 'available' && item.isUsed)) ? 'hidden' : ''}}"
+        data-index="{{index}}"
+        data-number="{{item.number}}"
+        data-isused="{{item.isUsed}}"
+        data-userid="{{item.user ? item.user.id : ''}}"
+        bindtap="onJerseyTap">
+
+        <!-- 球衣外框 -->
+        <view class="jersey-card">
+          <!-- 球衣图形 -->
+          <view class="jersey-shape">
+            <!-- 球衣主体 -->
+            <view class="jersey-body {{item.isUsed ? 'used-color' : 'available-color'}}">
+              <!-- 领口 -->
+              <view class="jersey-collar"></view>
+
+              <!-- 用户名字（已使用的号码显示在号码上方） -->
+              <view class="jersey-name" wx:if="{{item.isUsed && item.user}}">
+                <text class="name-text">{{item.user.realName || item.user.nickname}}</text>
+              </view>
+
+              <!-- 可选择提示（可用号码显示在号码上方） -->
+              <view class="jersey-name available" wx:if="{{!item.isUsed}}">
+                <text class="name-text available">可选择</text>
+              </view>
+
+              <!-- 号码 -->
+              <view class="jersey-number">
+                <text class="number-text">{{item.number}}</text>
+              </view>
+
+              <!-- 装饰条纹 -->
+              <view class="jersey-stripes">
+                <view class="stripe"></view>
+                <view class="stripe"></view>
+              </view>
+            </view>
+
+            <!-- 袖子 -->
+            <view class="jersey-sleeves">
+              <view class="sleeve left {{item.isUsed ? 'used-color' : 'available-color'}}"></view>
+              <view class="sleeve right {{item.isUsed ? 'used-color' : 'available-color'}}"></view>
+            </view>
+          </view>
+
+          <!-- 光晕效果 -->
+          <view class="jersey-glow {{item.isUsed ? 'glow-red' : 'glow-gray'}}"></view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

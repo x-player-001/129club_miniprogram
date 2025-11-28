@@ -47,10 +47,18 @@ function getMemberDetail(userId) {
   return get(`/user/members/${userId}`);
 }
 
+/**
+ * 获取号码墙数据
+ */
+function getJerseyNumbers() {
+  return get('/user/jersey-numbers');
+}
+
 module.exports = {
   login,
   getUserInfo,
   updateUserInfo,
   getMemberList,
-  getMemberDetail
+  getMemberDetail,
+  getJerseyNumbers
 };

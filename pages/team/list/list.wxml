@@ -19,14 +19,15 @@
       <view class="create-team-prompt" wx:if="{{showCreateUI}}">
         <view class="prompt-icon">🏆</view>
         <view class="prompt-title">新赛季已开始</view>
-        <view class="prompt-text">请创建队伍并选择队员</view>
+        <view class="prompt-text">请创建两个队伍并分配队长</view>
         <view class="prompt-actions">
-          <button class="prompt-btn create" bindtap="onCreateTeam">
+          <button class="prompt-btn create" catchtap="onBatchCreateTeam">
             <text>创建队伍</text>
           </button>
-          <button class="prompt-btn reshuffle" bindtap="onReshuffle">
-            <text>发起重组</text>
-          </button>
+          <!-- 暂时隐藏发起重组按钮 -->
+          <!-- <button class="prompt-btn reshuffle" catchtap="onReshuffle">
+            <text>发起重组（Draft）</text>
+          </button> -->
         </view>
       </view>
 
@@ -39,6 +40,14 @@
           mode="current"
           bind:tap="onTeamCardTap">
         </team-card>
+
+        <!-- 暂时隐藏发起选人按钮 -->
+        <!-- <view class="reshuffle-action" wx:if="{{isAdmin && currentSeason && currentSeason.status === 'active'}}">
+          <button class="reshuffle-btn" catchtap="onReshuffle">
+            <text class="btn-icon">🔄</text>
+            <text class="btn-text">发起选人</text>
+          </button>
+        </view> -->
       </view>
 
       <!-- 空状态 - 使用 empty-state 组件 -->

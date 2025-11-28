@@ -90,6 +90,103 @@
     </view>
   </view>
 
+  <!-- 角色录入：裁判和守门员 -->
+  <view class="roles-section">
+    <view class="section-header-mini">
+      <text class="section-title-mini">裁判和守门员</text>
+    </view>
+
+    <!-- 角色网格 -->
+    <view class="role-grid">
+      <!-- 第一行：裁判 -->
+      <!-- 主裁判 -->
+      <view class="role-card" bindtap="onShowRolePicker" data-role="mainReferee">
+        <view class="role-left">
+          <text class="role-icon">👨‍⚖️</text>
+          <text class="role-title">主裁</text>
+        </view>
+        <view class="role-right">
+          <image
+            wx:if="{{roles.mainReferee}}"
+            class="role-avatar-small"
+            src="{{roles.mainReferee.avatar}}"
+            mode="aspectFill"
+          ></image>
+          <text class="role-name-small">{{roles.mainReferee ? roles.mainReferee.name : '选择'}}</text>
+        </view>
+      </view>
+
+      <!-- 边裁1 -->
+      <view class="role-card" bindtap="onShowRolePicker" data-role="assistantReferee1">
+        <view class="role-left">
+          <text class="role-icon">🚩</text>
+          <text class="role-title">边1</text>
+        </view>
+        <view class="role-right">
+          <image
+            wx:if="{{roles.assistantReferee1}}"
+            class="role-avatar-small"
+            src="{{roles.assistantReferee1.avatar}}"
+            mode="aspectFill"
+          ></image>
+          <text class="role-name-small">{{roles.assistantReferee1 ? roles.assistantReferee1.name : '选择'}}</text>
+        </view>
+      </view>
+
+      <!-- 边裁2 -->
+      <view class="role-card" bindtap="onShowRolePicker" data-role="assistantReferee2">
+        <view class="role-left">
+          <text class="role-icon">🚩</text>
+          <text class="role-title">边2</text>
+        </view>
+        <view class="role-right">
+          <image
+            wx:if="{{roles.assistantReferee2}}"
+            class="role-avatar-small"
+            src="{{roles.assistantReferee2.avatar}}"
+            mode="aspectFill"
+          ></image>
+          <text class="role-name-small">{{roles.assistantReferee2 ? roles.assistantReferee2.name : '选择'}}</text>
+        </view>
+      </view>
+
+      <!-- 第二行：守门员 -->
+      <!-- 队伍1守门员 -->
+      <view class="role-card" bindtap="onShowRolePicker" data-role="team1Goalkeeper">
+        <view class="role-left">
+          <text class="role-icon">🧤</text>
+          <text class="role-title">{{team1.name}}</text>
+        </view>
+        <view class="role-right">
+          <image
+            wx:if="{{roles.team1Goalkeeper}}"
+            class="role-avatar-small"
+            src="{{roles.team1Goalkeeper.avatar}}"
+            mode="aspectFill"
+          ></image>
+          <text class="role-name-small">{{roles.team1Goalkeeper ? roles.team1Goalkeeper.name : '选择'}}</text>
+        </view>
+      </view>
+
+      <!-- 队伍2守门员 -->
+      <view class="role-card" bindtap="onShowRolePicker" data-role="team2Goalkeeper">
+        <view class="role-left">
+          <text class="role-icon">🧤</text>
+          <text class="role-title">{{team2.name}}</text>
+        </view>
+        <view class="role-right">
+          <image
+            wx:if="{{roles.team2Goalkeeper}}"
+            class="role-avatar-small"
+            src="{{roles.team2Goalkeeper.avatar}}"
+            mode="aspectFill"
+          ></image>
+          <text class="role-name-small">{{roles.team2Goalkeeper ? roles.team2Goalkeeper.name : '选择'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- 节次总结 -->
   <view class="summary-section">
     <view class="section-header-mini">
@@ -222,11 +319,12 @@
   </view>
 </view>
 
-<!-- 球员选择器 - 进球球员 -->
+<!-- 球员选择器 - 进球球员（分组模式） -->
 <select-grid
   show="{{showPlayerPicker}}"
   title="{{eventForm.isOwnGoal ? '选择乌龙球员' : '选择进球球员'}}"
-  options="{{filteredPlayers}}"
+  use-groups="{{true}}"
+  groups="{{filteredPlayerGroups}}"
   value-field="id"
   display-field="name"
   avatar-field="avatar"
@@ -236,11 +334,12 @@
   bind:close="onClosePlayerPicker"
 />
 
-<!-- 球员选择器 - 助攻球员 -->
+<!-- 球员选择器 - 助攻球员（分组模式） -->
 <select-grid
   show="{{showAssistPicker}}"
   title="选择助攻球员"
-  options="{{filteredPlayers}}"
+  use-groups="{{true}}"
+  groups="{{filteredPlayerGroups}}"
   value-field="id"
   display-field="name"
   avatar-field="avatar"
@@ -250,11 +349,12 @@
   bind:close="onClosePlayerPicker"
 />
 
-<!-- 球员选择器 - 下场球员 -->
+<!-- 球员选择器 - 下场球员（分组模式） -->
 <select-grid
   show="{{showPlayerOutPicker}}"
   title="选择下场球员"
-  options="{{filteredPlayers}}"
+  use-groups="{{true}}"
+  groups="{{filteredPlayerGroups}}"
   value-field="id"
   display-field="name"
   avatar-field="avatar"
@@ -264,11 +364,12 @@
   bind:close="onClosePlayerPicker"
 />
 
-<!-- 球员选择器 - 上场球员 -->
+<!-- 球员选择器 - 上场球员（分组模式） -->
 <select-grid
   show="{{showPlayerInPicker}}"
   title="选择上场球员"
-  options="{{filteredPlayers}}"
+  use-groups="{{true}}"
+  groups="{{filteredPlayerGroups}}"
   value-field="id"
   display-field="name"
   avatar-field="avatar"
@@ -276,4 +377,20 @@
   multiple="{{false}}"
   bind:confirm="onConfirmPlayerSelect"
   bind:close="onClosePlayerPicker"
+/>
+
+<!-- 角色选择器（裁判、守门员） -->
+<select-grid
+  show="{{showRolePicker}}"
+  title="{{rolePickerTitle}}"
+  use-groups="{{true}}"
+  groups="{{allPlayersForRole}}"
+  value="{{currentRoleValue}}"
+  value-field="id"
+  display-field="name"
+  avatar-field="avatar"
+  show-avatar="{{true}}"
+  multiple="{{false}}"
+  bind:confirm="onConfirmRoleSelect"
+  bind:close="onCloseRolePicker"
 />

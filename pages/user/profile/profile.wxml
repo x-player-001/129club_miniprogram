@@ -71,6 +71,13 @@
       <view class="menu-title">我的功能</view>
       <view class="menu-list">
         <menu-item
+          icon="{{icons.jersey}}"
+          text="号码墙"
+          type="jersey"
+          bind:tap="onMenuItemTap">
+        </menu-item>
+
+        <menu-item
           icon="{{icons.users}}"
           text="队员列表"
           type="members"

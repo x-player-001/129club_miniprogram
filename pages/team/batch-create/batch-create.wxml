@@ -1,0 +1,163 @@
+<!-- 批量创建队伍页面 -->
+<view class="batch-create-container">
+  <scroll-view class="content" scroll-y enable-back-to-top>
+    <!-- 赛季信息 -->
+    <view class="season-info">
+      <text class="season-label">当前赛季</text>
+      <text class="season-name">{{seasonName}}</text>
+    </view>
+
+    <!-- 提示信息 -->
+    <view class="tips">
+      <text class="tips-icon">💡</text>
+      <text class="tips-text">创建两个队伍后，队长可在队伍详情中修改队伍信息和管理成员</text>
+    </view>
+
+    <!-- 队伍1表单 -->
+    <view class="team-section">
+      <view class="section-header">
+        <view class="header-dot team1-dot"></view>
+        <text class="section-title">队伍1</text>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">队伍名称</text>
+          <text class="required">*</text>
+        </view>
+        <input
+          class="form-input"
+          placeholder="请输入队伍1名称"
+          value="{{team1.name}}"
+          bindinput="onTeam1NameInput"
+          maxlength="20"
+        />
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">队伍颜色</text>
+        </view>
+        <view class="color-grid">
+          <view
+            wx:for="{{colorList}}"
+            wx:key="index"
+            class="color-item {{team1.color === item ? 'selected' : ''}}"
+            style="background-color: {{item}};"
+            data-color="{{item}}"
+            bindtap="onSelectTeam1Color">
+            <text wx:if="{{team1.color === item}}" class="check-icon">✓</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">队长</text>
+          <text class="required">*</text>
+        </view>
+        <view class="form-picker" bindtap="onShowTeam1CaptainPicker">
+          <view class="picker-content {{team1CaptainName ? '' : 'placeholder'}}">
+            {{team1CaptainName || '请选择队长'}}
+          </view>
+          <image class="arrow-icon" src="{{icons.arrowRight}}" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <!-- 队伍2表单 -->
+    <view class="team-section">
+      <view class="section-header">
+        <view class="header-dot team2-dot"></view>
+        <text class="section-title">队伍2</text>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">队伍名称</text>
+          <text class="required">*</text>
+        </view>
+        <input
+          class="form-input"
+          placeholder="请输入队伍2名称"
+          value="{{team2.name}}"
+          bindinput="onTeam2NameInput"
+          maxlength="20"
+        />
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">队伍颜色</text>
+        </view>
+        <view class="color-grid">
+          <view
+            wx:for="{{colorList}}"
+            wx:key="index"
+            class="color-item {{team2.color === item ? 'selected' : ''}}"
+            style="background-color: {{item}};"
+            data-color="{{item}}"
+            bindtap="onSelectTeam2Color">
+            <text wx:if="{{team2.color === item}}" class="check-icon">✓</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">队长</text>
+          <text class="required">*</text>
+        </view>
+        <view class="form-picker" bindtap="onShowTeam2CaptainPicker">
+          <view class="picker-content {{team2CaptainName ? '' : 'placeholder'}}">
+            {{team2CaptainName || '请选择队长'}}
+          </view>
+          <image class="arrow-icon" src="{{icons.arrowRight}}" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-space"></view>
+  </scroll-view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-actions">
+    <button class="action-btn cancel-btn" bindtap="onCancel">取消</button>
+    <button class="action-btn submit-btn" bindtap="onSubmit">创建队伍</button>
+  </view>
+
+  <!-- 队伍1队长选择器 -->
+  <select-grid
+    show="{{showTeam1CaptainPicker}}"
+    title="选择队伍1队长"
+    options="{{users}}"
+    value="{{team1.captainId}}"
+    multiple="{{false}}"
+    displayField="realName"
+    valueField="id"
+    showAvatar="{{true}}"
+    avatarField="avatar"
+    columns="{{3}}"
+    emptyText="暂无正式队员"
+    bind:close="onCloseTeam1CaptainPicker"
+    bind:confirm="onConfirmTeam1Captain">
+  </select-grid>
+
+  <!-- 队伍2队长选择器 -->
+  <select-grid
+    show="{{showTeam2CaptainPicker}}"
+    title="选择队伍2队长"
+    options="{{users}}"
+    value="{{team2.captainId}}"
+    multiple="{{false}}"
+    displayField="realName"
+    valueField="id"
+    showAvatar="{{true}}"
+    avatarField="avatar"
+    columns="{{3}}"
+    emptyText="暂无正式队员"
+    bind:close="onCloseTeam2CaptainPicker"
+    bind:confirm="onConfirmTeam2Captain">
+  </select-grid>
+</view>

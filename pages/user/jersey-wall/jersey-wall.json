@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "号码墙",
+  "navigationBarBackgroundColor": "#0a0e27",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "light"
+}

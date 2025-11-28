@@ -76,6 +76,31 @@
   overflow-y: auto;
 }
 
+/* 分组标题 */
+.group-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  padding: 16rpx 8rpx 12rpx;
+  margin-top: 16rpx;
+}
+
+.group-header:first-child {
+  margin-top: 0;
+}
+
+.group-label {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.group-count {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #95a5a6;
+}
+
 /* 网格容器 - 使用 flex 自动换行 */
 .grid-container {
   display: flex;

@@ -319,7 +319,13 @@ Page({
             quarterLabel: `第${q.quarterNumber}节`,
             events: quarterGroups[q.quarterNumber] || [], // 该节次的事件（可能为空）
             team1Score: q.team1Goals || q.team1Points || 0,
-            team2Score: q.team2Goals || q.team2Points || 0
+            team2Score: q.team2Goals || q.team2Points || 0,
+            // 裁判和守门员信息
+            mainReferee: q.mainReferee || null,
+            assistantReferee1: q.assistantReferee1 || null,
+            assistantReferee2: q.assistantReferee2 || null,
+            team1Goalkeeper: q.team1Goalkeeper || null,
+            team2Goalkeeper: q.team2Goalkeeper || null
           });
         });
       } else {

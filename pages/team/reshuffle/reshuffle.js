@@ -1,10 +1,13 @@
 // pages/team/reshuffle/reshuffle.js
 const app = getApp();
 const teamAPI = require('../../../api/team.js');
+const config = require('../../../utils/config.js');
 
 Page({
   data: {
     sessionId: '',
+    team1Id: '', // 队伍1 ID（用于创建Draft）
+    team2Id: '', // 队伍2 ID（用于创建Draft）
     currentUserId: '1', // 当前用户ID
     isAdmin: false, // 是否是管理员（可以启动Draft）
 
@@ -26,8 +29,17 @@ Page({
     // 队伍信息（Draft完成后设置）
     team1Name: '',
     team2Name: '',
+    team1Color: '#b51316', // 默认红色
+    team2Color: '#924ab0', // 默认紫色
     team1MemberNames: '', // 队员名字列表（用于显示）
     team2MemberNames: '', // 队员名字列表（用于显示）
+
+    // 颜色列表
+    colorList: [
+      '#b51316', '#8742a3', '#0a7ea3', '#e67e22', '#27ae60',
+      '#f39c12', '#e74c3c', '#3498db', '#2ecc71',
+      '#00bcd4', '#34495e', '#f1c40f'
+    ],
 
     // UI 状态
     selectedPlayerId: null, // 当前选中的球员ID
@@ -38,17 +50,43 @@ Page({
   },
 
   onLoad(options) {
+    console.log('[Reshuffle] ========== onLoad 被调用 ==========');
+    console.log('[Reshuffle] onLoad options:', options);
+    console.log('[Reshuffle] 当前页面栈:', getCurrentPages().map(p => p.route));
+
+    // 防止页面被多次加载
+    if (this._hasLoaded) {
+      console.log('[Reshuffle] 页面已加载过，跳过');
+      return;
+    }
+    this._hasLoaded = true;
+
+    // 保存所有参数到 data
+    const updateData = {};
     if (options.sessionId) {
-      this.setData({ sessionId: options.sessionId });
+      updateData.sessionId = options.sessionId;
+    }
+    if (options.team1Id) {
+      updateData.team1Id = options.team1Id;
+    }
+    if (options.team2Id) {
+      updateData.team2Id = options.team2Id;
     }
 
-    this.checkAdminRole();
-    this.loadDraftSession();
+    this.setData(updateData, () => {
+      console.log('[Reshuffle] team1Id:', this.data.team1Id, 'team2Id:', this.data.team2Id);
+
+      this.checkAdminRole();
+      this.loadDraftSession();
+    });
   },
 
   onUnload() {
     // 断开WebSocket连接
     this.disconnectSocket();
+    // 重置实例变量，防止页面复用时出问题
+    this._hasLoaded = false;
+    this._isCreatingDraft = false;
   },
 
   // 检查管理员权限
@@ -61,60 +99,188 @@ Page({
 
   // 加载Draft会话信息
   loadDraftSession() {
-    // 使用Mock数据
-    const mockAvailablePlayers = [
-      { id: '3', name: '张三', avatar: '/static/images/default-avatar.png', number: 7, position: '前锋', goals: 15, assists: 8, attendance: 0.92, rating: 8.5 },
-      { id: '4', name: '李四', avatar: '/static/images/default-avatar.png', number: 10, position: '中场', goals: 12, assists: 15, attendance: 0.88, rating: 8.3 },
-      { id: '5', name: '王五', avatar: '/static/images/default-avatar.png', number: 5, position: '后卫', goals: 3, assists: 5, attendance: 0.95, rating: 8.0 },
-      { id: '6', name: '赵六', avatar: '/static/images/default-avatar.png', number: 1, position: '守门员', goals: 0, assists: 0, attendance: 0.90, rating: 7.8 },
-      { id: '7', name: '孙七', avatar: '/static/images/default-avatar.png', number: 9, position: '前锋', goals: 18, assists: 6, attendance: 0.85, rating: 8.7 },
-      { id: '8', name: '周八', avatar: '/static/images/default-avatar.png', number: 8, position: '中场', goals: 10, assists: 12, attendance: 0.89, rating: 8.2 },
-      { id: '9', name: '吴九', avatar: '/static/images/default-avatar.png', number: 4, position: '后卫', goals: 2, assists: 4, attendance: 0.93, rating: 7.9 },
-      { id: '10', name: '郑十', avatar: '/static/images/default-avatar.png', number: 11, position: '前锋', goals: 14, assists: 9, attendance: 0.87, rating: 8.4 },
-      { id: '11', name: '冯十一', avatar: '/static/images/default-avatar.png', number: 6, position: '中场', goals: 8, assists: 10, attendance: 0.91, rating: 8.1 },
-      { id: '12', name: '陈十二', avatar: '/static/images/default-avatar.png', number: 3, position: '后卫', goals: 1, assists: 3, attendance: 0.94, rating: 7.7 }
-    ];
+    console.log('[Reshuffle] loadDraftSession called, sessionId:', this.data.sessionId, '_isCreatingDraft:', this._isCreatingDraft);
 
-    const mockCaptain1 = { id: '1', name: '队长A', avatar: '/static/images/default-avatar.png', number: 99 };
-    const mockCaptain2 = { id: '2', name: '队长B', avatar: '/static/images/default-avatar.png', number: 98 };
+    if (!this.data.sessionId) {
+      // 如果没有sessionId，说明是第一次进入，需要创建新的Draft会话
+      // 但如果正在创建中，则跳过
+      if (this._isCreatingDraft) {
+        console.log('[Reshuffle] loadDraftSession 正在创建中，跳过');
+        return;
+      }
+      this.startNewDraft();
+      return;
+    }
 
-    const totalRounds = Math.ceil(mockAvailablePlayers.length / 2);
+    wx.showLoading({ title: '加载中...' });
 
-    this.setData({
-      availablePlayers: mockAvailablePlayers,
-      captain1: mockCaptain1,
-      captain2: mockCaptain2,
-      team1Players: [mockCaptain1],
-      team2Players: [mockCaptain2],
-      team1MemberNames: mockCaptain1.name,
-      team2MemberNames: mockCaptain2.name,
-      totalRounds: totalRounds,
-      draftStatus: 'in_progress',
-      currentTurn: 'captain1',
-      isMyTurn: this.data.currentUserId === mockCaptain1.id
+    // 真实API调用
+    teamAPI.getDraftSession(this.data.sessionId).then(res => {
+      const data = res.data;
+
+      // 计算队员名字列表
+      const team1MemberNames = (data.team1Players || []).map(p => p.name || p.realName).join('、');
+      const team2MemberNames = (data.team2Players || []).map(p => p.name || p.realName).join('、');
+
+      // 判断是否轮到当前用户
+      const currentUserId = app.globalData.userInfo?.id || wx.getStorageSync('userInfo')?.id;
+      const isMyTurn = (
+        (data.currentTurn === 'captain1' && currentUserId === data.captain1?.id) ||
+        (data.currentTurn === 'captain2' && currentUserId === data.captain2?.id)
+      );
+
+      this.setData({
+        captain1: data.captain1,
+        captain2: data.captain2,
+        availablePlayers: data.availablePlayers || [],
+        team1Players: data.team1Players || [],
+        team2Players: data.team2Players || [],
+        team1MemberNames,
+        team2MemberNames,
+        currentRound: data.currentRound || 1,
+        currentTurn: data.currentTurn || 'captain1',
+        draftStatus: data.status || 'in_progress',
+        totalRounds: data.totalRounds || 0,
+        isMyTurn,
+        currentUserId
+      });
+
+      wx.hideLoading();
+
+      // 可选：连接WebSocket接收实时更新
+      // this.connectSocket();
+    }).catch(err => {
+      wx.hideLoading();
+      wx.showToast({
+        title: err.message || '加载失败',
+        icon: 'none'
+      });
     });
+  },
 
-    // 真实API调用（暂时注释）
-    // teamAPI.getDraftSession(this.data.sessionId).then(res => {
-    //   const data = res.data;
-    //   this.setData({
-    //     captain1: data.captain1,
-    //     captain2: data.captain2,
-    //     availablePlayers: data.availablePlayers,
-    //     team1Players: data.team1Players,
-    //     team2Players: data.team2Players,
-    //     currentRound: data.currentRound,
-    //     currentTurn: data.currentTurn,
-    //     draftStatus: data.status,
-    //     totalRounds: data.totalRounds
-    //   });
-    //   this.connectSocket();
-    // }).catch(err => {
-    //   wx.showToast({
-    //     title: err.message || '加载失败',
-    //     icon: 'none'
-    //   });
-    // });
+  // 发起新的Draft会话
+  startNewDraft() {
+    // 防止重复调用 - 立即设置标志，防止并发调用
+    if (this._isCreatingDraft) {
+      console.log('[Reshuffle] startNewDraft 正在创建中，跳过重复调用');
+      return;
+    }
+    this._isCreatingDraft = true;
+
+    console.log('[Reshuffle] startNewDraft called, team1Id:', this.data.team1Id, 'team2Id:', this.data.team2Id);
+
+    const currentSeason = app.getCurrentSeason();
+    if (!currentSeason || !currentSeason.id) {
+      this._isCreatingDraft = false; // 重置标志
+      wx.showModal({
+        title: '提示',
+        content: '请先创建赛季',
+        showCancel: false,
+        success: () => {
+          wx.navigateBack();
+        }
+      });
+      return;
+    }
+
+    // 检查是否有队伍ID
+    if (!this.data.team1Id || !this.data.team2Id) {
+      console.log('[Reshuffle] 缺少队伍ID, team1Id:', this.data.team1Id, 'team2Id:', this.data.team2Id);
+      this._isCreatingDraft = false; // 重置标志
+      wx.showModal({
+        title: '提示',
+        content: '缺少队伍信息，请从队伍页面发起选人',
+        showCancel: false,
+        success: () => {
+          wx.navigateBack();
+        }
+      });
+      return;
+    }
+
+    wx.showLoading({ title: '加载队伍信息...' });
+
+    // 先获取两个队伍的详情（包含队长信息）
+    Promise.all([
+      teamAPI.getTeamDetail(this.data.team1Id),
+      teamAPI.getTeamDetail(this.data.team2Id)
+    ]).then(([team1Res, team2Res]) => {
+      console.log('[Reshuffle] team1详情:', team1Res.data);
+      console.log('[Reshuffle] team2详情:', team2Res.data);
+
+      const team1 = team1Res.data;
+      const team2 = team2Res.data;
+
+      // 检查队长信息
+      const captain1Id = team1.captainId || team1.captain?.id;
+      const captain2Id = team2.captainId || team2.captain?.id;
+      console.log('[Reshuffle] captain1Id:', captain1Id, 'captain2Id:', captain2Id);
+
+      if (!captain1Id) {
+        wx.hideLoading();
+        this._isCreatingDraft = false; // 重置标志
+        wx.showToast({ title: '队伍1缺少队长', icon: 'none' });
+        return;
+      }
+      if (!captain2Id) {
+        wx.hideLoading();
+        this._isCreatingDraft = false; // 重置标志
+        wx.showToast({ title: '队伍2缺少队长', icon: 'none' });
+        return;
+      }
+
+      wx.showLoading({ title: '创建中...' });
+
+      // 调用API创建Draft会话
+      const reshuffleData = {
+        seasonId: currentSeason.id,
+        team1Id: this.data.team1Id,
+        team2Id: this.data.team2Id,
+        captain1Id: captain1Id,
+        captain2Id: captain2Id
+      };
+      console.log('[Reshuffle] 发起选人请求参数:', JSON.stringify(reshuffleData));
+
+      // 最终校验：确保所有必要参数都有值
+      if (!reshuffleData.seasonId || !reshuffleData.team1Id || !reshuffleData.team2Id ||
+          !reshuffleData.captain1Id || !reshuffleData.captain2Id) {
+        wx.hideLoading();
+        this._isCreatingDraft = false;
+        console.error('[Reshuffle] 参数不完整:', reshuffleData);
+        wx.showToast({ title: '参数不完整，请重试', icon: 'none' });
+        return;
+      }
+
+      teamAPI.startReshuffle(reshuffleData).then(res => {
+        wx.hideLoading();
+
+        const sessionId = res.data.sessionId || res.data.id;
+        console.log('[Reshuffle] startReshuffle 成功, sessionId:', sessionId);
+
+        // 先设置 sessionId，再重置标志，最后加载
+        this.setData({ sessionId }, () => {
+          this._isCreatingDraft = false; // 重置标志
+          // 重新加载Draft信息
+          this.loadDraftSession();
+        });
+      }).catch(err => {
+        console.error('[Reshuffle] startReshuffle 失败:', err);
+        wx.hideLoading();
+        this._isCreatingDraft = false; // 重置标志
+        wx.showToast({
+          title: err.message || '创建失败',
+          icon: 'none'
+        });
+      });
+    }).catch(err => {
+      console.error('[Reshuffle] 获取队伍详情失败:', err);
+      wx.hideLoading();
+      this._isCreatingDraft = false; // 重置标志
+      wx.showToast({
+        title: err.message || '获取队伍信息失败',
+        icon: 'none'
+      });
+    });
   },
 
   // 连接WebSocket
@@ -200,21 +366,64 @@ Page({
       return;
     }
 
-    // Mock实现
-    this.pickPlayer(player);
+    wx.showLoading({ title: '选择中...' });
 
-    // 真实API调用（暂时注释）
-    // teamAPI.pickPlayer({
-    //   sessionId: this.data.sessionId,
-    //   playerId: this.data.selectedPlayerId
-    // }).then(() => {
-    //   // WebSocket会推送更新
-    // }).catch(err => {
-    //   wx.showToast({
-    //     title: err.message || '选择失败',
-    //     icon: 'none'
-    //   });
-    // });
+    // 真实API调用
+    teamAPI.pickPlayer({
+      sessionId: this.data.sessionId,
+      playerId: this.data.selectedPlayerId
+    }).then(res => {
+      wx.hideLoading();
+
+      // 更新本地状态（也可以重新加载整个会话）
+      if (res.data) {
+        this.updateDraftState(res.data);
+      } else {
+        // 如果后端没有返回完整状态，则重新加载
+        this.loadDraftSession();
+      }
+
+      wx.showToast({
+        title: `已选择 ${player.name || player.realName}`,
+        icon: 'success'
+      });
+    }).catch(err => {
+      wx.hideLoading();
+      wx.showToast({
+        title: err.message || '选择失败',
+        icon: 'none'
+      });
+    });
+  },
+
+  // 更新Draft状态
+  updateDraftState(data) {
+    const team1MemberNames = (data.team1Players || []).map(p => p.name || p.realName).join('、');
+    const team2MemberNames = (data.team2Players || []).map(p => p.name || p.realName).join('、');
+
+    const currentUserId = this.data.currentUserId;
+    const isMyTurn = (
+      (data.currentTurn === 'captain1' && currentUserId === data.captain1?.id) ||
+      (data.currentTurn === 'captain2' && currentUserId === data.captain2?.id)
+    );
+
+    this.setData({
+      availablePlayers: data.availablePlayers || [],
+      team1Players: data.team1Players || [],
+      team2Players: data.team2Players || [],
+      team1MemberNames,
+      team2MemberNames,
+      currentRound: data.currentRound || this.data.currentRound,
+      currentTurn: data.currentTurn || this.data.currentTurn,
+      draftStatus: data.status || this.data.draftStatus,
+      selectedPlayerId: null,
+      isMyTurn
+    });
+
+    // 如果Draft完成，显示设置队名界面
+    if (data.status === 'completed') {
+      // 不需要弹窗，WXML会自动切换到队名输入界面
+    }
   },
 
   // 选择球员（本地更新）
@@ -320,6 +529,18 @@ Page({
     this.setData({ team2Name: e.detail.value });
   },
 
+  // 选择队伍1颜色
+  onSelectTeam1Color(e) {
+    const color = e.currentTarget.dataset.color;
+    this.setData({ team1Color: color });
+  },
+
+  // 选择队伍2颜色
+  onSelectTeam2Color(e) {
+    const color = e.currentTarget.dataset.color;
+    this.setData({ team2Color: color });
+  },
+
   // 确认发布队伍
   onPublishTeams() {
     if (!this.data.team1Name || !this.data.team2Name) {
@@ -332,41 +553,30 @@ Page({
 
     wx.showLoading({ title: '发布中...' });
 
-    // Mock实现
-    setTimeout(() => {
+    // 真实API调用
+    teamAPI.publishDraftTeams({
+      sessionId: this.data.sessionId,
+      team1Name: this.data.team1Name,
+      team2Name: this.data.team2Name,
+      // 可选：添加颜色信息
+      team1Color: this.data.team1Color,
+      team2Color: this.data.team2Color
+    }).then(() => {
       wx.hideLoading();
       wx.showToast({
         title: '队伍创建成功',
         icon: 'success',
         duration: 1500
       });
-
       setTimeout(() => {
         wx.navigateBack();
       }, 1500);
-    }, 1000);
-
-    // 真实API调用（暂时注释）
-    // teamAPI.publishDraftTeams({
-    //   sessionId: this.data.sessionId,
-    //   team1Name: this.data.team1Name,
-    //   team2Name: this.data.team2Name
-    // }).then(() => {
-    //   wx.hideLoading();
-    //   wx.showToast({
-    //     title: '队伍创建成功',
-    //     icon: 'success',
-    //     duration: 1500
-    //   });
-    //   setTimeout(() => {
-    //     wx.navigateBack();
-    //   }, 1500);
-    // }).catch(err => {
-    //   wx.hideLoading();
-    //   wx.showToast({
-    //     title: err.message || '发布失败',
-    //     icon: 'none'
-    //   });
-    // });
+    }).catch(err => {
+      wx.hideLoading();
+      wx.showToast({
+        title: err.message || '发布失败',
+        icon: 'none'
+      });
+    });
   }
 });

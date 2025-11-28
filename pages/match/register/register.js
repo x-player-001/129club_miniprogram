@@ -506,18 +506,13 @@ Page({
   onShareAppMessage() {
     const matchInfo = this.data.matchInfo;
 
-    // 报名页面分享标题
+    // 报名页面分享标题（不限制人数）
     const team1Count = matchInfo.team1RegisteredCount || 0;
     const team2Count = matchInfo.team2RegisteredCount || 0;
     const totalRegistered = team1Count + team2Count;
-    const maxTotal = (matchInfo.maxPlayersPerTeam || 11) * 2;
 
-    let title = '';
-    if (totalRegistered >= maxTotal) {
-      title = `⚽ ${matchInfo.title} | 报名已满，等你来战！`;
-    } else {
-      title = `⚽ ${matchInfo.title} | 已集结${totalRegistered}人，快来报名！`;
-    }
+    // 始终显示已报名人数，不显示"报名已满"
+    const title = `⚽ ${matchInfo.title} | 已集结${totalRegistered}人，快来报名！`;
 
     return {
       title: title,

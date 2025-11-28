@@ -10,7 +10,9 @@
       "Bash(git checkout:*)",
       "Bash(git pull:*)",
       "Bash(git stash:*)",
-      "Bash(git revert:*)"
+      "Bash(git revert:*)",
+      "Bash(cat:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

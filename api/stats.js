@@ -30,9 +30,12 @@ function getRanking(type, params = {}) {
 
 /**
  * 获取数据总览
+ * @param {Object} params 查询参数
+ * @param {String} params.seasonId 赛季ID（可选，不传则查询当前活跃赛季）
+ * @param {String} params.filterType 筛选类型：'season'（默认）、'month'、'all'
  */
-function getOverview() {
-  return get('/stats/overview');
+function getOverview(params = {}) {
+  return get('/stats/overview', params);
 }
 
 /**

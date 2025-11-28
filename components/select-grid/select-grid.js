@@ -61,6 +61,16 @@ Component({
     emptyText: {
       type: String,
       value: '暂无选项'
+    },
+    // 分组数据 [{label: '已报名', count: 10, players: [...]}]
+    groups: {
+      type: Array,
+      value: []
+    },
+    // 是否使用分组模式
+    useGroups: {
+      type: Boolean,
+      value: false
     }
   },
 
@@ -146,13 +156,27 @@ Component({
 
     // 确认选择
     onConfirm() {
-      const { multiple, options, valueField, displayField } = this.properties;
+      const { multiple, options, groups, useGroups, valueField, displayField } = this.properties;
       const { selectedValues } = this.data;
 
-      // 获取完整的选中项数据
-      const selectedItems = options.filter(item =>
-        selectedValues.includes(item[valueField])
-      );
+      let selectedItems = [];
+
+      if (useGroups) {
+        // 分组模式：从所有分组中查找选中项
+        groups.forEach(group => {
+          if (group.players && group.players.length > 0) {
+            const groupSelectedItems = group.players.filter(item =>
+              selectedValues.includes(item[valueField])
+            );
+            selectedItems = selectedItems.concat(groupSelectedItems);
+          }
+        });
+      } else {
+        // 普通模式：从 options 中查找选中项
+        selectedItems = options.filter(item =>
+          selectedValues.includes(item[valueField])
+        );
+      }
 
       // 根据单选/多选返回不同格式
       const detail = {

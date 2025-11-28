@@ -189,6 +189,25 @@ function cancelLeave(matchId) {
   return del(`/match/${matchId}/leave`);
 }
 
+/**
+ * 获取可选球员列表（按报名状态分类）
+ * @param {String} matchId 比赛ID
+ * @param {String} teamId 队伍ID
+ */
+function getSelectablePlayers(matchId, teamId) {
+  return get(`/match/${matchId}/selectable-players`, { teamId });
+}
+
+/**
+ * 设置节次角色（裁判和守门员）
+ * @param {String} matchId 比赛ID
+ * @param {Number} quarterNumber 节次编号（1-4）
+ * @param {Object} data 角色数据 {mainRefereeId, assistantReferee1Id, assistantReferee2Id, team1GoalkeeperId, team2GoalkeeperId}
+ */
+function setQuarterRoles(matchId, quarterNumber, data) {
+  return put(`/match/${matchId}/quarter/${quarterNumber}/roles`, data);
+}
+
 module.exports = {
   getMatchList,
   getMatchDetail,
@@ -211,5 +230,7 @@ module.exports = {
   setParticipants,
   requestLeave,
   cancelLeave,
-  supplementResult
+  supplementResult,
+  getSelectablePlayers,
+  setQuarterRoles
 };

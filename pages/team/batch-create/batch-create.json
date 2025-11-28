@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "创建队伍",
+  "usingComponents": {
+    "select-grid": "/components/select-grid/select-grid"
+  }
+}

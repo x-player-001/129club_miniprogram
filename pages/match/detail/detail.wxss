@@ -379,11 +379,28 @@
   border-radius: 16rpx;
 }
 
+.team-with-gk {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex: 1;
+}
+
+.team-with-gk.team-right {
+  justify-content: flex-end;
+}
+
 .team-name-left,
 .team-name-right {
   font-size: 22rpx;
   font-weight: 600;
   color: #636e72;
+}
+
+.gk-info {
+  font-size: 18rpx;
+  color: #95a5a6;
+  font-weight: 500;
 }
 
 .score-display {
@@ -392,6 +409,7 @@
   color: var(--theme-color);
   font-family: 'DIN Alternate', sans-serif;
   letter-spacing: 2rpx;
+  flex-shrink: 0;
 }
 
 /* 空事件提示 */
@@ -1253,4 +1271,52 @@
   border: 3rpx solid #ffffff;
   box-shadow: 0 4rpx 12rpx rgba(243, 156, 18, 0.4);
   z-index: 2;
+}
+
+/* ========== 裁判信息 ========== */
+.referees-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 6rpx;
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.08) 0%, rgba(155, 89, 182, 0.08) 100%);
+  border-radius: 16rpx;
+  border-left: 2rpx solid #3498db;
+  border-right: 2rpx solid #3498db;
+}
+
+.role-item {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  min-width: auto;
+  flex: 0;
+}
+
+.role-item::after {
+  content: '·';
+  margin-left: 16rpx;
+  color: #bdc3c7;
+  font-weight: 700;
+}
+
+.role-item:last-child::after {
+  content: '';
+  margin-left: 0;
+}
+
+.role-icon {
+  font-size: 20rpx;
+  line-height: 1;
+}
+
+.role-name {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #34495e;
+  white-space: nowrap;
 }

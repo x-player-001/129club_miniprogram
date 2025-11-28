@@ -36,10 +36,10 @@ Page({
 
     // 4节数据
     quarters: [
-      { quarterNumber: 1, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [] },
-      { quarterNumber: 2, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [] },
-      { quarterNumber: 3, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [] },
-      { quarterNumber: 4, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [] }
+      { quarterNumber: 1, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [], mainRefereeId: null, assistantReferee1Id: null, assistantReferee2Id: null, team1GoalkeeperId: null, team2GoalkeeperId: null },
+      { quarterNumber: 2, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [], mainRefereeId: null, assistantReferee1Id: null, assistantReferee2Id: null, team1GoalkeeperId: null, team2GoalkeeperId: null },
+      { quarterNumber: 3, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [], mainRefereeId: null, assistantReferee1Id: null, assistantReferee2Id: null, team1GoalkeeperId: null, team2GoalkeeperId: null },
+      { quarterNumber: 4, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [], mainRefereeId: null, assistantReferee1Id: null, assistantReferee2Id: null, team1GoalkeeperId: null, team2GoalkeeperId: null }
     ],
 
     // 累计得分和进球
@@ -76,12 +76,17 @@ Page({
     playerNames: [],
     team1RegisteredIds: [], // 队伍1报名球员ID
     team2RegisteredIds: [], // 队伍2报名球员ID
+    team1SelectablePlayers: [], // 队伍1可选球员（完整分组数据，包含虚拟球员）
+    team2SelectablePlayers: [], // 队伍2可选球员（完整分组数据，包含虚拟球员）
+    team1PlayerGroups: [], // 队伍1球员分组（已报名/未报名/虚拟）- 用于临时显示
+    team2PlayerGroups: [], // 队伍2球员分组（已报名/未报名/虚拟）- 用于临时显示
 
     // MVP
     mvpUserIds: [],
     mvpPlayers: [], // MVP球员完整信息（包含头像、姓名、号码）
     mvpPlayerNames: '',
     showMvpPicker: false,
+    allPlayerGroups: [], // 所有球员分组（两队合并，用于MVP选择）
 
     // 比赛简报
     summary: '',
@@ -296,41 +301,93 @@ Page({
       // 处理已录入的节次数据，并决定当前步骤
       const { quarters: savedQuarters, currentStep } = this.processQuarterData(quarterData, allPlayers, matchInfo, hasParticipants);
 
-      this.setData({
-        matchInfo,
-        quarterSystem: true,
-        team1Players,
-        team2Players,
-        allPlayers,
-        team1RegisteredIds, // 保存报名ID，用于参赛人员选择
-        team2RegisteredIds,
-        quarters: savedQuarters,
-        currentStep: currentStep,
-        // 设置到场人员（已保存的或默认的）
-        'participants.team1': finalTeam1Participants,
-        'participants.team2': finalTeam2Participants,
-        'participantIds.team1': finalTeam1ParticipantIds,
-        'participantIds.team2': finalTeam2ParticipantIds,
-        // 设置MVP数据
-        mvpPlayers: mvpPlayers,
-        mvpUserIds: mvpUserIds,
-        mvpPlayerNames: mvpPlayerNames,
-        // 设置简报数据
-        summary: savedSummary,
-        // 设置照片数据
-        photos: savedPhotos,
-        // 设置点球大战数据
-        penaltyShootout: savedPenaltyData
-      }, () => {
-        // 重新计算累计得分
-        this.calculateTotalScore();
+      // 预加载两队的可选球员数据（包含已报名/未报名/虚拟球员分组）
+      Promise.all([
+        matchAPI.getSelectablePlayers(this.data.matchId, matchInfo.team1.id),
+        matchAPI.getSelectablePlayers(this.data.matchId, matchInfo.team2.id)
+      ]).then(([team1Res, team2Res]) => {
+        // 转换球员数据格式，构建分组数据
+        const team1SelectablePlayers = this.buildPlayerGroups(team1Res.data, matchInfo.team1.id);
+        const team2SelectablePlayers = this.buildPlayerGroups(team2Res.data, matchInfo.team2.id);
 
-        // 检查是否需要点球大战（4节全部完成且比分相同）
-        this.checkAndUpdatePenaltyState();
+        console.log(`[Record] 预加载可选球员 - 队伍1: ${team1SelectablePlayers.length}组, 队伍2: ${team2SelectablePlayers.length}组`);
+
+        this.setData({
+          matchInfo,
+          quarterSystem: true,
+          team1Players,
+          team2Players,
+          allPlayers,
+          team1RegisteredIds, // 保存报名ID，用于参赛人员选择
+          team2RegisteredIds,
+          team1SelectablePlayers, // 保存完整分组数据
+          team2SelectablePlayers,
+          quarters: savedQuarters,
+          currentStep: currentStep,
+          // 设置到场人员（已保存的或默认的）
+          'participants.team1': finalTeam1Participants,
+          'participants.team2': finalTeam2Participants,
+          'participantIds.team1': finalTeam1ParticipantIds,
+          'participantIds.team2': finalTeam2ParticipantIds,
+          // 设置MVP数据
+          mvpPlayers: mvpPlayers,
+          mvpUserIds: mvpUserIds,
+          mvpPlayerNames: mvpPlayerNames,
+          // 设置简报数据
+          summary: savedSummary,
+          // 设置照片数据
+          photos: savedPhotos,
+          // 设置点球大战数据
+          penaltyShootout: savedPenaltyData
+        }, () => {
+          // 重新计算累计得分
+          this.calculateTotalScore();
+
+          // 检查是否需要点球大战（4节全部完成且比分相同）
+          this.checkAndUpdatePenaltyState();
+        });
+
+        console.log(`[Record] 已加载节次数据，自动跳转到步骤${currentStep}`);
+        wx.hideLoading();
+      }).catch(err => {
+        console.error('加载可选球员失败:', err);
+        // 即使加载失败，也继续设置其他数据
+        this.setData({
+          matchInfo,
+          quarterSystem: true,
+          team1Players,
+          team2Players,
+          allPlayers,
+          team1RegisteredIds, // 保存报名ID，用于参赛人员选择
+          team2RegisteredIds,
+          quarters: savedQuarters,
+          currentStep: currentStep,
+          // 设置到场人员（已保存的或默认的）
+          'participants.team1': finalTeam1Participants,
+          'participants.team2': finalTeam2Participants,
+          'participantIds.team1': finalTeam1ParticipantIds,
+          'participantIds.team2': finalTeam2ParticipantIds,
+          // 设置MVP数据
+          mvpPlayers: mvpPlayers,
+          mvpUserIds: mvpUserIds,
+          mvpPlayerNames: mvpPlayerNames,
+          // 设置简报数据
+          summary: savedSummary,
+          // 设置照片数据
+          photos: savedPhotos,
+          // 设置点球大战数据
+          penaltyShootout: savedPenaltyData
+        }, () => {
+          // 重新计算累计得分
+          this.calculateTotalScore();
+
+          // 检查是否需要点球大战（4节全部完成且比分相同）
+          this.checkAndUpdatePenaltyState();
+        });
+
+        console.log(`[Record] 已加载节次数据（球员数据加载失败），自动跳转到步骤${currentStep}`);
+        wx.hideLoading();
       });
-
-      console.log(`[Record] 已加载节次数据，自动跳转到步骤${currentStep}`);
-      wx.hideLoading();
     }).catch(err => {
       console.error('加载比赛信息失败:', err);
       wx.hideLoading();
@@ -678,13 +735,68 @@ Page({
     }
   },
 
+  // 构建球员分组数据（从 API 返回的数据转换为组件需要的格式）
+  buildPlayerGroups(apiData, teamId) {
+    const groups = [];
+
+    // 已报名球员
+    if (apiData.registeredPlayers && apiData.registeredPlayers.length > 0) {
+      groups.push({
+        label: apiData.categories?.registered?.label || '已报名',
+        count: apiData.categories?.registered?.count || apiData.registeredPlayers.length,
+        players: apiData.registeredPlayers.map(p => ({
+          id: p.id,
+          name: p.realName || p.nickname,
+          nickname: p.nickname,
+          avatar: config.getStaticUrl(p.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
+          jerseyNumber: p.jerseyNumber || 0,
+          playerStatus: p.playerStatus || 'normal' // 保存球员状态
+        }))
+      });
+    }
+
+    // 未报名球员
+    if (apiData.unregisteredPlayers && apiData.unregisteredPlayers.length > 0) {
+      groups.push({
+        label: apiData.categories?.unregistered?.label || '未报名',
+        count: apiData.categories?.unregistered?.count || apiData.unregisteredPlayers.length,
+        players: apiData.unregisteredPlayers.map(p => ({
+          id: p.id,
+          name: p.realName || p.nickname,
+          nickname: p.nickname,
+          avatar: config.getStaticUrl(p.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
+          jerseyNumber: p.jerseyNumber || 0,
+          playerStatus: p.playerStatus || 'normal'
+        }))
+      });
+    }
+
+    // 虚拟球员
+    if (apiData.virtualPlayers && apiData.virtualPlayers.length > 0) {
+      groups.push({
+        label: apiData.categories?.virtual?.label || '虚拟球员',
+        count: apiData.categories?.virtual?.count || apiData.virtualPlayers.length,
+        players: apiData.virtualPlayers.map(p => ({
+          id: p.id,
+          name: p.realName || p.nickname,
+          nickname: p.nickname,
+          avatar: config.getStaticUrl(p.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
+          jerseyNumber: p.jerseyNumber || 0,
+          playerStatus: 'virtual' // 标记为虚拟球员
+        }))
+      });
+    }
+
+    return groups;
+  },
+
   // 处理已录入的节次数据
   processQuarterData(quarterData, allPlayers, matchInfo, hasParticipants) {
     const quarters = [
-      { quarterNumber: 1, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [] },
-      { quarterNumber: 2, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [] },
-      { quarterNumber: 3, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [] },
-      { quarterNumber: 4, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [] }
+      { quarterNumber: 1, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [], mainRefereeId: null, assistantReferee1Id: null, assistantReferee2Id: null, team1GoalkeeperId: null, team2GoalkeeperId: null },
+      { quarterNumber: 2, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [], mainRefereeId: null, assistantReferee1Id: null, assistantReferee2Id: null, team1GoalkeeperId: null, team2GoalkeeperId: null },
+      { quarterNumber: 3, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [], mainRefereeId: null, assistantReferee1Id: null, assistantReferee2Id: null, team1GoalkeeperId: null, team2GoalkeeperId: null },
+      { quarterNumber: 4, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [], mainRefereeId: null, assistantReferee1Id: null, assistantReferee2Id: null, team1GoalkeeperId: null, team2GoalkeeperId: null }
     ];
 
     let currentStep = 1; // 默认从第一步开始
@@ -729,7 +841,19 @@ Page({
             team1Points: savedQuarter.team1Points,
             team2Points: savedQuarter.team2Points,
             summary: savedQuarter.summary || '',
-            events: events
+            events: events,
+            // 裁判和守门员角色信息（兼容ID和完整对象两种格式）
+            mainRefereeId: savedQuarter.mainRefereeId || savedQuarter.mainReferee?.id || null,
+            assistantReferee1Id: savedQuarter.assistantReferee1Id || savedQuarter.assistantReferee1?.id || null,
+            assistantReferee2Id: savedQuarter.assistantReferee2Id || savedQuarter.assistantReferee2?.id || null,
+            team1GoalkeeperId: savedQuarter.team1GoalkeeperId || savedQuarter.team1Goalkeeper?.id || null,
+            team2GoalkeeperId: savedQuarter.team2GoalkeeperId || savedQuarter.team2Goalkeeper?.id || null,
+            // 同时保存完整对象（如果后端返回）
+            mainReferee: savedQuarter.mainReferee || null,
+            assistantReferee1: savedQuarter.assistantReferee1 || null,
+            assistantReferee2: savedQuarter.assistantReferee2 || null,
+            team1Goalkeeper: savedQuarter.team1Goalkeeper || null,
+            team2Goalkeeper: savedQuarter.team2Goalkeeper || null
           };
         }
       });
@@ -940,9 +1064,26 @@ Page({
   // 显示到场人员选择器
   onShowParticipantPicker(e) {
     const team = e.currentTarget.dataset.team;
+
+    // 从预加载的数据中获取球员分组（过滤掉虚拟球员）
+    const sourceGroups = team === 'team1' ? this.data.team1SelectablePlayers : this.data.team2SelectablePlayers;
+
+    // 过滤掉虚拟球员分组，只保留已报名和未报名的球员
+    const filteredGroups = sourceGroups.map(group => {
+      // 过滤掉 playerStatus 为 'virtual' 的球员
+      const filteredPlayers = group.players.filter(p => p.playerStatus !== 'virtual');
+
+      return {
+        label: group.label,
+        count: filteredPlayers.length,
+        players: filteredPlayers
+      };
+    }).filter(group => group.players.length > 0); // 移除空分组
+
     this.setData({
       showParticipantPicker: true,
-      currentPickerTeam: team
+      currentPickerTeam: team,
+      [`${team}PlayerGroups`]: filteredGroups
     });
   },
 
@@ -1042,7 +1183,34 @@ Page({
 
   // 显示MVP选择器
   onShowMvpPicker() {
-    this.setData({ showMvpPicker: true });
+    // MVP只能从到场人员中选择
+    const { participants } = this.data;
+    const { team1, team2 } = this.data.matchInfo;
+
+    const allPlayerGroups = [];
+
+    // 队伍1到场人员
+    if (participants.team1 && participants.team1.length > 0) {
+      allPlayerGroups.push({
+        label: `${team1.name} - 到场人员`,
+        count: participants.team1.length,
+        players: participants.team1
+      });
+    }
+
+    // 队伍2到场人员
+    if (participants.team2 && participants.team2.length > 0) {
+      allPlayerGroups.push({
+        label: `${team2.name} - 到场人员`,
+        count: participants.team2.length,
+        players: participants.team2
+      });
+    }
+
+    this.setData({
+      showMvpPicker: true,
+      allPlayerGroups: allPlayerGroups
+    });
   },
 
   // 确认选择MVP

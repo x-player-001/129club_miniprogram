@@ -132,9 +132,9 @@ Page({
       }
     }
 
-    // 赛季筛选（预留，后端暂未实现）
+    // 赛季筛选
     if (this.data.season !== 'all') {
-      params.season = this.data.season;
+      params.seasonId = this.data.season;
     }
 
     // 调用API

@@ -118,7 +118,9 @@ Page({
   loadUsers() {
     const userAPI = require('../../../api/user.js');
     userAPI.getMemberList().then(res => {
-      const users = res.data?.list || res.data || [];
+      const allUsers = res.data?.list || res.data || [];
+      // 只显示 memberType 为 regular 的队员作为队长候选
+      const users = allUsers.filter(user => user.memberType === 'regular');
       this.setData({ users });
     }).catch(err => {
       console.error('加载用户列表失败:', err);
@@ -250,6 +252,18 @@ Page({
     const successText = mode === 'edit' ? '保存成功' : '创建成功';
     const failText = mode === 'edit' ? '保存失败' : '创建失败';
 
+    // 创建模式下需要获取当前赛季
+    if (mode === 'create') {
+      const currentSeason = app.getCurrentSeason();
+      if (!currentSeason || !currentSeason.id) {
+        wx.showToast({
+          title: '请先创建赛季',
+          icon: 'none'
+        });
+        return;
+      }
+    }
+
     wx.showLoading({ title: loadingText });
 
     // 处理logo - 如果是完整URL，提取路径部分
@@ -271,6 +285,12 @@ Page({
       color: formData.color,
       captainId: formData.captainId || undefined
     };
+
+    // 创建模式下添加 seasonId
+    if (mode === 'create') {
+      const currentSeason = app.getCurrentSeason();
+      submitData.seasonId = currentSeason.id;
+    }
 
     // 根据模式调用不同的 API
     const apiCall = mode === 'edit'

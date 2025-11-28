@@ -177,6 +177,45 @@
   box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
 }
 
+/* 发起重组按钮 */
+.reshuffle-action {
+  margin-top: 16rpx;
+  padding: 24rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
+}
+
+.reshuffle-btn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  line-height: inherit;
+}
+
+.reshuffle-btn::after {
+  border: none;
+}
+
+.reshuffle-btn .btn-icon {
+  font-size: 36rpx;
+}
+
+.reshuffle-btn .btn-text {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.reshuffle-btn:active {
+  opacity: 0.8;
+}
+
 /* 队伍头部 */
 .team-header {
   position: relative;

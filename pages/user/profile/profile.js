@@ -21,7 +21,8 @@ Page({
       users: config.getIconUrl('users.png'),
       message: config.getIconUrl('message.png'),
       notice: config.getIconUrl('notice.png'),
-      setting: config.getIconUrl('setting.png')
+      setting: config.getIconUrl('setting.png'),
+      jersey: config.getIconUrl('jersey.png') // 暂时使用team图标代替号码墙图标
     },
     // 图片URL
     images: {
@@ -385,6 +386,11 @@ Page({
       case 'members':
         wx.navigateTo({
           url: '/pages/user/members/members'
+        });
+        break;
+      case 'jersey':
+        wx.navigateTo({
+          url: '/pages/user/jersey-wall/jersey-wall'
         });
         break;
       case 'message':

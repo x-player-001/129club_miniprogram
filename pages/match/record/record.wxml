@@ -52,6 +52,8 @@
         team2="{{matchInfo.team2}}"
         quarter-data="{{quarters[currentStep - 2]}}"
         all-players="{{allPlayers}}"
+        team1-selectable-players="{{team1SelectablePlayers}}"
+        team2-selectable-players="{{team2SelectablePlayers}}"
         bind:change="onQuarterChange"
         bind:saved="onQuarterSaved"
       />
@@ -370,11 +372,12 @@
   </view>
 </view>
 
-<!-- 到场人员选择器 -->
+<!-- 到场人员选择器（分组模式） -->
 <select-grid
   show="{{showParticipantPicker}}"
   title="选择到场人员"
-  options="{{currentPickerTeam === 'team1' ? team1Players : team2Players}}"
+  use-groups="{{true}}"
+  groups="{{currentPickerTeam === 'team1' ? team1PlayerGroups : team2PlayerGroups}}"
   value="{{currentPickerTeam === 'team1' ? participantIds.team1 : participantIds.team2}}"
   multiple="{{true}}"
   display-field="name"
@@ -386,11 +389,12 @@
   bind:close="onCloseParticipantPicker"
 />
 
-<!-- MVP选择器 -->
+<!-- MVP选择器（分组模式） -->
 <select-grid
   show="{{showMvpPicker}}"
   title="选择MVP"
-  options="{{allPlayers}}"
+  use-groups="{{true}}"
+  groups="{{allPlayerGroups}}"
   value="{{mvpUserIds}}"
   multiple="{{true}}"
   display-field="name"

@@ -125,9 +125,15 @@ Page({
     };
     this.setData({ userInfo });
 
-    // 使用真实API数据
-    this.loadOverviewData();
-    // this.loadMockData(); // Mock数据已注释
+    // 只有在赛季列表已加载完成后才刷新数据（避免首次进入时重复调用）
+    if (this.data.seasonOptions.length > 0) {
+      // 同步筛选框显示名称与选中的赛季ID
+      const selectedOption = this.data.seasonOptions.find(s => s.id === this.data.selectedSeasonId);
+      if (selectedOption && this.data.currentSeasonName !== selectedOption.name) {
+        this.setData({ currentSeasonName: selectedOption.name });
+      }
+      this.loadOverviewData();
+    }
 
     // 启动成就滚动
     this.startAchievementScroll();
@@ -298,9 +304,19 @@ Page({
 
     // 调用真实 API (传递赛季ID参数)
     const params = {};
-    if (this.data.selectedSeasonId) {
+
+    // 如果 selectedSeasonId 为 null，表示选择了"全部"
+    if (this.data.selectedSeasonId === null) {
+      // 查询全部数据
+      params.filterType = 'all';
+    } else if (this.data.selectedSeasonId) {
+      // 查询特定赛季
       params.seasonId = this.data.selectedSeasonId;
+      params.filterType = 'season';
     }
+    // 如果 selectedSeasonId 是 undefined（初始状态），不传参数，后端会使用默认值（当前活跃赛季）
+
+    console.log('Stats Overview API 请求参数:', params);
 
     return statsAPI.getOverview(params).then(res => {
       const data = res.data || {};

@@ -28,8 +28,18 @@ Component({
       type: Object,
       value: null
     },
-    // 所有球员列表（用于选择器）
+    // 所有球员列表（用于选择器）- 已废弃，使用 team1SelectablePlayers 和 team2SelectablePlayers
     allPlayers: {
+      type: Array,
+      value: []
+    },
+    // 队伍1可选球员分组数据（已报名/未报名/虚拟）
+    team1SelectablePlayers: {
+      type: Array,
+      value: []
+    },
+    // 队伍2可选球员分组数据（已报名/未报名/虚拟）
+    team2SelectablePlayers: {
       type: Array,
       value: []
     }
@@ -81,7 +91,22 @@ Component({
     showPlayerOutPicker: false,
     showPlayerInPicker: false,
     currentPickerType: '', // 'player', 'assist', 'playerOut', 'playerIn'
-    filteredPlayers: []  // 过滤后的球员列表
+    filteredPlayers: [],  // 过滤后的球员列表（已废弃）
+    filteredPlayerGroups: [],  // 过滤后的球员分组（新增）
+
+    // 角色数据（裁判和守门员）
+    roles: {
+      mainReferee: null,        // 主裁判
+      assistantReferee1: null,  // 边裁1
+      assistantReferee2: null,  // 边裁2
+      team1Goalkeeper: null,    // 队伍1守门员
+      team2Goalkeeper: null     // 队伍2守门员
+    },
+    showRolePicker: false,      // 是否显示角色选择器
+    currentRoleType: '',        // 当前选择的角色类型
+    currentRoleValue: null,     // 当前选中的角色ID（用于预选）
+    rolePickerTitle: '',        // 角色选择器标题
+    allPlayersForRole: []       // 角色选择时的球员列表（两队合并）
   },
 
   lifetimes: {
@@ -101,6 +126,9 @@ Component({
             events: newData.events || []
           }
         });
+
+        // 加载角色数据
+        this.loadRolesData(newData);
       }
     },
     'allPlayers': function(players) {
@@ -122,9 +150,111 @@ Component({
             events: quarterData.events || []
           }
         });
+
+        // 加载角色数据
+        this.loadRolesData(quarterData);
       }
 
       // 初始化时不需要处理 allPlayers
+    },
+
+    /**
+     * 加载角色数据
+     * @param {Object} quarterData 节次数据
+     */
+    loadRolesData(quarterData) {
+      if (!quarterData) return;
+
+      const roles = {
+        mainReferee: null,
+        assistantReferee1: null,
+        assistantReferee2: null,
+        team1Goalkeeper: null,
+        team2Goalkeeper: null
+      };
+
+      // 获取所有球员列表（从两队可选球员中合并）
+      const { team1SelectablePlayers, team2SelectablePlayers, allPlayers } = this.properties;
+      let allPlayersList = [];
+
+      // 优先使用分组数据
+      if (team1SelectablePlayers && team1SelectablePlayers.length > 0) {
+        team1SelectablePlayers.forEach(group => {
+          if (group.players && group.players.length > 0) {
+            allPlayersList = allPlayersList.concat(group.players);
+          }
+        });
+      }
+      if (team2SelectablePlayers && team2SelectablePlayers.length > 0) {
+        team2SelectablePlayers.forEach(group => {
+          if (group.players && group.players.length > 0) {
+            allPlayersList = allPlayersList.concat(group.players);
+          }
+        });
+      }
+
+      // 如果分组数据为空，回退到 allPlayers
+      if (allPlayersList.length === 0 && allPlayers && allPlayers.length > 0) {
+        allPlayersList = allPlayers;
+      }
+
+      // 辅助函数：根据ID或对象查找球员
+      const findPlayer = (roleData) => {
+        if (!roleData) return null;
+
+        // 如果已经是完整对象（包含realName/nickname属性），直接使用
+        if (typeof roleData === 'object' && roleData.id) {
+          // 优先使用 realName，忽略 name 字段
+          const displayName = roleData.realName || roleData.nickname;
+          return {
+            id: roleData.id,
+            name: displayName,
+            realName: roleData.realName, // 保留原始字段用于调试
+            nickname: roleData.nickname,
+            avatar: roleData.avatar
+          };
+        }
+
+        // 如果是ID字符串，从球员列表中查找
+        if (typeof roleData === 'string') {
+          const player = allPlayersList.find(p => p.id === roleData);
+          if (player) {
+            // 优先使用 realName，忽略 name 字段
+            const displayName = player.realName || player.nickname;
+            return {
+              id: player.id,
+              name: displayName,
+              realName: player.realName,
+              nickname: player.nickname,
+              avatar: player.avatar
+            };
+          }
+        }
+
+        return null;
+      };
+
+      // 从quarterData中加载角色信息（兼容ID和对象两种格式）
+      const mainRefereeData = quarterData.mainReferee || (quarterData.mainRefereeId ? quarterData.mainRefereeId : null);
+      const assistantReferee1Data = quarterData.assistantReferee1 || (quarterData.assistantReferee1Id ? quarterData.assistantReferee1Id : null);
+      const assistantReferee2Data = quarterData.assistantReferee2 || (quarterData.assistantReferee2Id ? quarterData.assistantReferee2Id : null);
+      const team1GoalkeeperData = quarterData.team1Goalkeeper || (quarterData.team1GoalkeeperId ? quarterData.team1GoalkeeperId : null);
+      const team2GoalkeeperData = quarterData.team2Goalkeeper || (quarterData.team2GoalkeeperId ? quarterData.team2GoalkeeperId : null);
+
+      console.log('[QuarterInput] 原始角色数据:', {
+        mainReferee: mainRefereeData,
+        assistantReferee1: assistantReferee1Data
+      });
+
+      roles.mainReferee = findPlayer(mainRefereeData);
+      roles.assistantReferee1 = findPlayer(assistantReferee1Data);
+      roles.assistantReferee2 = findPlayer(assistantReferee2Data);
+      roles.team1Goalkeeper = findPlayer(team1GoalkeeperData);
+      roles.team2Goalkeeper = findPlayer(team2GoalkeeperData);
+
+      console.log('[QuarterInput] 处理后的角色数据:', roles);
+
+      this.setData({ roles });
     },
 
     // 进球数输入方法已移除 - 比分现在完全由进球事件自动计算
@@ -272,13 +402,17 @@ Component({
       });
     },
 
-    // 过滤球员列表
-    filterPlayers(teamId) {
-      const { allPlayers } = this.properties;
-      if (!allPlayers || allPlayers.length === 0) return [];
+    // 过滤球员分组（根据队伍，包含虚拟球员）
+    filterPlayerGroups(teamId) {
+      const { team1, team2, team1SelectablePlayers, team2SelectablePlayers } = this.properties;
 
-      // 根据 teamId 过滤球员
-      return allPlayers.filter(player => player.teamId === teamId);
+      // 根据 teamId 选择对应队伍的分组数据
+      const sourceGroups = teamId === team1.id ? team1SelectablePlayers : team2SelectablePlayers;
+
+      if (!sourceGroups || sourceGroups.length === 0) return [];
+
+      // 事件录入需要包含所有球员（包括虚拟球员）
+      return sourceGroups.filter(group => group.players && group.players.length > 0);
     },
 
     // 显示球员选择器
@@ -305,10 +439,10 @@ Component({
         targetTeamId = teamId === team1.id ? team2.id : team1.id;
       }
 
-      const filteredPlayers = this.filterPlayers(targetTeamId);
+      const filteredPlayerGroups = this.filterPlayerGroups(targetTeamId);
 
       this.setData({
-        filteredPlayers,
+        filteredPlayerGroups,
         showPlayerPicker: true,
         currentPickerType: 'player'
       });
@@ -328,10 +462,10 @@ Component({
       }
 
       // 助攻球员总是从进球队伍中选择
-      const filteredPlayers = this.filterPlayers(teamId);
+      const filteredPlayerGroups = this.filterPlayerGroups(teamId);
 
       this.setData({
-        filteredPlayers,
+        filteredPlayerGroups,
         showAssistPicker: true,
         currentPickerType: 'assist'
       });
@@ -350,10 +484,10 @@ Component({
         return;
       }
 
-      const filteredPlayers = this.filterPlayers(teamId);
+      const filteredPlayerGroups = this.filterPlayerGroups(teamId);
 
       this.setData({
-        filteredPlayers,
+        filteredPlayerGroups,
         showPlayerOutPicker: true,
         currentPickerType: 'playerOut'
       });
@@ -372,10 +506,10 @@ Component({
         return;
       }
 
-      const filteredPlayers = this.filterPlayers(teamId);
+      const filteredPlayerGroups = this.filterPlayerGroups(teamId);
 
       this.setData({
-        filteredPlayers,
+        filteredPlayerGroups,
         showPlayerInPicker: true,
         currentPickerType: 'playerIn'
       });
@@ -421,6 +555,163 @@ Component({
         showPlayerInPicker: false
       });
     },
+
+    // ==================== 角色选择相关方法 ====================
+
+    /**
+     * 显示角色选择器
+     * @param {Object} e 事件对象
+     */
+    onShowRolePicker(e) {
+      const role = e.currentTarget.dataset.role;
+      const { team1SelectablePlayers, team2SelectablePlayers } = this.properties;
+      const { roles } = this.data;
+
+      // 合并两队球员（裁判可以从任意球员中选择，守门员只能从对应队伍选择）
+      // 角色选择器需要过滤虚拟球员
+      let allPlayersForRole = [];
+      let rolePickerTitle = '';
+
+      // 获取当前角色的ID（用于预选）
+      const currentRoleId = roles[role]?.id || null;
+
+      if (role === 'team1Goalkeeper') {
+        // 队伍1守门员：只显示队伍1的球员，过滤虚拟球员
+        allPlayersForRole = this.filterVirtualPlayers(team1SelectablePlayers || []);
+        rolePickerTitle = `选择${this.properties.team1.name}守门员`;
+      } else if (role === 'team2Goalkeeper') {
+        // 队伍2守门员：只显示队伍2的球员，过滤虚拟球员
+        allPlayersForRole = this.filterVirtualPlayers(team2SelectablePlayers || []);
+        rolePickerTitle = `选择${this.properties.team2.name}守门员`;
+      } else {
+        // 裁判：合并两队球员，过滤虚拟球员
+        const team1Groups = this.filterVirtualPlayers(team1SelectablePlayers || []);
+        const team2Groups = this.filterVirtualPlayers(team2SelectablePlayers || []);
+
+        // 添加队伍1球员（添加队伍标识）
+        team1Groups.forEach(group => {
+          allPlayersForRole.push({
+            label: `${this.properties.team1.name} - ${group.label}`,
+            count: group.count,
+            players: group.players
+          });
+        });
+
+        // 添加队伍2球员（添加队伍标识）
+        team2Groups.forEach(group => {
+          allPlayersForRole.push({
+            label: `${this.properties.team2.name} - ${group.label}`,
+            count: group.count,
+            players: group.players
+          });
+        });
+
+        // 设置标题
+        if (role === 'mainReferee') {
+          rolePickerTitle = '选择主裁判';
+        } else if (role === 'assistantReferee1') {
+          rolePickerTitle = '选择边裁1';
+        } else if (role === 'assistantReferee2') {
+          rolePickerTitle = '选择边裁2';
+        }
+      }
+
+      this.setData({
+        showRolePicker: true,
+        currentRoleType: role,
+        currentRoleValue: currentRoleId, // 传递当前选中的ID
+        allPlayersForRole,
+        rolePickerTitle
+      });
+    },
+
+    /**
+     * 过滤虚拟球员
+     * @param {Array} groups 球员分组数组
+     * @returns {Array} 过滤后的分组数组
+     */
+    filterVirtualPlayers(groups) {
+      return groups.map(group => {
+        const filteredPlayers = group.players.filter(p => p.playerStatus !== 'virtual');
+        return {
+          label: group.label,
+          count: filteredPlayers.length,
+          players: filteredPlayers
+        };
+      }).filter(group => group.players.length > 0);
+    },
+
+    /**
+     * 确认角色选择
+     * @param {Object} e 事件对象
+     */
+    onConfirmRoleSelect(e) {
+      const { value, items } = e.detail;
+      const { currentRoleType } = this.data;
+
+      if (items) {
+        // 保存角色数据
+        this.setData({
+          [`roles.${currentRoleType}`]: {
+            id: items.id,
+            name: items.name,
+            avatar: items.avatar
+          }
+        });
+
+        // 调用保存方法
+        this.saveRoles();
+      }
+
+      this.onCloseRolePicker();
+    },
+
+    /**
+     * 关闭角色选择器
+     */
+    onCloseRolePicker() {
+      this.setData({
+        showRolePicker: false,
+        currentRoleType: '',
+        currentRoleValue: null,
+        allPlayersForRole: []
+      });
+    },
+
+    /**
+     * 保存角色数据到后端
+     */
+    saveRoles() {
+      const { roles } = this.data;
+      const { matchId, quarterNumber } = this.properties;
+
+      // 构建API需要的数据格式
+      const rolesData = {
+        mainRefereeId: roles.mainReferee?.id || null,
+        assistantReferee1Id: roles.assistantReferee1?.id || null,
+        assistantReferee2Id: roles.assistantReferee2?.id || null,
+        team1GoalkeeperId: roles.team1Goalkeeper?.id || null,
+        team2GoalkeeperId: roles.team2Goalkeeper?.id || null
+      };
+
+      // 调用API保存
+      const matchAPI = require('../../api/match.js');
+
+      matchAPI.setQuarterRoles(matchId, quarterNumber, rolesData)
+        .then(() => {
+          console.log('[角色保存成功]', rolesData);
+          // 不显示提示，静默保存
+        })
+        .catch(err => {
+          console.error('[角色保存失败]', err);
+          wx.showToast({
+            title: '角色保存失败',
+            icon: 'none'
+          });
+        });
+    },
+
+    // ==================== 事件编辑相关方法 ====================
 
     // 取消事件编辑
     onCancelEvent() {

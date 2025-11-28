@@ -26,7 +26,7 @@ Page({
    */
   checkAdminPermission() {
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
-    const isAdmin = userInfo && (userInfo.role === 'admin' || userInfo.isAdmin === true);
+    const isAdmin = userInfo && (userInfo.role === 'admin' || userInfo.role === 'super_admin' || userInfo.isAdmin === true);
 
     console.log('[Season List] 用户权限:', {
       role: userInfo?.role,

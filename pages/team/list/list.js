@@ -36,7 +36,7 @@ Page({
   },
 
   onLoad(options) {
-    // this.checkAdminRole(); // 临时注释，方便测试
+    this.checkAdminRole();
     this.loadCurrentSeason();
     this.loadTeamData();
     this.loadAllSeasons(); // 加载所有赛季供历史队伍筛选
@@ -58,9 +58,14 @@ Page({
 
   checkAdminRole() {
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
-    this.setData({
-      isAdmin: userInfo && userInfo.role === 'super_admin'
+    const isAdmin = userInfo && (userInfo.role === 'admin' || userInfo.role === 'super_admin');
+
+    console.log('[Team List] 用户权限:', {
+      role: userInfo?.role,
+      isAdmin: isAdmin
     });
+
+    this.setData({ isAdmin });
   },
 
   /**
@@ -108,14 +113,14 @@ Page({
 
   /**
    * 判断是否显示创建队伍入口
-   * 规则：当赛季状态不是active（即新赛季未激活或已完成）且没有队伍时，显示创建入口
+   * 规则：有进行中的赛季且没有队伍时，显示创建入口（仅管理员可见）
    */
   updateCreateUIVisibility() {
     const hasNoTeams = this.data.activeTeams.length === 0;
-    const seasonNotActive = !this.data.currentSeason || this.data.currentSeason.status !== 'active';
+    const hasActiveSeason = this.data.currentSeason && this.data.currentSeason.status === 'active';
 
     this.setData({
-      showCreateUI: hasNoTeams && seasonNotActive && this.data.isAdmin
+      showCreateUI: hasNoTeams && hasActiveSeason && this.data.isAdmin
     });
   },
 
@@ -144,8 +149,8 @@ Page({
   },
 
   loadHistoryTeams() {
-    // 根据选中的赛季筛选历史队伍
-    const params = { status: 'active' };
+    // 根据选中的赛季筛选历史队伍（归档状态）
+    const params = { status: 'archived' };
     if (this.data.selectedSeasonId) {
       params.seasonId = this.data.selectedSeasonId;
     }
@@ -173,15 +178,15 @@ Page({
   },
 
   /**
-   * 加载所有赛季列表
+   * 加载所有赛季列表（仅已完成的赛季用于历史队伍筛选）
    */
   loadAllSeasons() {
-    return seasonAPI.getList({ limit: 100 })
+    return seasonAPI.getList({ status: 'completed', limit: 100 })
       .then(res => {
         const seasons = res.data.list || [];
         this.setData({ allSeasons: seasons });
 
-        // 如果还没有选中赛季，自动选中第一个赛季
+        // 如果还没有选中赛季，自动选中第一个已完成的赛季
         if (!this.data.selectedSeasonId && seasons.length > 0) {
           this.setData({
             selectedSeasonId: seasons[0].id,
@@ -279,7 +284,16 @@ Page({
   },
 
   /**
-   * 创建队伍（仅在特定条件下显示）
+   * 批量创建队伍（仅在特定条件下显示）
+   */
+  onBatchCreateTeam() {
+    wx.navigateTo({
+      url: '/pages/team/batch-create/batch-create'
+    });
+  },
+
+  /**
+   * 创建队伍（仅在特定条件下显示）- 保留用于其他入口
    */
   onCreateTeam() {
     wx.navigateTo({
@@ -291,8 +305,33 @@ Page({
    * 发起重组（仅在特定条件下显示）
    */
   onReshuffle() {
+    // 防止重复点击
+    if (this._reshuffleNavigating) {
+      return;
+    }
+
+    // 需要两个队伍才能发起选人
+    if (this.data.activeTeams.length < 2) {
+      wx.showToast({
+        title: '需要两个队伍才能发起选人',
+        icon: 'none'
+      });
+      return;
+    }
+
+    this._reshuffleNavigating = true;
+
+    const team1 = this.data.activeTeams[0];
+    const team2 = this.data.activeTeams[1];
+
+    // 传递队伍信息到重组页面
     wx.navigateTo({
-      url: '/pages/team/reshuffle/reshuffle'
+      url: `/pages/team/reshuffle/reshuffle?team1Id=${team1.id}&team2Id=${team2.id}`,
+      complete: () => {
+        setTimeout(() => {
+          this._reshuffleNavigating = false;
+        }, 500);
+      }
     });
   },
 

@@ -30,35 +30,81 @@
 
     <!-- 选项区域 -->
     <scroll-view class="picker-body" scroll-y>
-      <!-- 选项网格 -->
-      <view class="grid-container" wx:if="{{options.length > 0}}">
-        <view
-          class="grid-item {{tools.isSelected(selectedValues, item[valueField]) ? 'selected' : ''}}"
-          wx:for="{{options}}"
-          wx:key="id"
-          data-value="{{item[valueField]}}"
-          bindtap="onItemTap">
+      <!-- 分组模式 -->
+      <view wx:if="{{useGroups && groups.length > 0}}">
+        <block wx:for="{{groups}}" wx:key="label" wx:for-item="group">
+          <!-- 分组标题 -->
+          <view class="group-header" wx:if="{{group.players && group.players.length > 0}}">
+            <text class="group-label">{{group.label}}</text>
+            <text class="group-count">({{group.count || group.players.length}}人)</text>
+          </view>
 
-          <!-- 头像 -->
-          <image
-            wx:if="{{showAvatar && item[avatarField]}}"
-            class="item-avatar"
-            src="{{item[avatarField]}}"
-            mode="aspectFill"></image>
+          <!-- 分组内选项网格 -->
+          <view class="grid-container" wx:if="{{group.players && group.players.length > 0}}">
+            <view
+              class="grid-item {{tools.isSelected(selectedValues, item[valueField]) ? 'selected' : ''}}"
+              wx:for="{{group.players}}"
+              wx:key="id"
+              data-value="{{item[valueField]}}"
+              bindtap="onItemTap">
 
-          <!-- 默认头像 -->
-          <image
-            wx:if="{{showAvatar && !item[avatarField]}}"
-            class="item-avatar"
-            src="{{images.defaultAvatar}}"
-            mode="aspectFill"></image>
+              <!-- 头像 -->
+              <image
+                wx:if="{{showAvatar && item[avatarField]}}"
+                class="item-avatar"
+                src="{{item[avatarField]}}"
+                mode="aspectFill"></image>
 
-          <!-- 文本 -->
-          <text class="item-text">{{item[displayField]}}</text>
+              <!-- 默认头像 -->
+              <image
+                wx:if="{{showAvatar && !item[avatarField]}}"
+                class="item-avatar"
+                src="{{images.defaultAvatar}}"
+                mode="aspectFill"></image>
 
-          <!-- 选中图标 -->
-          <view class="selected-icon" wx:if="{{tools.isSelected(selectedValues, item[valueField])}}">
-            <text class="check-mark">✓</text>
+              <!-- 文本 -->
+              <text class="item-text">{{item[displayField]}}</text>
+
+              <!-- 选中图标 -->
+              <view class="selected-icon" wx:if="{{tools.isSelected(selectedValues, item[valueField])}}">
+                <text class="check-mark">✓</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+
+      <!-- 普通模式 -->
+      <view wx:elif="{{!useGroups && options.length > 0}}">
+        <view class="grid-container">
+          <view
+            class="grid-item {{tools.isSelected(selectedValues, item[valueField]) ? 'selected' : ''}}"
+            wx:for="{{options}}"
+            wx:key="id"
+            data-value="{{item[valueField]}}"
+            bindtap="onItemTap">
+
+            <!-- 头像 -->
+            <image
+              wx:if="{{showAvatar && item[avatarField]}}"
+              class="item-avatar"
+              src="{{item[avatarField]}}"
+              mode="aspectFill"></image>
+
+            <!-- 默认头像 -->
+            <image
+              wx:if="{{showAvatar && !item[avatarField]}}"
+              class="item-avatar"
+              src="{{images.defaultAvatar}}"
+              mode="aspectFill"></image>
+
+            <!-- 文本 -->
+            <text class="item-text">{{item[displayField]}}</text>
+
+            <!-- 选中图标 -->
+            <view class="selected-icon" wx:if="{{tools.isSelected(selectedValues, item[valueField])}}">
+              <text class="check-mark">✓</text>
+            </view>
           </view>
         </view>
       </view>

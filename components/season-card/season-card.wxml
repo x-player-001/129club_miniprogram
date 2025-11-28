@@ -39,7 +39,7 @@
     <view class="action-btn" wx:if="{{season.status === 'active'}}" catchtap="onComplete" data-id="{{season.id}}">
       <text>完成</text>
     </view>
-    <view class="action-btn danger" catchtap="onDelete" data-id="{{season.id}}">
+    <view class="action-btn danger" wx:if="{{season.status !== 'completed' && (!season.matchCount || season.matchCount === 0)}}" catchtap="onDelete" data-id="{{season.id}}">
       <text>删除</text>
     </view>
   </view>
