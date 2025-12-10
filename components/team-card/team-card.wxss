@@ -37,8 +37,8 @@
   width: 96rpx;
   height: 96rpx;
   border-radius: 50%;
-  background: #ffffff;
-  padding: 12rpx;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8rpx;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
   flex-shrink: 0;
 }

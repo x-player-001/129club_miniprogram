@@ -55,10 +55,23 @@ function deletePhoto(url) {
   return postRequest('/upload/delete-photo', { url });
 }
 
+/**
+ * 上传图片（通用方法）
+ * @param {string} filePath - 本地文件路径
+ * @param {string} category - 图片分类（默认 images）
+ * @returns {Promise}
+ */
+function uploadImage(filePath, category = 'images') {
+  return uploadFile('/upload/photo', filePath, 'photo', {
+    category: category
+  });
+}
+
 module.exports = {
   uploadPhoto,
   uploadPhotos,
   uploadMatchPhoto,
   uploadMatchPhotos,
-  deletePhoto
+  deletePhoto,
+  uploadImage
 };

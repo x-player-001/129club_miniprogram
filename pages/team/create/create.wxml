@@ -64,6 +64,26 @@
           <image class="arrow-icon" src="{{icons.arrowRight}}" mode="aspectFit"></image>
         </view>
       </view>
+
+      <!-- 球衣图片 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">球衣图片</text>
+          <text class="optional">（选填）</text>
+        </view>
+        <view class="jersey-upload">
+          <view wx:if="{{!formData.jerseyImage}}" class="upload-btn" bindtap="onChooseJersey">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">上传球衣</text>
+          </view>
+          <view wx:else class="jersey-preview">
+            <image class="jersey-image" src="{{formData.jerseyImage}}" mode="aspectFit"></image>
+            <view class="delete-btn" catchtap="onDeleteJersey">
+              <text class="delete-icon">×</text>
+            </view>
+          </view>
+        </view>
+      </view>
     </view>
 
     <!-- 底部占位 -->

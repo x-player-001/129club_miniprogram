@@ -171,13 +171,15 @@ Page({
           id: match.team1?.id || match.team1Id,
           name: match.team1?.name || match.team1Name,
           logo: getTeamLogoUrl(match.team1?.logo || match.team1Logo),
-          color: match.team1?.color || match.team1Color || '#ff6b6b'
+          color: match.team1?.color || match.team1Color || '#ff6b6b',
+          jerseyImage: this.getJerseyImageUrl(match.team1?.jerseyImage)
         },
         team2: {
           id: match.team2?.id || match.team2Id,
           name: match.team2?.name || match.team2Name,
           logo: getTeamLogoUrl(match.team2?.logo || match.team2Logo),
-          color: match.team2?.color || match.team2Color || '#3498db'
+          color: match.team2?.color || match.team2Color || '#3498db',
+          jerseyImage: this.getJerseyImageUrl(match.team2?.jerseyImage)
         },
         status: this.convertStatus(match.status),
         team1Score: match.team1Score || 0,
@@ -243,6 +245,13 @@ Page({
       'cancelled': 'cancelled'
     };
     return statusMap[status] || status;
+  },
+
+  // 获取球衣图片完整URL
+  getJerseyImageUrl(jerseyImage) {
+    if (!jerseyImage) return '';
+    if (jerseyImage.startsWith('http')) return jerseyImage;
+    return config.getStaticUrl(jerseyImage, 'images');
   },
 
   // 加载比赛数据（节次、事件、MVP等）
@@ -343,24 +352,33 @@ Page({
           });
       }
 
-      // 计算总进球数（如果后端没有返回totalGoals，则从quarters累加）
-      let totalTeam1Goals = 0;
+      // 计算累计积分和总进球数
+      let totalTeam1Score = 0; // 累计积分
+      let totalTeam2Score = 0;
+      let totalTeam1Goals = 0; // 总进球数
       let totalTeam2Goals = 0;
 
       if (data.quarters && data.quarters.length > 0) {
         data.quarters.forEach(q => {
+          // 累加进球数
           totalTeam1Goals += (q.team1Goals || 0);
           totalTeam2Goals += (q.team2Goals || 0);
+          // 累加积分（每节：胜3分，平1分，负0分）
+          totalTeam1Score += (q.team1Points || 0);
+          totalTeam2Score += (q.team2Points || 0);
         });
       }
 
       // 更新比赛信息，默认显示第一节
+      // team1Score/team2Score 显示累计积分，team1TotalGoals/team2TotalGoals 显示总进球数
       this.setData({
         'matchInfo.events': events,
         'matchInfo.quarterEvents': quarterEvents, // 按节次分组的事件
         'matchInfo.result': result,
-        'matchInfo.team1Score': totalTeam1Goals || matchInfo.team1Score || 0,
-        'matchInfo.team2Score': totalTeam2Goals || matchInfo.team2Score || 0,
+        'matchInfo.team1Score': totalTeam1Score || matchInfo.team1Score || 0,
+        'matchInfo.team2Score': totalTeam2Score || matchInfo.team2Score || 0,
+        'matchInfo.team1TotalGoals': totalTeam1Goals,
+        'matchInfo.team2TotalGoals': totalTeam2Goals,
         currentQuarter: quarterEvents.length > 0 ? quarterEvents[0].quarterNumber : 1
       });
 

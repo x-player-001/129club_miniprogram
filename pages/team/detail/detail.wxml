@@ -6,9 +6,15 @@
       <image src="{{teamInfo.logo || images.defaultTeam}}" mode="aspectFit"></image>
     </view>
     <view class="team-name">{{teamInfo.name}}</view>
-    <view class="team-captain">
-      <image class="crown" src="{{icons.crown}}" mode="aspectFit"></image>
-      <text>队长：{{teamInfo.captainName}}</text>
+    <view class="team-captain-jersey">
+      <view class="team-captain">
+        <image class="crown" src="{{icons.crown}}" mode="aspectFit"></image>
+        <text>队长：{{teamInfo.captainName}}</text>
+      </view>
+      <view wx:if="{{teamInfo.jerseyImage}}" class="team-jersey-wrapper">
+        <text class="jersey-label">队服：</text>
+        <image class="team-jersey-img" src="{{teamInfo.jerseyImage}}" mode="aspectFit"></image>
+      </view>
     </view>
     <view class="season-info">{{teamInfo.season}}</view>
     

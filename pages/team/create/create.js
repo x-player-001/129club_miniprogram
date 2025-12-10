@@ -11,7 +11,8 @@ Page({
       name: '',
       logo: '',
       color: '#b51316',
-      captainId: ''
+      captainId: '',
+      jerseyImage: '' // 球衣图片
     },
     colorList: [
       '#b51316', '#8742a3', '#0a7ea3', '#e67e22', '#27ae60',
@@ -85,13 +86,24 @@ Page({
         this.setData({ users });
       }
 
+      // 处理球衣图片路径
+      let jerseyImageUrl = '';
+      if (team.jerseyImage) {
+        if (team.jerseyImage.startsWith('http')) {
+          jerseyImageUrl = team.jerseyImage;
+        } else {
+          jerseyImageUrl = config.getStaticUrl(team.jerseyImage, 'images');
+        }
+      }
+
       // 设置表单数据
       this.setData({
         formData: {
           name: team.name,
           logo: logoUrl, // 使用完整URL
           color: team.color || '#667eea',
-          captainId: team.captainId || ''
+          captainId: team.captainId || '',
+          jerseyImage: jerseyImageUrl
         }
       });
 
@@ -209,6 +221,53 @@ Page({
     });
   },
 
+  // 选择球衣图片
+  onChooseJersey() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const tempFilePath = res.tempFilePaths[0];
+        wx.showLoading({ title: '上传中...' });
+        this.uploadJersey(tempFilePath);
+      }
+    });
+  },
+
+  // 上传球衣图片
+  uploadJersey(filePath) {
+    const { uploadFile } = require('../../../utils/request.js');
+
+    uploadFile('/upload/photo', filePath, 'photo', { category: 'jerseys' })
+      .then(res => {
+        wx.hideLoading();
+        if (res.data && res.data.url) {
+          const jerseyUrl = config.getStaticUrl(res.data.url, 'images');
+          this.setData({
+            'formData.jerseyImage': jerseyUrl
+          });
+          wx.showToast({
+            title: '上传成功',
+            icon: 'success'
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        wx.showToast({
+          title: '上传失败',
+          icon: 'none'
+        });
+        console.error('上传球衣图片失败:', err);
+      });
+  },
+
+  // 删除球衣图片
+  onDeleteJersey() {
+    this.setData({ 'formData.jerseyImage': '' });
+  },
+
   // 表单验证
   validateForm() {
     const { name } = this.data.formData;
@@ -269,13 +328,18 @@ Page({
     // 处理logo - 如果是完整URL，提取路径部分
     let logoPath = formData.logo;
     if (logoPath && (logoPath.startsWith('http://') || logoPath.startsWith('https://'))) {
-      // 微信小程序不支持 URL 构造函数，使用字符串方法提取路径
-      // 例如: https://api.129club.cloud/images/cjhh.png -> /images/cjhh.png
       const urlParts = logoPath.split('/');
-      // urlParts = ['https:', '', 'api.129club.cloud', 'images', 'cjhh.png']
-      // 取从第3个元素开始的所有部分（跳过 'https:', '', 'api.129club.cloud'）
       if (urlParts.length > 3) {
         logoPath = '/' + urlParts.slice(3).join('/');
+      }
+    }
+
+    // 处理球衣图片 - 如果是完整URL，提取路径部分
+    let jerseyImagePath = formData.jerseyImage;
+    if (jerseyImagePath && (jerseyImagePath.startsWith('http://') || jerseyImagePath.startsWith('https://'))) {
+      const urlParts = jerseyImagePath.split('/');
+      if (urlParts.length > 3) {
+        jerseyImagePath = '/' + urlParts.slice(3).join('/');
       }
     }
 
@@ -283,7 +347,8 @@ Page({
       name: formData.name,
       logo: logoPath || undefined,
       color: formData.color,
-      captainId: formData.captainId || undefined
+      captainId: formData.captainId || undefined,
+      jerseyImage: jerseyImagePath || undefined
     };
 
     // 创建模式下添加 seasonId

@@ -34,7 +34,6 @@ Page({
         const cachedSeason = app.getCurrentSeason();
         if (cachedSeason && cachedSeason.name) {
           seasonName = cachedSeason.name;
-          console.log('[Team Matches] 从缓存读取赛季名称:', seasonName);
         }
       }
 

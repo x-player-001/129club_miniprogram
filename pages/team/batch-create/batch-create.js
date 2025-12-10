@@ -12,7 +12,8 @@ Page({
     team1: {
       name: '',
       captainId: '',
-      color: '#b51316' // 默认红色
+      color: '#b51316', // 默认红色
+      jerseyImage: '' // 球衣图片
     },
     team1CaptainName: '',
     showTeam1CaptainPicker: false,
@@ -21,7 +22,8 @@ Page({
     team2: {
       name: '',
       captainId: '',
-      color: '#924ab0' // 默认紫色
+      color: '#924ab0', // 默认紫色
+      jerseyImage: '' // 球衣图片
     },
     team2CaptainName: '',
     showTeam2CaptainPicker: false,
@@ -200,6 +202,79 @@ Page({
   },
 
   /**
+   * 选择队伍1球衣图片
+   */
+  onChooseTeam1Jersey() {
+    this.chooseJerseyImage('team1');
+  },
+
+  /**
+   * 选择队伍2球衣图片
+   */
+  onChooseTeam2Jersey() {
+    this.chooseJerseyImage('team2');
+  },
+
+  /**
+   * 删除队伍1球衣图片
+   */
+  onDeleteTeam1Jersey() {
+    this.setData({ 'team1.jerseyImage': '' });
+  },
+
+  /**
+   * 删除队伍2球衣图片
+   */
+  onDeleteTeam2Jersey() {
+    this.setData({ 'team2.jerseyImage': '' });
+  },
+
+  /**
+   * 选择球衣图片通用方法
+   */
+  chooseJerseyImage(teamKey) {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const tempFilePath = res.tempFilePaths[0];
+        // 上传图片
+        this.uploadJerseyImage(tempFilePath, teamKey);
+      }
+    });
+  },
+
+  /**
+   * 上传球衣图片
+   */
+  uploadJerseyImage(filePath, teamKey) {
+    wx.showLoading({ title: '上传中...' });
+
+    const uploadAPI = require('../../../api/upload.js');
+    uploadAPI.uploadImage(filePath)
+      .then(res => {
+        wx.hideLoading();
+        const imageUrl = res.data?.url || res.url || res.data;
+        this.setData({
+          [`${teamKey}.jerseyImage`]: imageUrl
+        });
+        wx.showToast({
+          title: '上传成功',
+          icon: 'success'
+        });
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('上传球衣图片失败:', err);
+        wx.showToast({
+          title: err.message || '上传失败',
+          icon: 'none'
+        });
+      });
+  },
+
+  /**
    * 表单验证
    */
   validateForm() {
@@ -285,12 +360,15 @@ Page({
 
     const submitData = {
       season: seasonName,
+      seasonId: this.data.seasonId,
       team1Name: team1.name,
       team1CaptainId: team1.captainId,
       team1Color: team1.color,
+      team1JerseyImage: team1.jerseyImage || '',
       team2Name: team2.name,
       team2CaptainId: team2.captainId,
-      team2Color: team2.color
+      team2Color: team2.color,
+      team2JerseyImage: team2.jerseyImage || ''
     };
 
     teamAPI.batchCreateTwoTeams(submitData)

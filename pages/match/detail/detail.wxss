@@ -89,6 +89,23 @@
   letter-spacing: 1rpx;
 }
 
+/* 球衣列 */
+.jersey-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 80rpx;
+}
+
+/* 球衣图片 */
+.team-jersey {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 8rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
 .team-stat-badge {
   display: flex;
   align-items: baseline;

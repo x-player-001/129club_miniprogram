@@ -142,10 +142,21 @@ Page({
       const members = teamInfo.members || [];
       const membersCardData = this.formatMembersData(members, teamInfo);
 
+      // 处理球衣图片URL
+      let jerseyImageUrl = '';
+      if (teamInfo.jerseyImage) {
+        if (teamInfo.jerseyImage.startsWith('http')) {
+          jerseyImageUrl = teamInfo.jerseyImage;
+        } else {
+          jerseyImageUrl = config.getStaticUrl(teamInfo.jerseyImage, 'images');
+        }
+      }
+
       this.setData({
         teamInfo: {
           ...teamInfo,
           logo: getTeamLogoUrl(teamInfo.logo),
+          jerseyImage: jerseyImageUrl,
           captainName: teamInfo.captain?.realName || teamInfo.captain?.nickname || '未设置',
           colorDark: this.darkenColor(teamInfo.color || '#667eea')
         },

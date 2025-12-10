@@ -63,6 +63,24 @@
           <image class="arrow-icon" src="{{icons.arrowRight}}" mode="aspectFit"></image>
         </view>
       </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">球衣图片</text>
+        </view>
+        <view class="jersey-upload">
+          <view wx:if="{{!team1.jerseyImage}}" class="upload-btn" bindtap="onChooseTeam1Jersey">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">上传球衣</text>
+          </view>
+          <view wx:else class="jersey-preview">
+            <image class="jersey-image" src="{{team1.jerseyImage}}" mode="aspectFit"></image>
+            <view class="delete-btn" catchtap="onDeleteTeam1Jersey">
+              <text class="delete-icon">×</text>
+            </view>
+          </view>
+        </view>
+      </view>
     </view>
 
     <!-- 队伍2表单 -->
@@ -113,6 +131,24 @@
             {{team2CaptainName || '请选择队长'}}
           </view>
           <image class="arrow-icon" src="{{icons.arrowRight}}" mode="aspectFit"></image>
+        </view>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">球衣图片</text>
+        </view>
+        <view class="jersey-upload">
+          <view wx:if="{{!team2.jerseyImage}}" class="upload-btn" bindtap="onChooseTeam2Jersey">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">上传球衣</text>
+          </view>
+          <view wx:else class="jersey-preview">
+            <image class="jersey-image" src="{{team2.jerseyImage}}" mode="aspectFit"></image>
+            <view class="delete-btn" catchtap="onDeleteTeam2Jersey">
+              <text class="delete-icon">×</text>
+            </view>
+          </view>
         </view>
       </view>
     </view>

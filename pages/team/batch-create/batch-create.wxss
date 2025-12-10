@@ -279,3 +279,70 @@ button::after {
 .submit-btn:active {
   opacity: 0.8;
 }
+
+/* 球衣图片上传 */
+.jersey-upload {
+  margin-top: 8rpx;
+}
+
+.upload-btn {
+  width: 160rpx;
+  height: 160rpx;
+  background: #f8f9fa;
+  border: 2rpx dashed #d0d0d0;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  transition: all 0.3s;
+}
+
+.upload-btn:active {
+  background: #e9ecef;
+  border-color: var(--theme-color);
+}
+
+.upload-icon {
+  font-size: 48rpx;
+  color: #95a5a6;
+  font-weight: 300;
+}
+
+.upload-text {
+  font-size: 22rpx;
+  color: #95a5a6;
+}
+
+.jersey-preview {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+}
+
+.jersey-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 16rpx;
+  background: #f8f9fa;
+}
+
+.delete-btn {
+  position: absolute;
+  top: -16rpx;
+  right: -16rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-icon {
+  font-size: 28rpx;
+  color: #ffffff;
+  font-weight: 500;
+}

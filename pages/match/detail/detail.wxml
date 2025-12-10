@@ -8,6 +8,7 @@
     <view class="match-hero-card" data-status="{{matchInfo.status}}">
       <!-- 对阵信息 -->
       <view class="match-vs">
+        <!-- 队伍1信息列 -->
         <view class="team-section">
           <view class="team-logo-wrapper">
             <image class="team-logo-large" src="{{matchInfo.team1.logo}}" mode="aspectFit"></image>
@@ -20,6 +21,12 @@
           </view>
         </view>
 
+        <!-- 队伍1球衣列 -->
+        <view class="jersey-column" wx:if="{{matchInfo.team1.jerseyImage}}">
+          <image class="team-jersey" src="{{matchInfo.team1.jerseyImage}}" mode="aspectFit"></image>
+        </view>
+
+        <!-- VS区域 -->
         <view class="vs-section">
           <text class="vs-text">VS</text>
           <view class="match-status status-{{matchInfo.status}}">
@@ -27,6 +34,12 @@
           </view>
         </view>
 
+        <!-- 队伍2球衣列 -->
+        <view class="jersey-column" wx:if="{{matchInfo.team2.jerseyImage}}">
+          <image class="team-jersey" src="{{matchInfo.team2.jerseyImage}}" mode="aspectFit"></image>
+        </view>
+
+        <!-- 队伍2信息列 -->
         <view class="team-section">
           <view class="team-logo-wrapper">
             <image class="team-logo-large" src="{{matchInfo.team2.logo}}" mode="aspectFit"></image>

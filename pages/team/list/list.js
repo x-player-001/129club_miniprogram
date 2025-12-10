@@ -155,8 +155,8 @@ Page({
   },
 
   loadHistoryTeams() {
-    // 根据选中的赛季筛选历史队伍（归档状态）
-    const params = { status: 'archived' };
+    // 根据选中的赛季筛选历史队伍
+    const params = {};
     if (this.data.selectedSeasonId) {
       params.seasonId = this.data.selectedSeasonId;
     }
