@@ -5,6 +5,7 @@ const match = require('./match');
 const stats = require('./stats');
 const notice = require('./notice');
 const season = require('./season');
+const shareConfig = require('./share-config');
 
 // 导出请求工具函数供其他API模块使用
 const { uploadFile, post: postRequest } = require('../utils/request');
@@ -16,6 +17,7 @@ module.exports = {
   stats,
   notice,
   season,
+  shareConfig,
   uploadFile,
   postRequest
 };

@@ -42,6 +42,11 @@ Component({
     team2SelectablePlayers: {
       type: Array,
       value: []
+    },
+    // 未分配队伍的球员分组（两队共享）
+    unassignedPlayersGroup: {
+      type: Object,
+      value: null
     }
   },
 
@@ -402,9 +407,9 @@ Component({
       });
     },
 
-    // 过滤球员分组（根据队伍，包含虚拟球员）
+    // 过滤球员分组（根据队伍，包含虚拟球员和未分配队伍球员）
     filterPlayerGroups(teamId) {
-      const { team1, team2, team1SelectablePlayers, team2SelectablePlayers } = this.properties;
+      const { team1, team2, team1SelectablePlayers, team2SelectablePlayers, unassignedPlayersGroup } = this.properties;
 
       // 根据 teamId 选择对应队伍的分组数据
       const sourceGroups = teamId === team1.id ? team1SelectablePlayers : team2SelectablePlayers;
@@ -412,7 +417,14 @@ Component({
       if (!sourceGroups || sourceGroups.length === 0) return [];
 
       // 事件录入需要包含所有球员（包括虚拟球员）
-      return sourceGroups.filter(group => group.players && group.players.length > 0);
+      const result = sourceGroups.filter(group => group.players && group.players.length > 0);
+
+      // 追加未分配队伍的球员分组（放在最后，两队共享）
+      if (unassignedPlayersGroup && unassignedPlayersGroup.players && unassignedPlayersGroup.players.length > 0) {
+        result.push(unassignedPlayersGroup);
+      }
+
+      return result;
     },
 
     // 显示球员选择器
@@ -564,7 +576,7 @@ Component({
      */
     onShowRolePicker(e) {
       const role = e.currentTarget.dataset.role;
-      const { team1SelectablePlayers, team2SelectablePlayers } = this.properties;
+      const { team1SelectablePlayers, team2SelectablePlayers, unassignedPlayersGroup } = this.properties;
       const { roles } = this.data;
 
       // 合并两队球员（裁判可以从任意球员中选择，守门员只能从对应队伍选择）
@@ -605,6 +617,19 @@ Component({
             players: group.players
           });
         });
+
+        // 追加未分配队伍的球员（裁判可以从未分配球员中选择）
+        if (unassignedPlayersGroup && unassignedPlayersGroup.players && unassignedPlayersGroup.players.length > 0) {
+          // 过滤虚拟球员
+          const filteredUnassigned = unassignedPlayersGroup.players.filter(p => p.playerStatus !== 'virtual');
+          if (filteredUnassigned.length > 0) {
+            allPlayersForRole.push({
+              label: unassignedPlayersGroup.label || '未分配队伍',
+              count: filteredUnassigned.length,
+              players: filteredUnassigned
+            });
+          }
+        }
 
         // 设置标题
         if (role === 'mainReferee') {

@@ -1,6 +1,7 @@
 // pages/match/detail/detail.js
 const app = getApp();
 const matchAPI = require('../../../api/match.js');
+const shareConfigAPI = require('../../../api/share-config.js');
 const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
 const config = require('../../../utils/config.js');
 
@@ -23,6 +24,8 @@ Page({
     isOpponentTeam: false, // 是否正在查看对手队伍
     _isFirstLoad: true, // 标记是否首次加载
     needRefresh: false, // 标记是否需要刷新
+    // 分享配置
+    shareConfig: null,
     // 图片URL
     images: {
       defaultAvatar: config.getImageUrl('default-avatar.png')
@@ -47,6 +50,7 @@ Page({
         console.log('[Match Detail] App ready, 准备加载数据');
         this.data._isFirstLoad = false;
         this.loadMatchDetail();
+        this.loadShareConfig(); // 加载分享配置
       });
     } else {
       console.error('[Match Detail] onLoad 没有收到 id 参数!');
@@ -825,9 +829,51 @@ Page({
     });
   },
 
+  // 加载分享配置
+  loadShareConfig() {
+    shareConfigAPI.getActiveConfig().then(res => {
+      if (res.data) {
+        this.setData({ shareConfig: res.data });
+        console.log('[Match Detail] 分享配置已加载:', res.data);
+      }
+    }).catch(err => {
+      console.log('[Match Detail] 加载分享配置失败，使用默认配置:', err);
+    });
+  },
+
+  // 替换分享标题中的占位符
+  replaceSharePlaceholders(template, matchInfo) {
+    if (!template) return null;
+
+    const team1Count = matchInfo.team1RegisteredCount || 0;
+    const team2Count = matchInfo.team2RegisteredCount || 0;
+    const totalRegistered = team1Count + team2Count;
+
+    // 格式化日期
+    let matchDate = '';
+    if (matchInfo.dateMonth && matchInfo.dateDay) {
+      matchDate = `${matchInfo.dateMonth}${matchInfo.dateDay}日`;
+    } else if (matchInfo.date) {
+      const d = new Date(matchInfo.date);
+      matchDate = `${d.getMonth() + 1}月${d.getDate()}日`;
+    }
+
+    return template
+      .replace(/\{matchTitle\}/g, matchInfo.title || '')
+      .replace(/\{totalRegistered\}/g, totalRegistered)
+      .replace(/\{team1Count\}/g, team1Count)
+      .replace(/\{team2Count\}/g, team2Count)
+      .replace(/\{matchDate\}/g, matchDate);
+  },
+
   // 获取分享图片URL（根据比赛状态）
   getShareImageUrl(status, customImage) {
-    // 优先使用自定义图片
+    // 优先使用分享配置中的图片
+    if (this.data.shareConfig && this.data.shareConfig.imageUrl) {
+      return this.data.shareConfig.imageUrl;
+    }
+
+    // 其次使用自定义图片
     if (customImage) {
       return config.getStaticUrl(customImage, 'shareImages');
     }
@@ -845,20 +891,20 @@ Page({
   // 分享比赛
   onShareAppMessage() {
     const matchInfo = this.data.matchInfo;
+    const { shareConfig } = this.data;
 
-    // 根据比赛状态生成不同的分享标题
+    // 优先使用分享配置中的自定义标题（仅对未开始的比赛生效）
     let title = '';
 
     if (matchInfo.status === 'upcoming') {
-      // 未开始的比赛
-      const team1Count = matchInfo.team1RegisteredCount || 0;
-      const team2Count = matchInfo.team2RegisteredCount || 0;
-      const totalRegistered = team1Count + team2Count;
-      const maxTotal = (matchInfo.maxPlayersPerTeam || 11) * 2;
-
-      if (totalRegistered >= maxTotal) {
-        title = `⚽ ${matchInfo.title} | 报名已满，等你来战！`;
+      // 未开始的比赛：优先使用自定义配置
+      if (shareConfig && shareConfig.title) {
+        title = this.replaceSharePlaceholders(shareConfig.title, matchInfo);
       } else {
+        // 默认标题
+        const team1Count = matchInfo.team1RegisteredCount || 0;
+        const team2Count = matchInfo.team2RegisteredCount || 0;
+        const totalRegistered = team1Count + team2Count;
         title = `⚽ ${matchInfo.title} | 已集结${totalRegistered}人，快来报名！`;
       }
     } else if (matchInfo.status === 'ongoing') {

@@ -432,19 +432,11 @@
 /* 空事件提示 */
 .empty-events {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 16rpx;
-  padding: 80rpx 20rpx;
+  justify-content: center;
+  padding: 32rpx 20rpx;
   background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(10rpx);
-  border-radius: 20rpx;
-  border: 2rpx dashed #dfe6e9;
-}
-
-.empty-events .empty-icon {
-  font-size: 80rpx;
-  opacity: 0.25;
+  border-radius: 16rpx;
 }
 
 .empty-events .empty-text {
@@ -821,12 +813,12 @@
 
 /* 缺席球员样式 */
 .player-card-mini.absent .player-avatar-mini {
-  filter: grayscale(100%);
   opacity: 0.5;
 }
 
 .player-card-mini.absent .player-name-mini {
-  color: #bdc3c7;
+  color: #95a5a6;
+  opacity: 0.7;
 }
 
 .player-card-mini.absent .jersey-badge {

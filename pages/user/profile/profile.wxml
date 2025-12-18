@@ -98,6 +98,15 @@
           type="notice"
           bind:tap="onMenuItemTap">
         </menu-item>
+
+        <!-- 分享配置（仅超级管理员可见） -->
+        <menu-item
+          wx:if="{{isSuperAdmin}}"
+          icon="{{icons.share}}"
+          text="分享配置"
+          type="share-config"
+          bind:tap="onMenuItemTap">
+        </menu-item>
       </view>
     </view>
 

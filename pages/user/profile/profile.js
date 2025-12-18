@@ -8,6 +8,7 @@ const config = require('../../../utils/config.js');
 Page({
   data: {
     isLogin: false, // 是否登录
+    isSuperAdmin: false, // 是否超级管理员
     userInfo: {},
     currentTeam: null,
     personalStats: {},
@@ -22,7 +23,8 @@ Page({
       message: config.getIconUrl('message.png'),
       notice: config.getIconUrl('notice.png'),
       setting: config.getIconUrl('setting.png'),
-      jersey: config.getIconUrl('jersey.png') // 暂时使用team图标代替号码墙图标
+      jersey: config.getIconUrl('jersey.png'), // 暂时使用team图标代替号码墙图标
+      share: config.getIconUrl('share.png') // 分享图标
     },
     // 图片URL
     images: {
@@ -44,7 +46,13 @@ Page({
   // 检查登录状态并加载数据
   checkLoginAndLoad() {
     const isLogin = app.globalData.isLogin;
-    this.setData({ isLogin });
+    const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
+    const isSuperAdmin = userInfo && userInfo.role === 'super_admin';
+
+    this.setData({
+      isLogin,
+      isSuperAdmin
+    });
 
     if (isLogin) {
       this.loadPageData();
@@ -411,6 +419,11 @@ Page({
       case 'about':
         wx.navigateTo({
           url: '/pages/about/about'
+        });
+        break;
+      case 'share-config':
+        wx.navigateTo({
+          url: '/pages/admin/share-config/share-config'
         });
         break;
     }

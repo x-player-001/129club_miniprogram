@@ -31,7 +31,8 @@
     "pages/stats/ranking/ranking",
     "pages/stats/team-compare/team-compare",
     "pages/notice/list/list",
-    "pages/notice/detail/detail"
+    "pages/notice/detail/detail",
+    "pages/admin/share-config/share-config"
   ],
   "window": {
     "backgroundTextStyle": "dark",

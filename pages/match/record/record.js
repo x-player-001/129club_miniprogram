@@ -80,6 +80,7 @@ Page({
     team2SelectablePlayers: [], // 队伍2可选球员（完整分组数据，包含虚拟球员）
     team1PlayerGroups: [], // 队伍1球员分组（已报名/未报名/虚拟）- 用于临时显示
     team2PlayerGroups: [], // 队伍2球员分组（已报名/未报名/虚拟）- 用于临时显示
+    unassignedPlayersGroup: null, // 未分配队伍的球员分组（全局共享，两队通用）
 
     // MVP
     mvpUserIds: [],
@@ -307,10 +308,17 @@ Page({
         matchAPI.getSelectablePlayers(this.data.matchId, matchInfo.team2.id)
       ]).then(([team1Res, team2Res]) => {
         // 转换球员数据格式，构建分组数据
-        const team1SelectablePlayers = this.buildPlayerGroups(team1Res.data, matchInfo.team1.id);
-        const team2SelectablePlayers = this.buildPlayerGroups(team2Res.data, matchInfo.team2.id);
+        const team1Result = this.buildPlayerGroups(team1Res.data, matchInfo.team1.id);
+        const team2Result = this.buildPlayerGroups(team2Res.data, matchInfo.team2.id);
 
-        console.log(`[Record] 预加载可选球员 - 队伍1: ${team1SelectablePlayers.length}组, 队伍2: ${team2SelectablePlayers.length}组`);
+        // 队伍专属分组
+        const team1SelectablePlayers = team1Result.groups;
+        const team2SelectablePlayers = team2Result.groups;
+
+        // 未分配队伍球员（两队共享，取任一个即可）
+        const unassignedPlayersGroup = team1Result.unassignedGroup || team2Result.unassignedGroup;
+
+        console.log(`[Record] 预加载可选球员 - 队伍1: ${team1SelectablePlayers.length}组, 队伍2: ${team2SelectablePlayers.length}组, 未分配: ${unassignedPlayersGroup ? unassignedPlayersGroup.players.length : 0}人`);
 
         this.setData({
           matchInfo,
@@ -322,6 +330,7 @@ Page({
           team2RegisteredIds,
           team1SelectablePlayers, // 保存完整分组数据
           team2SelectablePlayers,
+          unassignedPlayersGroup, // 未分配队伍球员（两队共享）
           quarters: savedQuarters,
           currentStep: currentStep,
           // 设置到场人员（已保存的或默认的）
@@ -736,8 +745,10 @@ Page({
   },
 
   // 构建球员分组数据（从 API 返回的数据转换为组件需要的格式）
+  // 返回 { groups: [], unassignedGroup: null }
   buildPlayerGroups(apiData, teamId) {
     const groups = [];
+    let unassignedGroup = null;
 
     // 已报名球员
     if (apiData.registeredPlayers && apiData.registeredPlayers.length > 0) {
@@ -787,7 +798,23 @@ Page({
       });
     }
 
-    return groups;
+    // 未分配队伍的球员（单独返回，不加入分组，因为两队共享）
+    if (apiData.unassignedPlayers && apiData.unassignedPlayers.length > 0) {
+      unassignedGroup = {
+        label: apiData.categories?.unassigned?.label || '未分配队伍',
+        count: apiData.categories?.unassigned?.count || apiData.unassignedPlayers.length,
+        players: apiData.unassignedPlayers.map(p => ({
+          id: p.id,
+          name: p.realName || p.nickname,
+          nickname: p.nickname,
+          avatar: config.getStaticUrl(p.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
+          jerseyNumber: p.jerseyNumber || 0,
+          playerStatus: p.playerStatus || 'unassigned' // 标记为未分配队伍
+        }))
+      };
+    }
+
+    return { groups, unassignedGroup };
   },
 
   // 处理已录入的节次数据
@@ -1079,6 +1106,11 @@ Page({
         players: filteredPlayers
       };
     }).filter(group => group.players.length > 0); // 移除空分组
+
+    // 追加未分配队伍的球员分组（放在最后，两队共享）
+    if (this.data.unassignedPlayersGroup && this.data.unassignedPlayersGroup.players.length > 0) {
+      filteredGroups.push(this.data.unassignedPlayersGroup);
+    }
 
     this.setData({
       showParticipantPicker: true,

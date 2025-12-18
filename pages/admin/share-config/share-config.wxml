@@ -1,0 +1,143 @@
+<!-- 分享配置管理页面 -->
+<view class="share-config-container">
+  <!-- 加载中 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-icon"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view wx:else>
+    <!-- 当前配置预览 -->
+    <view class="preview-section">
+      <view class="section-header">
+        <text class="section-title">分享预览</text>
+        <text class="section-tip">预览效果与实际分享可能略有差异</text>
+      </view>
+
+      <view class="share-preview-card">
+        <view class="preview-title-wrapper">
+          <text class="preview-title">{{previewTitle || '⚽ 周末友谊赛 | 已集结16人，快来报名！'}}</text>
+        </view>
+        <view class="preview-image-wrapper">
+          <image
+            class="preview-image"
+            src="{{previewImage || images.defaultShare}}"
+            mode="aspectFill">
+          </image>
+          <view class="preview-overlay" wx:if="{{!previewImage}}">
+            <text class="overlay-text">默认图片</text>
+          </view>
+        </view>
+      </view>
+      <view class="preview-note">
+        <text>预览使用模拟数据：比赛标题=周末友谊赛，报名人数=16人</text>
+      </view>
+    </view>
+
+    <!-- 编辑区域 -->
+    <view class="edit-section">
+      <view class="section-header">
+        <text class="section-title">配置编辑</text>
+      </view>
+
+      <!-- 标题输入 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">分享标题</text>
+          <text class="label-tip">选填，留空使用默认</text>
+        </view>
+        <input
+          class="form-input"
+          type="text"
+          placeholder="请输入分享标题"
+          value="{{editConfig.title}}"
+          bindinput="onTitleInput"
+          maxlength="80">
+        </input>
+        <text class="char-count">{{editConfig.title.length || 0}}/80</text>
+      </view>
+
+      <!-- 占位符说明 -->
+      <view class="placeholder-tips">
+        <view class="tips-header">
+          <text class="tips-title">可用占位符</text>
+          <text class="tips-desc">点击自动插入到标题末尾</text>
+        </view>
+        <view class="placeholder-list">
+          <view class="placeholder-item" bindtap="onInsertPlaceholder" data-placeholder="{matchTitle}">
+            <text class="ph-tag">{matchTitle}</text>
+            <text class="ph-desc">比赛标题</text>
+          </view>
+          <view class="placeholder-item" bindtap="onInsertPlaceholder" data-placeholder="{totalRegistered}">
+            <text class="ph-tag">{totalRegistered}</text>
+            <text class="ph-desc">总报名人数</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 图片选择 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text class="label-text">分享图片</text>
+          <text class="label-tip">选填，建议比例 5:4</text>
+        </view>
+
+        <view class="image-picker">
+          <view class="picker-preview" wx:if="{{previewImage}}" bindtap="onPreviewImage">
+            <image class="picker-image" src="{{previewImage}}" mode="aspectFill"></image>
+            <view class="delete-btn" catchtap="onDeleteImage">
+              <text class="delete-icon">×</text>
+            </view>
+          </view>
+          <view class="picker-add" wx:else bindtap="chooseFromAlbum">
+            <text class="add-icon">+</text>
+            <text class="add-text">添加图片</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-section">
+      <view class="action-btn reset-btn" bindtap="onResetDefault">
+        <text>重置为默认</text>
+      </view>
+      <view class="action-btn save-btn {{submitting ? 'disabled' : ''}}" bindtap="onSubmit">
+        <text>{{submitting ? '保存中...' : '保存配置'}}</text>
+      </view>
+    </view>
+
+    <!-- 历史配置 -->
+    <view class="history-section" wx:if="{{historyList.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">历史配置</text>
+        <text class="section-tip">点击可恢复</text>
+      </view>
+
+      <view class="history-list">
+        <view
+          class="history-item {{item.isActive ? 'active' : ''}}"
+          wx:for="{{historyList}}"
+          wx:key="id"
+          bindtap="onRestoreHistory"
+          data-index="{{index}}">
+          <view class="history-image-wrapper">
+            <image
+              class="history-image"
+              src="{{item.imageUrl || images.defaultShare}}"
+              mode="aspectFill">
+            </image>
+            <view class="active-badge" wx:if="{{item.isActive}}">当前</view>
+          </view>
+          <view class="history-info">
+            <text class="history-title">{{item.title || '（默认标题）'}}</text>
+            <text class="history-time">{{item.createdAt}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-space"></view>
+  </view>
+</view>

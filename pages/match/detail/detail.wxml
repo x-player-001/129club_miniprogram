@@ -117,29 +117,28 @@
           </view>
         </view>
 
+        <!-- 队伍名称、比分和守门员（始终显示） -->
+        <view class="quarter-teams-header">
+          <view class="team-with-gk">
+            <text class="team-name-left">{{matchInfo.team1.name}}</text>
+            <text class="gk-info" wx:if="{{item.team1Goalkeeper}}">🧤{{item.team1Goalkeeper.realName || item.team1Goalkeeper.nickname}}</text>
+          </view>
+          <text class="score-display">{{item.team1Score}} : {{item.team2Score}}</text>
+          <view class="team-with-gk team-right">
+            <text class="gk-info" wx:if="{{item.team2Goalkeeper}}">🧤{{item.team2Goalkeeper.realName || item.team2Goalkeeper.nickname}}</text>
+            <text class="team-name-right">{{matchInfo.team2.name}}</text>
+          </view>
+        </view>
+
         <!-- 该节次的事件时间轴 -->
         <view class="timeline-wrapper" wx:if="{{item.events.length > 0}}">
-          <!-- 队伍名称和守门员 -->
-          <view class="quarter-teams-header">
-            <view class="team-with-gk">
-              <text class="team-name-left">{{matchInfo.team1.name}}</text>
-              <text class="gk-info" wx:if="{{item.team1Goalkeeper}}">🧤{{item.team1Goalkeeper.realName || item.team1Goalkeeper.nickname}}</text>
-            </view>
-            <text class="score-display">{{item.team1Score}} : {{item.team2Score}}</text>
-            <view class="team-with-gk team-right">
-              <text class="gk-info" wx:if="{{item.team2Goalkeeper}}">🧤{{item.team2Goalkeeper.realName || item.team2Goalkeeper.nickname}}</text>
-              <text class="team-name-right">{{matchInfo.team2.name}}</text>
-            </view>
-          </view>
-
           <event-timeline events="{{item.events}}" team1="{{matchInfo.team1}}" team2="{{matchInfo.team2}}" showActions="{{false}}">
           </event-timeline>
         </view>
 
-        <!-- 无事件提示 -->
+        <!-- 无进球事件提示 -->
         <view class="empty-events" wx:else>
-          <text class="empty-icon">📋</text>
-          <text class="empty-text">本节暂无数据</text>
+          <text class="empty-text">本节无进球事件</text>
         </view>
       </view>
 

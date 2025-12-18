@@ -54,6 +54,7 @@
         all-players="{{allPlayers}}"
         team1-selectable-players="{{team1SelectablePlayers}}"
         team2-selectable-players="{{team2SelectablePlayers}}"
+        unassigned-players-group="{{unassignedPlayersGroup}}"
         bind:change="onQuarterChange"
         bind:saved="onQuarterSaved"
       />
