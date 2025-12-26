@@ -107,6 +107,15 @@
           type="share-config"
           bind:tap="onMenuItemTap">
         </menu-item>
+
+        <!-- 身价录入（仅超级管理员可见） -->
+        <menu-item
+          wx:if="{{isSuperAdmin}}"
+          icon="{{icons.valueInput}}"
+          text="身价录入"
+          type="value-input"
+          bind:tap="onMenuItemTap">
+        </menu-item>
       </view>
     </view>
 

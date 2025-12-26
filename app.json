@@ -30,9 +30,11 @@
     "pages/stats/overview/overview",
     "pages/stats/ranking/ranking",
     "pages/stats/team-compare/team-compare",
+    "pages/stats/value-detail/value-detail",
     "pages/notice/list/list",
     "pages/notice/detail/detail",
-    "pages/admin/share-config/share-config"
+    "pages/admin/share-config/share-config",
+    "pages/admin/value-input/value-input"
   ],
   "window": {
     "backgroundTextStyle": "dark",

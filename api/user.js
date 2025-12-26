@@ -54,11 +54,20 @@ function getJerseyNumbers() {
   return get('/user/jersey-numbers');
 }
 
+/**
+ * 搜索用户
+ * @param {Object} params 搜索参数 { keyword, limit }
+ */
+function searchUsers(params = {}) {
+  return get('/user/search', params);
+}
+
 module.exports = {
   login,
   getUserInfo,
   updateUserInfo,
   getMemberList,
   getMemberDetail,
-  getJerseyNumbers
+  getJerseyNumbers,
+  searchUsers
 };

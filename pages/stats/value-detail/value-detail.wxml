@@ -1,0 +1,98 @@
+<!-- 身价明细页面 -->
+<view class="page-container">
+  <!-- 加载中 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-icon"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <block wx:else>
+    <!-- 用户信息卡片 -->
+    <view class="user-card">
+      <view class="user-info">
+        <image class="avatar" src="{{userInfo.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
+        <view class="user-text">
+          <view class="user-name">
+            <text class="name">{{userInfo.realName || userInfo.nickname || '未知'}}</text>
+            <text class="jersey" wx:if="{{userInfo.jerseyNumber}}">{{userInfo.jerseyNumber}}号</text>
+          </view>
+          <view class="user-rank" wx:if="{{valueOverview.rank > 0}}">
+            <text class="rank-icon">🏅</text>
+            <text class="rank-text">身价榜第 {{valueOverview.rank}} 名</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 总身价 -->
+      <view class="total-value">
+        <text class="value-number">{{valueOverview.totalValue}}</text>
+        <text class="value-unit">万</text>
+      </view>
+    </view>
+
+    <!-- 身价构成 -->
+    <view class="value-breakdown">
+      <view class="breakdown-title">身价构成</view>
+      <view class="breakdown-grid">
+        <view class="breakdown-item">
+          <text class="item-icon">⚽</text>
+          <text class="item-value">{{valueOverview.matchValue}}万</text>
+          <text class="item-label">比赛贡献</text>
+        </view>
+        <view class="breakdown-item">
+          <text class="item-icon">🛠️</text>
+          <text class="item-value">{{valueOverview.serviceValue}}万</text>
+          <text class="item-label">服务贡献</text>
+        </view>
+        <view class="breakdown-item">
+          <text class="item-icon">🎁</text>
+          <text class="item-value">{{valueOverview.specialValue}}万</text>
+          <text class="item-label">特殊奖励</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 身价明细列表 -->
+    <view class="records-section">
+      <view class="section-header">
+        <text class="section-title">身价明细</text>
+      </view>
+
+      <view class="records-list" wx:if="{{records.length > 0}}">
+        <view class="record-item" wx:for="{{records}}" wx:key="id">
+          <view class="record-icon" style="background: {{item.typeColor}}20; color: {{item.typeColor}}">
+            {{item.typeIcon}}
+          </view>
+          <view class="record-info">
+            <view class="record-main">
+              <text class="record-type">{{item.typeLabel}}</text>
+              <text class="record-match" wx:if="{{item.matchTitle}}">{{item.matchTitle}}</text>
+            </view>
+            <view class="record-sub">
+              <text class="record-desc" wx:if="{{item.description}}">{{item.description}}</text>
+              <text class="record-date">{{item.date}}</text>
+            </view>
+          </view>
+          <view class="record-amount {{item.isPositive ? 'positive' : 'negative'}}">
+            {{item.isPositive ? '+' : ''}}{{item.amount}}万
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{!loading && records.length === 0}}">
+        <text class="empty-icon">📊</text>
+        <text class="empty-text">暂无身价记录</text>
+      </view>
+
+      <!-- 加载更多 -->
+      <view class="load-more" wx:if="{{loadingMore}}">
+        <text>加载中...</text>
+      </view>
+      <view class="no-more" wx:if="{{!hasMore && records.length > 0}}">
+        <text>- 没有更多了 -</text>
+      </view>
+    </view>
+
+  </block>
+</view>

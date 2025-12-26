@@ -24,42 +24,65 @@
 
   <!-- 筛选器 -->
   <view class="filter-container">
-    <view class="filter-group">
-      <view
-        wx:for="{{scopeOptions}}"
-        wx:key="id"
-        class="filter-item {{scope === item.id ? 'active' : ''}}"
-        bindtap="onScopeChange"
-        data-scope="{{item.id}}">
-        {{item.name}}
-      </view>
-    </view>
-    <view class="season-picker">
-      <picker
-        mode="selector"
-        range="{{seasonOptions}}"
-        range-key="name"
-        value="{{seasonIndex}}"
-        bindchange="onSeasonChange">
-        <view class="picker-text">
-          {{seasonOptions[seasonIndex].name}}
-          <text class="picker-arrow">▼</text>
+    <!-- 非身价榜：显示范围和赛季筛选 -->
+    <block wx:if="{{rankType !== 'value'}}">
+      <view class="filter-group">
+        <view
+          wx:for="{{scopeOptions}}"
+          wx:key="id"
+          class="filter-item {{scope === item.id ? 'active' : ''}}"
+          bindtap="onScopeChange"
+          data-scope="{{item.id}}">
+          {{item.name}}
         </view>
-      </picker>
-    </view>
+      </view>
+      <view class="season-picker">
+        <picker
+          mode="selector"
+          range="{{seasonOptions}}"
+          range-key="name"
+          value="{{seasonIndex}}"
+          bindchange="onSeasonChange">
+          <view class="picker-text">
+            {{seasonOptions[seasonIndex].name}}
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+    </block>
+
+    <!-- 身价榜：显示俱乐部年度筛选 -->
+    <block wx:else>
+      <view class="filter-group">
+        <view class="filter-item active">年度身价排行</view>
+      </view>
+      <view class="season-picker" wx:if="{{clubYearOptions.length > 0}}">
+        <picker
+          mode="selector"
+          range="{{clubYearOptions}}"
+          range-key="name"
+          value="{{clubYearIndex}}"
+          bindchange="onClubYearChange">
+          <view class="picker-text">
+            {{clubYearOptions[clubYearIndex].name}}
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+    </block>
   </view>
 
   <!-- 领奖台区域 -->
   <view class="podium-container" wx:if="{{topThree.length > 0}}">
     <view class="podium-stage">
       <!-- 第二名 -->
-      <view class="podium-item rank-2" wx:if="{{topThree[1]}}">
+      <view class="podium-item rank-2" wx:if="{{topThree[1]}}" bindtap="onPlayerTap" data-id="{{topThree[1].id}}">
         <view class="player-avatar-wrapper">
           <image class="player-avatar" src="{{topThree[1].avatar}}" mode="aspectFill"></image>
           <view class="avatar-glow glow-silver"></view>
         </view>
         <view class="player-name">{{topThree[1].name}}</view>
-        <view class="player-team" style="color: {{topThree[1].teamColor}}">{{topThree[1].team}}</view>
+        <view class="player-team" wx:if="{{rankType !== 'value'}}" style="color: {{topThree[1].teamColor}}">{{topThree[1].team}}</view>
         <view class="player-value">
           <text class="value-number">{{topThree[1].value}}</text>
           <text class="value-unit" wx:if="{{rankType !== 'attendance'}}">{{getRankLabel()}}</text>
@@ -72,13 +95,13 @@
       </view>
 
       <!-- 第一名 -->
-      <view class="podium-item rank-1" wx:if="{{topThree[0]}}">
+      <view class="podium-item rank-1" wx:if="{{topThree[0]}}" bindtap="onPlayerTap" data-id="{{topThree[0].id}}">
         <view class="player-avatar-wrapper">
           <image class="player-avatar" src="{{topThree[0].avatar}}" mode="aspectFill"></image>
           <view class="avatar-glow glow-gold"></view>
         </view>
         <view class="player-name">{{topThree[0].name}}</view>
-        <view class="player-team" style="color: {{topThree[0].teamColor}}">{{topThree[0].team}}</view>
+        <view class="player-team" wx:if="{{rankType !== 'value'}}" style="color: {{topThree[0].teamColor}}">{{topThree[0].team}}</view>
         <view class="player-value">
           <text class="value-number">{{topThree[0].value}}</text>
           <text class="value-unit" wx:if="{{rankType !== 'attendance'}}">{{getRankLabel()}}</text>
@@ -91,13 +114,13 @@
       </view>
 
       <!-- 第三名 -->
-      <view class="podium-item rank-3" wx:if="{{topThree[2]}}">
+      <view class="podium-item rank-3" wx:if="{{topThree[2]}}" bindtap="onPlayerTap" data-id="{{topThree[2].id}}">
         <view class="player-avatar-wrapper">
           <image class="player-avatar" src="{{topThree[2].avatar}}" mode="aspectFill"></image>
           <view class="avatar-glow glow-bronze"></view>
         </view>
         <view class="player-name">{{topThree[2].name}}</view>
-        <view class="player-team" style="color: {{topThree[2].teamColor}}">{{topThree[2].team}}</view>
+        <view class="player-team" wx:if="{{rankType !== 'value'}}" style="color: {{topThree[2].teamColor}}">{{topThree[2].team}}</view>
         <view class="player-value">
           <text class="value-number">{{topThree[2].value}}</text>
           <text class="value-unit" wx:if="{{rankType !== 'attendance'}}">{{getRankLabel()}}</text>
@@ -138,7 +161,7 @@
             <text class="name">{{item.name}}</text>
             <view class="current-tag" wx:if="{{item.isCurrentUser}}">我</view>
           </view>
-          <view class="meta">
+          <view class="meta" wx:if="{{rankType !== 'value'}}">
             <text class="team" style="color: {{item.teamColor}}">{{item.team}}</text>
             <text class="matches">{{item.matches}}场</text>
           </view>

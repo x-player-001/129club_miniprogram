@@ -2,17 +2,19 @@
 const app = getApp();
 const statsAPI = require('../../../api/stats.js');
 const seasonAPI = require('../../../api/season.js');
+const valueAPI = require('../../../api/value.js');
 const config = require('../../../utils/config.js');
 
 Page({
   data: {
     // Tab类型
-    rankType: 'goals', // goals, assists, mvp, attendance
+    rankType: 'goals', // goals, assists, mvp, attendance, value
     rankTabs: [
       { id: 'goals', name: '射手榜', icon: '⚽' },
       { id: 'assists', name: '助攻榜', icon: '🎯' },
       { id: 'mvp', name: 'MVP榜', icon: '⭐' },
-      { id: 'attendance', name: '出勤榜', icon: '📅' }
+      { id: 'attendance', name: '出勤榜', icon: '📅' },
+      { id: 'value', name: '身价榜', icon: '💰' }
     ],
 
     // 筛选条件
@@ -25,6 +27,13 @@ Page({
     ],
     seasonOptions: [
       { id: 'all', name: '全部赛季' }
+    ],
+
+    // 身价榜专用：俱乐部年度筛选
+    clubYear: 'current', // current: 当前年度
+    clubYearIndex: 0,
+    clubYearOptions: [
+      { id: 'current', name: '当前年度' }
     ],
 
     // 排行榜数据
@@ -53,6 +62,11 @@ Page({
 
     // 加载赛季列表
     this.loadSeasons();
+
+    // 如果是身价榜，加载俱乐部年度列表
+    if (this.data.rankType === 'value') {
+      this.loadClubYears();
+    }
 
     this.loadRankingData();
   },
@@ -101,6 +115,29 @@ Page({
     });
   },
 
+  // 加载俱乐部年度列表（身价榜专用）
+  loadClubYears() {
+    valueAPI.getClubYears().then(res => {
+      const years = res.data || [];
+
+      const clubYearOptions = years.map(year => ({
+        id: year.id,
+        name: year.name || `${year.year}年度`
+      }));
+
+      // 如果有数据，默认选中第一个（当前年度）
+      if (clubYearOptions.length > 0) {
+        this.setData({
+          clubYearOptions,
+          clubYear: clubYearOptions[0].id,
+          clubYearIndex: 0
+        });
+      }
+    }).catch(err => {
+      console.error('加载俱乐部年度列表失败:', err);
+    });
+  },
+
   onPullDownRefresh() {
     this.loadRankingData();
     wx.stopPullDownRefresh();
@@ -109,6 +146,12 @@ Page({
   // 加载排行榜数据
   loadRankingData() {
     this.setData({ loading: true });
+
+    // 身价榜使用独立的API
+    if (this.data.rankType === 'value') {
+      this.loadValueRanking();
+      return;
+    }
 
     // 构建请求参数
     const params = {
@@ -178,6 +221,54 @@ Page({
     });
   },
 
+  // 加载身价排行榜
+  loadValueRanking() {
+    const params = {
+      page: 1,
+      pageSize: 50
+    };
+
+    // 俱乐部年度筛选
+    if (this.data.clubYear && this.data.clubYear !== 'current') {
+      params.clubYearId = this.data.clubYear;
+    }
+
+    valueAPI.getRanking(params).then(res => {
+      // 处理不同的返回格式
+      let data = [];
+      if (Array.isArray(res.data)) {
+        data = res.data;
+      } else if (res.data && Array.isArray(res.data.list)) {
+        data = res.data.list;
+      } else if (res.data && Array.isArray(res.data.rankings)) {
+        data = res.data.rankings;
+      }
+
+      const rankingList = data.map((item, index) => {
+        return {
+          rank: item.rank || index + 1,
+          id: item.userId || item.user?.id,
+          name: item.user?.realName || item.user?.nickname || '未知',
+          avatar: config.getStaticUrl(item.user?.avatar, 'avatar') || config.getImageUrl('default-avatar.png'),
+          team: item.user?.teams?.[0]?.team?.name || item.user?.currentTeam?.name || '无队伍',
+          teamColor: item.user?.teams?.[0]?.team?.color || item.user?.currentTeam?.color || '#667eea',
+          value: item.totalValue || item.value || 0,
+          matches: item.matchesPlayed || 0
+        };
+      });
+
+      this.processRankingData(rankingList);
+      this.setData({ loading: false });
+    }).catch(err => {
+      console.error('加载身价排行榜失败:', err);
+      wx.showToast({
+        title: err.message || '加载失败',
+        icon: 'none'
+      });
+      this.setData({ loading: false, rankingList: [], topThree: [], remainingList: [] });
+    });
+  },
+
   // 处理排行榜数据（拆分前三名和剩余）
   processRankingData(rankingList) {
     // 标记当前用户
@@ -202,6 +293,23 @@ Page({
   onTabChange(e) {
     const rankType = e.currentTarget.dataset.type || e.detail.tabId;
     this.setData({ rankType });
+
+    // 如果切换到身价榜，加载俱乐部年度列表
+    if (rankType === 'value') {
+      this.loadClubYears();
+    }
+
+    this.loadRankingData();
+  },
+
+  // 切换俱乐部年度（身价榜专用）
+  onClubYearChange(e) {
+    const value = e.detail.value;
+    const clubYear = this.data.clubYearOptions[value].id;
+    this.setData({
+      clubYear,
+      clubYearIndex: value
+    });
     this.loadRankingData();
   },
 
@@ -226,6 +334,22 @@ Page({
   // 点击排行项查看球员详情
   onPlayerTap(e) {
     const playerId = e.currentTarget.dataset.id || e.detail.playerId;
+
+    // 身价榜点击跳转到身价明细页
+    if (this.data.rankType === 'value') {
+      wx.navigateTo({
+        url: `/pages/stats/value-detail/value-detail?userId=${playerId}`,
+        fail: () => {
+          wx.showToast({
+            title: '功能开发中',
+            icon: 'none'
+          });
+        }
+      });
+      return;
+    }
+
+    // 其他榜单跳转到球员统计页
     wx.navigateTo({
       url: `/pages/user/stats/stats?id=${playerId}`,
       fail: () => {
@@ -243,7 +367,8 @@ Page({
       goals: '进球',
       assists: '助攻',
       mvp: '次',
-      attendance: '出勤'
+      attendance: '出勤',
+      value: '万'
     };
     return labels[this.data.rankType] || '数据';
   }

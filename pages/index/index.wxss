@@ -316,7 +316,7 @@
   background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
 }
 
-.team-icon {
+.jersey-icon {
   background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
 }
 

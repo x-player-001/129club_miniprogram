@@ -23,8 +23,10 @@ Page({
       message: config.getIconUrl('message.png'),
       notice: config.getIconUrl('notice.png'),
       setting: config.getIconUrl('setting.png'),
-      jersey: config.getIconUrl('jersey.png'), // 暂时使用team图标代替号码墙图标
-      share: config.getIconUrl('share.png') // 分享图标
+      jersey: config.getIconUrl('jersey.png'),
+      share: config.getIconUrl('share.png'),
+      value: config.getIconUrl('value.png'),
+      valueInput: config.getIconUrl('value-input.png')
     },
     // 图片URL
     images: {
@@ -424,6 +426,16 @@ Page({
       case 'share-config':
         wx.navigateTo({
           url: '/pages/admin/share-config/share-config'
+        });
+        break;
+      case 'my-value':
+        wx.navigateTo({
+          url: '/pages/stats/value-detail/value-detail'
+        });
+        break;
+      case 'value-input':
+        wx.navigateTo({
+          url: '/pages/admin/value-input/value-input'
         });
         break;
     }

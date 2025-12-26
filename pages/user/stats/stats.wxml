@@ -1,5 +1,20 @@
 <!-- pages/user/stats/stats.wxml - 全新轻量设计 -->
 <view class="page-container">
+  <!-- 赛季筛选器 -->
+  <view class="season-filter" wx:if="{{seasonOptions.length > 0}}">
+    <picker
+      mode="selector"
+      range="{{seasonOptions}}"
+      range-key="name"
+      value="{{seasonIndex}}"
+      bindchange="onSeasonChange">
+      <view class="season-picker-btn">
+        <text class="season-text">{{seasonOptions[seasonIndex].name}}</text>
+        <text class="season-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
   <!-- 顶部信息区域 -->
   <view class="header-section">
     <view class="profile-card">
@@ -50,6 +65,32 @@
         <image class="stat-icon" src="{{item.icon}}" mode="aspectFit"></image>
         <text class="stat-value">{{item.value}}</text>
         <text class="stat-label">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 身价卡片 -->
+  <view class="value-section" wx:if="{{hasValueData}}" bindtap="onValueTap">
+    <view class="value-card-new">
+      <view class="value-header">
+        <view class="value-title-row">
+          <text class="value-icon">💰</text>
+          <text class="value-title">我的身价</text>
+        </view>
+        <view class="value-nav">
+          <text class="value-nav-text">身价明细</text>
+          <text class="value-nav-arrow">›</text>
+        </view>
+      </view>
+      <view class="value-content">
+        <view class="value-main">
+          <text class="value-number-big">{{valueInfo.totalValue}}</text>
+          <text class="value-unit-big">万</text>
+        </view>
+        <view class="value-rank-tag" wx:if="{{valueInfo.rank > 0}}">
+          <text class="rank-medal">🏅</text>
+          <text class="rank-num">NO.{{valueInfo.rank}}</text>
+        </view>
       </view>
     </view>
   </view>

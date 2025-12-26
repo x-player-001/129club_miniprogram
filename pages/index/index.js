@@ -27,7 +27,7 @@ Page({
       footballWhite: config.getIconUrl('football-white.png'),
       chartWhite: config.getIconUrl('chart-white.png'),
       trophyWhite: config.getIconUrl('trophy-white.png'),
-      teamWhite: config.getIconUrl('team-white.png')
+      jerseyWhite: config.getIconUrl('jersey-white.png')
     },
     // 图片URL
     images: {
@@ -402,8 +402,8 @@ Page({
       case 'ranking':
         wx.navigateTo({ url: '/pages/stats/ranking/ranking' });
         break;
-      case 'team':
-        wx.switchTab({ url: '/pages/team/list/list' });
+      case 'jersey':
+        wx.navigateTo({ url: '/pages/user/jersey-wall/jersey-wall' });
         break;
     }
   },

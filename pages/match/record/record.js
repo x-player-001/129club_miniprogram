@@ -299,9 +299,6 @@ Page({
         console.log(`[Record] 已加载点球大战数据:`, savedPenaltyData);
       }
 
-      // 处理已录入的节次数据，并决定当前步骤
-      const { quarters: savedQuarters, currentStep } = this.processQuarterData(quarterData, allPlayers, matchInfo, hasParticipants);
-
       // 预加载两队的可选球员数据（包含已报名/未报名/虚拟球员分组）
       Promise.all([
         matchAPI.getSelectablePlayers(this.data.matchId, matchInfo.team1.id),
@@ -319,6 +316,11 @@ Page({
         const unassignedPlayersGroup = team1Result.unassignedGroup || team2Result.unassignedGroup;
 
         console.log(`[Record] 预加载可选球员 - 队伍1: ${team1SelectablePlayers.length}组, 队伍2: ${team2SelectablePlayers.length}组, 未分配: ${unassignedPlayersGroup ? unassignedPlayersGroup.players.length : 0}人`);
+
+        // 处理已录入的节次数据，并决定当前步骤（需要在可选球员加载后处理，以支持虚拟球员）
+        const { quarters: savedQuarters, currentStep } = this.processQuarterDataWithSelectablePlayers(
+          quarterData, allPlayers, matchInfo, hasParticipants, team1SelectablePlayers, team2SelectablePlayers
+        );
 
         this.setData({
           matchInfo,
@@ -360,6 +362,12 @@ Page({
         wx.hideLoading();
       }).catch(err => {
         console.error('加载可选球员失败:', err);
+
+        // 处理已录入的节次数据（无可选球员数据，虚拟球员可能显示为未知）
+        const { quarters: savedQuarters, currentStep } = this.processQuarterDataWithSelectablePlayers(
+          quarterData, allPlayers, matchInfo, hasParticipants, [], []
+        );
+
         // 即使加载失败，也继续设置其他数据
         this.setData({
           matchInfo,
@@ -695,13 +703,41 @@ Page({
           const quarterIndex = quarterNumber - 1;
           const quarters = [...this.data.quarters];
 
+          // 获取可选球员分组（用于查找虚拟球员）
+          const { allPlayers, team1SelectablePlayers, team2SelectablePlayers } = this.data;
+
           // 转换事件数据格式
-          const events = (quarterData.events || [])
-            .filter(event => event.quarterNumber === quarterNumber)
+          // 注意：events 可能在 quarterData.events（顶层）或 savedQuarter.events（每个节次内部）
+          const rawEvents = savedQuarter.events || quarterData.events || [];
+          // 如果 events 来自顶层，需要按 quarterNumber 过滤；如果来自节次内部，则不需要过滤
+          const eventsFromQuarter = !!savedQuarter.events;
+          const events = rawEvents
+            .filter(event => eventsFromQuarter || event.quarterNumber === quarterNumber)
             .map(event => {
-              // 查找球员信息
-              const player = this.data.allPlayers.find(p => p.id === event.userId);
-              const assistPlayer = event.assistUserId ? this.data.allPlayers.find(p => p.id === event.assistUserId) : null;
+              // 优先使用后端返回的用户信息（包含虚拟球员），否则从本地列表查找
+              let playerName = '未知球员';
+              let assistName = '';
+
+              // 1. 优先使用后端返回的 user 对象
+              if (event.user) {
+                playerName = event.user.realName || event.user.nickname || '未知球员';
+              } else {
+                // 2. 从本地列表查找（支持虚拟球员）
+                const player = this.findPlayerById(event.userId, allPlayers, team1SelectablePlayers, team2SelectablePlayers);
+                if (player) {
+                  playerName = player.name;
+                }
+              }
+
+              // 助攻球员
+              if (event.assistUser) {
+                assistName = event.assistUser.realName || event.assistUser.nickname || '';
+              } else if (event.assistUserId) {
+                const assistPlayer = this.findPlayerById(event.assistUserId, allPlayers, team1SelectablePlayers, team2SelectablePlayers);
+                if (assistPlayer) {
+                  assistName = assistPlayer.name;
+                }
+              }
 
               const isOwnGoal = event.eventSubtype === 'own_goal';
 
@@ -709,13 +745,13 @@ Page({
                 id: event.id,  // 使用后端返回的真实ID
                 teamId: event.teamId,  // 得分队伍（也是显示队伍）
                 userId: event.userId,
-                playerName: player ? (player.name || player.nickname) : '未知球员',
+                playerName: playerName,
                 eventType: event.eventType,
                 eventSubtype: event.eventSubtype,
                 isOwnGoal: isOwnGoal,
                 minute: event.minute,
                 assistUserId: event.assistUserId,
-                assistName: assistPlayer ? (assistPlayer.name || assistPlayer.nickname) : '',
+                assistName: assistName,
                 notes: event.notes || ''
               };
             });
@@ -817,8 +853,53 @@ Page({
     return { groups, unassignedGroup };
   },
 
-  // 处理已录入的节次数据
-  processQuarterData(quarterData, allPlayers, matchInfo, hasParticipants) {
+  // 从球员列表中查找球员（支持虚拟球员）
+  findPlayerById(playerId, allPlayers, selectablePlayers1, selectablePlayers2) {
+    if (!playerId) return null;
+
+    // 首先从 allPlayers（真实球员）中查找
+    let player = allPlayers.find(p => p.id === playerId);
+    if (player) {
+      return {
+        id: player.id,
+        name: player.name || player.nickname,
+        nickname: player.nickname,
+        avatar: player.avatar
+      };
+    }
+
+    // 如果找不到，从可选球员分组中查找（包含虚拟球员）
+    const searchInGroups = (groups) => {
+      if (!groups || groups.length === 0) return null;
+      for (const group of groups) {
+        if (group.players && group.players.length > 0) {
+          const found = group.players.find(p => p.id === playerId);
+          if (found) {
+            return {
+              id: found.id,
+              name: found.name || found.nickname,
+              nickname: found.nickname,
+              avatar: found.avatar
+            };
+          }
+        }
+      }
+      return null;
+    };
+
+    // 从队伍1可选球员中查找
+    player = searchInGroups(selectablePlayers1);
+    if (player) return player;
+
+    // 从队伍2可选球员中查找
+    player = searchInGroups(selectablePlayers2);
+    if (player) return player;
+
+    return null;
+  },
+
+  // 处理已录入的节次数据（支持虚拟球员）
+  processQuarterDataWithSelectablePlayers(quarterData, allPlayers, matchInfo, hasParticipants, team1SelectablePlayers, team2SelectablePlayers) {
     const quarters = [
       { quarterNumber: 1, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [], mainRefereeId: null, assistantReferee1Id: null, assistantReferee2Id: null, team1GoalkeeperId: null, team2GoalkeeperId: null },
       { quarterNumber: 2, team1Goals: 0, team2Goals: 0, team1Points: 0, team2Points: 0, summary: '', events: [], mainRefereeId: null, assistantReferee1Id: null, assistantReferee2Id: null, team1GoalkeeperId: null, team2GoalkeeperId: null },
@@ -837,12 +918,37 @@ Page({
         const index = savedQuarter.quarterNumber - 1;
         if (index >= 0 && index < 4) {
           // 转换事件数据格式
-          const events = (quarterData.events || [])
-            .filter(event => event.quarterNumber === savedQuarter.quarterNumber)
+          // 注意：events 可能在 quarterData.events（顶层）或 savedQuarter.events（每个节次内部）
+          const rawEvents = savedQuarter.events || quarterData.events || [];
+          // 如果 events 来自顶层，需要按 quarterNumber 过滤；如果来自节次内部，则不需要过滤
+          const eventsFromQuarter = !!savedQuarter.events;
+          const events = rawEvents
+            .filter(event => eventsFromQuarter || event.quarterNumber === savedQuarter.quarterNumber)
             .map(event => {
-              // 查找球员信息
-              const player = allPlayers.find(p => p.id === event.userId);
-              const assistPlayer = event.assistUserId ? allPlayers.find(p => p.id === event.assistUserId) : null;
+              // 优先使用后端返回的用户信息（包含虚拟球员），否则从本地列表查找
+              let playerName = '未知球员';
+              let assistName = '';
+
+              // 1. 优先使用后端返回的 user 对象
+              if (event.user) {
+                playerName = event.user.realName || event.user.nickname || '未知球员';
+              } else {
+                // 2. 从本地列表查找（支持虚拟球员）
+                const player = this.findPlayerById(event.userId, allPlayers, team1SelectablePlayers, team2SelectablePlayers);
+                if (player) {
+                  playerName = player.name;
+                }
+              }
+
+              // 助攻球员
+              if (event.assistUser) {
+                assistName = event.assistUser.realName || event.assistUser.nickname || '';
+              } else if (event.assistUserId) {
+                const assistPlayer = this.findPlayerById(event.assistUserId, allPlayers, team1SelectablePlayers, team2SelectablePlayers);
+                if (assistPlayer) {
+                  assistName = assistPlayer.name;
+                }
+              }
 
               const isOwnGoal = event.eventSubtype === 'own_goal';
 
@@ -850,13 +956,13 @@ Page({
                 id: event.id,
                 teamId: event.teamId,  // 得分队伍（也是显示队伍）
                 userId: event.userId,
-                playerName: player ? (player.name || player.nickname) : '未知球员',
+                playerName: playerName,
                 eventType: event.eventType,
                 eventSubtype: event.eventSubtype,
                 isOwnGoal: isOwnGoal,
                 minute: event.minute,
                 assistUserId: event.assistUserId,
-                assistName: assistPlayer ? (assistPlayer.name || assistPlayer.nickname) : '',
+                assistName: assistName,
                 notes: event.notes || ''
               };
             });
@@ -929,8 +1035,27 @@ Page({
 
     // 不显示保存成功提示（已在子组件中显示）
 
-    // 重新加载该节次的最新数据
-    this.reloadQuarterData(quarterNumber);
+    // 不调用 reloadQuarterData，因为：
+    // 1. quarter-input 组件内部已经有正确的数据（包含正确的 playerName）
+    // 2. reloadQuarterData 会重新处理后端数据，可能导致球员名称显示问题
+    // 3. quarter-input 组件的 saveQuarterToAPI 方法已经更新了事件的真实ID
+
+    // 只更新比分和触发重新计算（从 data 中获取）
+    if (data && data.quarters) {
+      const savedQuarter = data.quarters.find(q => q.quarterNumber === quarterNumber);
+      if (savedQuarter) {
+        const quarterIndex = quarterNumber - 1;
+        // 只更新比分相关数据，不覆盖 events（保留组件内部的正确数据）
+        this.setData({
+          [`quarters[${quarterIndex}].team1Goals`]: savedQuarter.team1Goals,
+          [`quarters[${quarterIndex}].team2Goals`]: savedQuarter.team2Goals,
+          [`quarters[${quarterIndex}].team1Points`]: savedQuarter.team1Points,
+          [`quarters[${quarterIndex}].team2Points`]: savedQuarter.team2Points
+        }, () => {
+          this.calculateTotalScore();
+        });
+      }
+    }
   },
 
   // 计算单节得分
@@ -979,7 +1104,7 @@ Page({
    * 检查并更新点球大战状态（用于页面加载时恢复状态）
    *
    * 设计说明：
-   * 1. processQuarterData() 返回基于7步流程的 currentStep（不考虑点球）
+   * 1. processQuarterDataWithSelectablePlayers() 返回基于7步流程的 currentStep（不考虑点球）
    * 2. 本函数根据实际情况（点球数据或平局）调整为8步流程
    * 3. 步骤调整规则：6→7（到场人员），7→8（MVP）
    *

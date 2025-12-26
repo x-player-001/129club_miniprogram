@@ -91,11 +91,11 @@
       </view>
       <text class="action-text">排行榜</text>
     </view>
-    <view class="action-item" bindtap="onQuickAction" data-type="team">
-      <view class="action-icon team-icon">
-        <image src="{{icons.teamWhite}}" mode="aspectFit"></image>
+    <view class="action-item" bindtap="onQuickAction" data-type="jersey">
+      <view class="action-icon jersey-icon">
+        <image src="{{icons.jerseyWhite}}" mode="aspectFit"></image>
       </view>
-      <text class="action-text">队伍</text>
+      <text class="action-text">号码墙</text>
     </view>
   </view>
 

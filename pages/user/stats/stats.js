@@ -2,6 +2,8 @@
 const app = getApp();
 const statsAPI = require('../../../api/stats.js');
 const userAPI = require('../../../api/user.js');
+const valueAPI = require('../../../api/value.js');
+const seasonAPI = require('../../../api/season.js');
 const config = require('../../../utils/config.js');
 
 Page({
@@ -37,6 +39,21 @@ Page({
     achievements: [],
     unlockedCount: 0, // 已解锁成就数量
 
+    // 身价信息
+    valueInfo: {
+      totalValue: 0,
+      rank: 0,
+      matchValue: 0,
+      serviceValue: 0,
+      specialValue: 0
+    },
+    hasValueData: false, // 是否有身价数据
+
+    // 赛季筛选
+    seasonOptions: [],
+    seasonIndex: 0,
+    currentSeasonId: '',
+
     // 加载状态
     loading: false,
 
@@ -56,12 +73,64 @@ Page({
       isMyself: userId === myUserId
     });
 
-    this.loadUserStats();
+    // 先加载赛季列表，再加载数据
+    this.loadSeasons();
+    this.loadValueInfo();
   },
 
   onPullDownRefresh() {
     this.loadUserStats();
+    this.loadValueInfo();
     wx.stopPullDownRefresh();
+  },
+
+  // 加载赛季列表
+  loadSeasons() {
+    seasonAPI.getList().then(res => {
+      const seasons = res.data?.list || res.data || [];
+      if (seasons.length === 0) {
+        // 没有赛季数据，直接加载统计
+        this.loadUserStats();
+        return;
+      }
+
+      // 构建赛季选项
+      const seasonOptions = seasons.map(s => ({
+        id: s.id,
+        name: s.name || s.title || '未命名赛季'
+      }));
+
+      // 找到当前活跃赛季
+      const activeSeason = seasons.find(s => s.status === 'active');
+      const activeIndex = activeSeason ? seasonOptions.findIndex(o => o.id === activeSeason.id) : 0;
+
+      this.setData({
+        seasonOptions: seasonOptions,
+        seasonIndex: activeIndex >= 0 ? activeIndex : 0,
+        currentSeasonId: seasonOptions[activeIndex >= 0 ? activeIndex : 0]?.id || ''
+      });
+
+      // 加载用户统计
+      this.loadUserStats();
+    }).catch(err => {
+      console.error('加载赛季列表失败:', err);
+      // 失败也继续加载统计
+      this.loadUserStats();
+    });
+  },
+
+  // 赛季切换
+  onSeasonChange(e) {
+    const index = e.detail.value;
+    const seasonId = this.data.seasonOptions[index]?.id || '';
+
+    this.setData({
+      seasonIndex: index,
+      currentSeasonId: seasonId
+    });
+
+    // 重新加载数据
+    this.loadUserStats();
   },
 
   // 加载用户统计数据
@@ -69,8 +138,14 @@ Page({
     this.setData({ loading: true });
     wx.showLoading({ title: '加载中...' });
 
+    // 构建请求参数
+    const params = {};
+    if (this.data.currentSeasonId) {
+      params.seasonId = this.data.currentSeasonId;
+    }
+
     // 调用真实 API
-    return statsAPI.getPlayerStats(this.data.userId).then(res => {
+    return statsAPI.getPlayerStats(this.data.userId, params).then(res => {
       const data = res.data;
 
       // 处理用户信息
@@ -288,5 +363,48 @@ Page({
     const type = e.currentTarget.dataset.type;
     // 可以根据type跳转到对应详情页
     console.log('点击统计项:', type);
+  },
+
+  // 加载身价信息
+  loadValueInfo() {
+    const { userId, isMyself } = this.data;
+
+    // 根据是否是自己选择不同的API
+    const apiCall = isMyself
+      ? valueAPI.getMyValue()
+      : valueAPI.getPlayerValue(userId);
+
+    apiCall.then(res => {
+      const data = res.data || {};
+
+      this.setData({
+        valueInfo: {
+          totalValue: data.totalValue || 0,
+          rank: data.rank || 0,
+          matchValue: data.matchValue || 0,
+          serviceValue: data.serviceValue || 0,
+          specialValue: data.specialValue || 0
+        },
+        hasValueData: true
+      });
+    }).catch(err => {
+      console.error('加载身价信息失败:', err);
+      // 身价加载失败不影响其他数据展示
+      this.setData({ hasValueData: false });
+    });
+  },
+
+  // 点击身价卡片，跳转到身价明细
+  onValueTap() {
+    const { userId, isMyself } = this.data;
+    if (isMyself) {
+      wx.navigateTo({
+        url: '/pages/stats/value-detail/value-detail'
+      });
+    } else {
+      wx.navigateTo({
+        url: `/pages/stats/value-detail/value-detail?userId=${userId}`
+      });
+    }
   }
 });

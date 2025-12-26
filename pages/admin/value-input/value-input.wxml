@@ -1,0 +1,194 @@
+<!-- 身价录入页面 -->
+<view class="page-container" bindtap="hideDropdowns">
+  <!-- Tab切换 -->
+  <view class="tab-bar">
+    <view
+      class="tab-item {{activeTab === item.id ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="id"
+      data-tab="{{item.id}}"
+      bindtap="onTabChange">
+      <text>{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 特殊奖励表单 -->
+  <view class="form-container" wx:if="{{activeTab === 'special'}}">
+    <view class="form-card">
+      <view class="form-title">录入特殊身价</view>
+      <view class="form-desc">为球员添加特殊贡献、活动奖励或惩罚扣除</view>
+
+      <!-- 选择用户 -->
+      <view class="form-item">
+        <view class="form-label">选择球员 <text class="required">*</text></view>
+        <view class="search-input-wrapper" catchtap="">
+          <input
+            class="search-input"
+            placeholder="搜索球员姓名"
+            value="{{userKeyword}}"
+            bindinput="onUserKeywordInput"
+            bindconfirm="onUserKeywordInput" />
+          <view class="clear-btn" wx:if="{{specialForm.userId}}" catchtap="onClearUser">
+            <text>×</text>
+          </view>
+        </view>
+
+        <!-- 用户搜索结果下拉 -->
+        <view class="dropdown-list" wx:if="{{showUserDropdown}}" catchtap="">
+          <view
+            class="dropdown-item"
+            wx:for="{{userSearchResults}}"
+            wx:key="id"
+            data-user="{{item}}"
+            catchtap="onSelectUser">
+            <image class="user-avatar" src="{{item.avatar || images.defaultAvatar}}" mode="aspectFill"></image>
+            <view class="user-info">
+              <text class="user-name">{{item.realName || item.nickname}}</text>
+              <text class="user-number" wx:if="{{item.jerseyNumber}}">{{item.jerseyNumber}}号</text>
+            </view>
+          </view>
+          <view class="dropdown-empty" wx:if="{{userSearchResults.length === 0}}">
+            <text>未找到匹配的球员</text>
+          </view>
+        </view>
+
+        <!-- 已选中用户 -->
+        <view class="selected-user" wx:if="{{specialForm.userId}}">
+          <text class="check-icon">✓</text>
+          <text>已选择：{{specialForm.userName}}</text>
+        </view>
+      </view>
+
+      <!-- 金额输入 -->
+      <view class="form-item">
+        <view class="form-label">身价金额（万） <text class="required">*</text></view>
+        <view class="amount-input-wrapper">
+          <input
+            class="amount-input"
+            type="digit"
+            placeholder="输入金额，负数为扣除"
+            value="{{specialForm.amount}}"
+            bindinput="onAmountInput" />
+          <text class="amount-unit">万</text>
+        </view>
+        <view class="form-hint">正数为增加身价，负数为扣除身价</view>
+      </view>
+
+      <!-- 关联比赛（可选） -->
+      <view class="form-item">
+        <view class="form-label">关联比赛（选填）</view>
+        <view class="search-input-wrapper" catchtap="">
+          <input
+            class="search-input"
+            placeholder="搜索关联的比赛"
+            value="{{specialMatchKeyword}}"
+            bindinput="onSpecialMatchInput" />
+          <view class="clear-btn" wx:if="{{specialForm.matchId}}" catchtap="onClearSpecialMatch">
+            <text>×</text>
+          </view>
+        </view>
+
+        <!-- 关联比赛搜索结果 -->
+        <view class="dropdown-list" wx:if="{{showSpecialMatchDropdown}}" catchtap="">
+          <view
+            class="dropdown-item match-item"
+            wx:for="{{specialMatchResults}}"
+            wx:key="id"
+            data-match="{{item}}"
+            catchtap="onSelectSpecialMatch">
+            <view class="match-info">
+              <text class="match-title">{{item.title}}</text>
+              <text class="match-date">{{item.matchDate}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 已选中比赛 -->
+        <view class="selected-user" wx:if="{{specialForm.matchId}}">
+          <text class="check-icon">✓</text>
+          <text>关联：{{specialForm.matchTitle}}</text>
+        </view>
+      </view>
+
+      <!-- 备注说明 -->
+      <view class="form-item">
+        <view class="form-label">备注说明（选填）</view>
+        <textarea
+          class="form-textarea"
+          placeholder="请输入备注说明"
+          value="{{specialForm.notes}}"
+          bindinput="onNotesInput"
+          maxlength="200"></textarea>
+      </view>
+
+      <!-- 提交按钮 -->
+      <view class="submit-btn {{submitting ? 'disabled' : ''}}" bindtap="onSubmitSpecial">
+        <text>{{submitting ? '提交中...' : '确认录入'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 重算比赛表单 -->
+  <view class="form-container" wx:if="{{activeTab === 'recalculate'}}">
+    <view class="form-card">
+      <view class="form-title">重算比赛身价</view>
+      <view class="form-desc">重新根据比赛数据计算参赛球员的身价变动</view>
+
+      <!-- 选择比赛 -->
+      <view class="form-item">
+        <view class="form-label">选择比赛 <text class="required">*</text></view>
+        <view class="search-input-wrapper" catchtap="">
+          <input
+            class="search-input"
+            placeholder="搜索比赛名称"
+            value="{{matchKeyword}}"
+            bindinput="onMatchKeywordInput"
+            bindconfirm="onMatchKeywordInput" />
+          <view class="clear-btn" wx:if="{{recalculateForm.matchId}}" catchtap="onClearMatch">
+            <text>×</text>
+          </view>
+        </view>
+
+        <!-- 比赛搜索结果下拉 -->
+        <view class="dropdown-list" wx:if="{{showMatchDropdown}}" catchtap="">
+          <view
+            class="dropdown-item match-item"
+            wx:for="{{matchSearchResults}}"
+            wx:key="id"
+            data-match="{{item}}"
+            catchtap="onSelectMatch">
+            <view class="match-info">
+              <text class="match-title">{{item.title}}</text>
+              <text class="match-date">{{item.matchDate}}</text>
+            </view>
+          </view>
+          <view class="dropdown-empty" wx:if="{{matchSearchResults.length === 0}}">
+            <text>未找到匹配的比赛</text>
+          </view>
+        </view>
+
+        <!-- 已选中比赛 -->
+        <view class="selected-user" wx:if="{{recalculateForm.matchId}}">
+          <text class="check-icon">✓</text>
+          <text>已选择：{{recalculateForm.matchTitle}}</text>
+        </view>
+      </view>
+
+      <!-- 说明 -->
+      <view class="info-box">
+        <view class="info-title">说明</view>
+        <view class="info-content">
+          <view class="info-item">• 重算将根据比赛记录重新计算身价</view>
+          <view class="info-item">• 包括进球、助攻、MVP等贡献</view>
+          <view class="info-item">• 原有比赛身价记录将被覆盖</view>
+          <view class="info-item">• 仅支持已完成的比赛</view>
+        </view>
+      </view>
+
+      <!-- 提交按钮 -->
+      <view class="submit-btn warning {{submitting ? 'disabled' : ''}}" bindtap="onSubmitRecalculate">
+        <text>{{submitting ? '重算中...' : '确认重算'}}</text>
+      </view>
+    </view>
+  </view>
+</view>
