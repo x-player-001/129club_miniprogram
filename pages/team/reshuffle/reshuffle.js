@@ -71,10 +71,8 @@ Page({
   },
 
   onShow() {
-    // 重新进入页面（含退出后再进）：断开旧连接，重新加载状态并重连
-    if (this.data.sessionId) {
-      this.disconnectSocket();
-      this.loadDraftSession();
+    if (this.data.sessionId && !this._socketTask) {
+      this.connectSocket();
     }
   },
 
@@ -340,6 +338,10 @@ Page({
       this._socketTask.send({
         data: JSON.stringify({ type: 'join', reshuffleId, token })
       });
+      // 静默补齐断线期间遗漏的状态（不显示 loading）
+      if (!this.data.loading) {
+        this._silentRefresh();
+      }
     });
 
     this._socketTask.onMessage((res) => {
@@ -379,14 +381,60 @@ Page({
     this.setData({ socketConnected: false });
   },
 
-  // 延迟重连
+  // 静默刷新状态（不显示 loading，用于重连后补齐遗漏）
+  _silentRefresh() {
+    Promise.all([
+      teamAPI.getDraftSession(this.data.sessionId),
+      teamAPI.getAvailablePlayers(this.data.sessionId)
+    ]).then(([sessionRes, availableRes]) => {
+      const { reshuffle, currentPickOrder, currentCaptain } = sessionRes.data;
+      const availablePlayers = (availableRes.data || []).map(p => ({
+        id: p.id,
+        name: p.realName || p.nickname,
+        avatar: p.avatar,
+        number: p.jerseyNumber,
+        position: p.position,
+        goals: p.stats?.goals || 0,
+        assists: p.stats?.assists || 0,
+        winRate: p.stats?.winRate || '0',
+        matchesPlayed: p.stats?.matchesPlayed || 0
+      }));
+
+      const picks = (reshuffle.picks || []).slice().sort((a, b) => a.pickOrder - b.pickOrder);
+      const formatPick = p => ({
+        id: p.pickedUser.id,
+        name: p.pickedUser.realName || p.pickedUser.nickname,
+        avatar: p.pickedUser.avatar,
+        number: p.pickedUser.jerseyNumber,
+        position: p.pickedUser.position
+      });
+      const team1Players = picks.filter(p => p.teamId === reshuffle.team1Id).map(formatPick);
+      const team2Players = picks.filter(p => p.teamId === reshuffle.team2Id).map(formatPick);
+      const currentUserId = this.data.currentUserId;
+      const isMyTurn = currentCaptain?.id === currentUserId;
+
+      this.setData({
+        availablePlayers,
+        team1Players,
+        team2Players,
+        team1MemberNames: team1Players.map(p => p.name).join('、'),
+        team2MemberNames: team2Players.map(p => p.name).join('、'),
+        currentRound: currentPickOrder || 1,
+        currentTurn: currentCaptain?.id === reshuffle.captain1Id ? 'captain1' : 'captain2',
+        draftStatus: reshuffle.status === 'draft_in_progress' ? 'in_progress' : reshuffle.status,
+        isMyTurn
+      });
+      this.applyFilter();
+    }).catch(() => {}); // 静默失败，不打扰用户
+  },
+
+  // 延迟重连（只重建 ws，不重新请求接口）
   _scheduleReconnect() {
     this._clearReconnectTimer();
     if (!this.data.sessionId) return;
     this._reconnectTimer = setTimeout(() => {
       if (!this._socketTask && this.data.sessionId) {
-        // 重连时重新拉状态，防止断线期间有遗漏
-        this.loadDraftSession();
+        this.connectSocket();
       }
     }, 2000);
   },
