@@ -271,7 +271,7 @@ Page({
           'registration': 'upcoming',  // 报名中 -> 未开始
           'in_progress': 'ongoing',    // 进行中 -> 进行中
           'completed': 'finished',     // 已完成 -> 已结束
-          'cancelled': 'finished'      // 已取消 -> 已结束
+          'cancelled': 'cancelled'      // 已取消 -> 已结束
         };
 
         // 处理点球大战数据

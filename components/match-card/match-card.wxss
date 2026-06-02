@@ -54,6 +54,11 @@
   color: #636e72;
 }
 
+.status-cancelled {
+  background: #fce4e4;
+  color: #e74c3c;
+}
+
 /* 对阵信息 */
 .match-vs {
   display: flex;
@@ -475,6 +480,11 @@
 .status-tag.finished {
   background: #f1f3f5;
   color: #636e72;
+}
+
+.status-tag.cancelled {
+  background: #fce4e4;
+  color: #e74c3c;
 }
 
 /* 点球大战（紧凑版） */

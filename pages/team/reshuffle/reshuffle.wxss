@@ -1,195 +1,270 @@
 /* 队伍重组（Draft选人）页面样式 */
 .reshuffle-container {
-  min-height: 100vh;
+  height: 100vh;
   background: #f5f6f8;
   display: flex;
   flex-direction: column;
 }
 
-/* 顶部进度条 */
-.progress-header {
-  background: #ffffff;
-  padding: 24rpx 32rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16rpx;
-}
-
-.progress-text {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-.turn-indicator {
-  font-size: 26rpx;
-  color: #636e72;
-}
-
-.captain-name {
-  font-weight: 700;
-}
-
-.captain1-color {
-  color: var(--theme-color);
-}
-
-.captain2-color {
-  color: #924ab0;
-}
-
-.progress-bar {
-  height: 12rpx;
-  background: #ecf0f1;
-  border-radius: 6rpx;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--theme-color) 0%, #924ab0 100%);
-  transition: width 0.3s;
-  border-radius: 6rpx;
-}
-
-/* 内容区域 */
-.content {
+/* ── 加载中 ── */
+.page-loading {
   flex: 1;
-}
-
-/* Draft进行中区域 */
-.draft-area {
-  padding: 24rpx;
-}
-
-/* 三栏布局 */
-.teams-layout {
-  display: flex;
-  gap: 16rpx;
-  min-height: calc(100vh - 200rpx);
-}
-
-/* 队伍栏（左右） */
-.team-column {
-  flex: 0 0 180rpx;
-  background: #ffffff;
-  border-radius: 20rpx;
-  padding: 20rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-}
-
-.team1-column {
-  border-top: 6rpx solid var(--theme-color);
-}
-
-.team2-column {
-  border-top: 6rpx solid #924ab0;
-}
-
-.team-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 20rpx;
-  border-bottom: 2rpx solid #ecf0f1;
-  margin-bottom: 20rpx;
+  justify-content: center;
+  gap: 24rpx;
 }
 
-.captain-avatar {
-  width: 80rpx;
-  height: 80rpx;
+.loading-spinner {
+  width: 64rpx;
+  height: 64rpx;
+  border: 6rpx solid #ecf0f1;
+  border-top-color: var(--theme-color);
   border-radius: 50%;
-  margin-bottom: 12rpx;
+  animation: spin 0.8s linear infinite;
 }
 
-.team-title {
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #95a5a6;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── 顶部当前选人状态 ── */
+.turn-header {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  background: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.turn-captain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  transition: opacity 0.3s;
+}
+
+.turn-captain.inactive {
+  opacity: 0.35;
+}
+
+.turn-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  border: 4rpx solid transparent;
+}
+
+.avatar-ring-team1 {
+  border-color: var(--theme-color);
+  box-shadow: 0 0 0 4rpx rgba(242, 8, 16, 0.2);
+}
+
+.avatar-ring-team2 {
+  border-color: #924ab0;
+  box-shadow: 0 0 0 4rpx rgba(146, 74, 176, 0.2);
+}
+
+.turn-captain-name {
   font-size: 26rpx;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.turn-picking-tag {
+  font-size: 20rpx;
+  color: #ffffff;
+  background: var(--theme-color);
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+}
+
+.turn-picking-tag.tag-team2 {
+  background: #924ab0;
+}
+
+
+.turn-center {
+  flex-shrink: 0;
+  width: 120rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+}
+
+.order-num {
+  font-size: 56rpx;
   font-weight: 700;
   color: #2c3e50;
-  text-align: center;
-  margin-bottom: 8rpx;
+  line-height: 1;
 }
 
-.team-count {
+.order-label {
   font-size: 22rpx;
   color: #95a5a6;
 }
 
-.player-list {
+/* ── 两队名单栏 ── */
+.teams-bar {
   display: flex;
-  flex-direction: column;
-  gap: 16rpx;
+  background: #ffffff;
+  border-top: 2rpx solid #f0f0f0;
+  flex-shrink: 0;
 }
 
-.player-item-small {
-  position: relative;
+.team-bar-item {
+  flex: 1;
+  padding: 16rpx 20rpx;
+  min-width: 0;
+}
+
+.teams-divider {
+  width: 2rpx;
+  background: #f0f0f0;
+  margin: 16rpx 0;
+}
+
+.team-bar-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 16rpx;
-  background: #f8f9fa;
-  border-radius: 12rpx;
-  transition: all 0.3s;
+  gap: 8rpx;
+  margin-bottom: 14rpx;
 }
 
-.player-avatar-small {
-  width: 60rpx;
-  height: 60rpx;
-  border-radius: 50%;
-  margin-bottom: 8rpx;
+.team-bar-dot {
+  display: none;
 }
 
-.player-info-small {
+.team-bar-name {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #2c3e50;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 10rpx;
+}
+
+.team1-bar .team-bar-name {
+  border-left: 4rpx solid var(--theme-color);
+}
+
+.team2-bar .team-bar-name {
+  border-left: 4rpx solid #924ab0;
+}
+
+.team-bar-count {
+  font-size: 22rpx;
+  color: #95a5a6;
+  flex-shrink: 0;
+}
+
+.team-bar-scroll {
+  width: 100%;
+}
+
+.team-bar-avatars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.bar-player-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4rpx;
 }
 
-.player-name-small {
-  font-size: 24rpx;
-  font-weight: 600;
-  color: #2c3e50;
+.bar-avatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #ecf0f1;
+}
+
+.captain-ring-team1 {
+  border: 4rpx solid var(--theme-color);
+}
+
+.captain-ring-team2 {
+  border: 4rpx solid #924ab0;
+}
+
+.bar-name {
+  font-size: 20rpx;
+  color: #636e72;
+  max-width: 64rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-align: center;
 }
 
-.player-number-small {
-  font-size: 20rpx;
-  color: #95a5a6;
+/* ── 管理员操作栏 ── */
+.admin-bar {
+  display: flex;
+  gap: 12rpx;
+  padding: 10rpx 24rpx;
+  background: #fff8f8;
+  border-top: 2rpx solid #fde8e8;
+  flex-shrink: 0;
+  justify-content: flex-end;
 }
 
-.captain-badge {
-  position: absolute;
-  top: 8rpx;
-  right: 8rpx;
-  padding: 4rpx 8rpx;
+.admin-btn {
+  height: 56rpx;
+  line-height: 56rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  border: none;
+  border-radius: 10rpx;
+  padding: 0 24rpx;
+}
+
+.admin-btn::after {
+  border: none;
+}
+
+.reset-btn {
+  background: #fff0f0;
+  color: #e74c3c;
+}
+
+.complete-btn {
   background: var(--theme-color);
   color: #ffffff;
-  font-size: 18rpx;
-  border-radius: 8rpx;
 }
 
-/* 可选球员栏（中间） */
-.available-column {
+/* ── 可选球员列表 ── */
+.available-scroll {
   flex: 1;
-  background: #ffffff;
-  border-radius: 20rpx;
-  padding: 20rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  overflow: hidden;
 }
 
 .available-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 20rpx;
-  border-bottom: 2rpx solid #ecf0f1;
-  margin-bottom: 20rpx;
+  padding: 24rpx 32rpx 16rpx;
 }
 
 .available-title {
@@ -203,125 +278,156 @@
   color: #95a5a6;
 }
 
-.available-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
+.search-bar {
+  padding: 0 24rpx 16rpx;
 }
 
-/* 球员卡片 */
+.search-inner {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background: #ffffff;
+  border: 2rpx solid #ecf0f1;
+  border-radius: 16rpx;
+  padding: 0 20rpx;
+  height: 72rpx;
+}
+
+.search-icon {
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #2c3e50;
+  height: 72rpx;
+}
+
+.search-clear {
+  font-size: 28rpx;
+  color: #95a5a6;
+  padding: 8rpx;
+  flex-shrink: 0;
+}
+
+.available-list {
+  padding: 0 24rpx;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12rpx;
+}
+
+/* ── 球员卡片 ── */
 .player-card {
   position: relative;
   display: flex;
-  gap: 20rpx;
-  padding: 20rpx;
-  background: #f8f9fa;
+  align-items: center;
+  gap: 12rpx;
+  padding: 16rpx;
+  background: #ffffff;
   border: 3rpx solid #ecf0f1;
   border-radius: 16rpx;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .player-card:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .player-card.selected {
-  background: linear-gradient(135deg, rgba(242, 8, 16, 0.1) 0%, rgba(146, 74, 176, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(242, 8, 16, 0.06) 0%, rgba(146, 74, 176, 0.06) 100%);
   border-color: var(--theme-color);
-  box-shadow: 0 4rpx 16rpx rgba(242, 8, 16, 0.2);
+  box-shadow: 0 4rpx 16rpx rgba(242, 8, 16, 0.15);
 }
 
 .player-avatar {
-  width: 100rpx;
-  height: 100rpx;
+  width: 72rpx;
+  height: 72rpx;
   border-radius: 50%;
   flex-shrink: 0;
+  background: #ecf0f1;
 }
 
 .player-info {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 6rpx;
+  min-width: 0;
+}
+
+.player-top {
+  display: flex;
+  align-items: center;
   gap: 8rpx;
 }
 
-.player-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .player-name {
-  font-size: 30rpx;
+  font-size: 26rpx;
   font-weight: 700;
   color: #2c3e50;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .player-number {
-  font-size: 26rpx;
-  font-weight: 700;
+  font-size: 20rpx;
   color: #95a5a6;
-}
-
-.player-position {
-  font-size: 24rpx;
-  color: #636e72;
-  padding: 4rpx 12rpx;
-  background: #dfe6e9;
-  border-radius: 8rpx;
-  align-self: flex-start;
+  flex-shrink: 0;
 }
 
 .player-stats {
   display: flex;
-  gap: 20rpx;
-  margin-top: 8rpx;
+  gap: 10rpx;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 4rpx;
+  gap: 3rpx;
 }
 
 .stat-label {
-  font-size: 22rpx;
+  font-size: 18rpx;
+  color: #95a5a6;
 }
 
 .stat-value {
-  font-size: 24rpx;
+  font-size: 20rpx;
   font-weight: 700;
   color: #2c3e50;
 }
 
 .check-icon {
   position: absolute;
-  top: 16rpx;
-  right: 16rpx;
-  width: 48rpx;
-  height: 48rpx;
+  top: 8rpx;
+  right: 8rpx;
+  width: 36rpx;
+  height: 36rpx;
   background: var(--theme-color);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28rpx;
+  font-size: 20rpx;
   font-weight: 700;
   color: #ffffff;
-  box-shadow: 0 4rpx 12rpx rgba(242, 8, 16, 0.4);
 }
 
-/* 空状态 */
+/* ── 空状态 ── */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 100rpx 40rpx;
+  padding: 80rpx 40rpx;
 }
 
 .empty-icon {
-  font-size: 100rpx;
-  margin-bottom: 20rpx;
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
 }
 
 .empty-text {
@@ -329,7 +435,7 @@
   color: #95a5a6;
 }
 
-/* 操作按钮栏 */
+/* ── 底部操作栏 ── */
 .action-bar {
   position: fixed;
   bottom: 0;
@@ -345,6 +451,7 @@
 .confirm-btn {
   width: 100%;
   height: 88rpx;
+  line-height: 88rpx;
   padding: 0;
   background: linear-gradient(135deg, var(--theme-color) 0%, #924ab0 100%);
   color: #ffffff;
@@ -353,7 +460,6 @@
   border: none;
   border-radius: 16rpx;
   box-shadow: 0 4rpx 16rpx rgba(242, 8, 16, 0.4);
-  transition: all 0.3s;
 }
 
 .confirm-btn::after {
@@ -364,31 +470,14 @@
   transform: scale(0.98);
 }
 
-/* 等待提示 */
-.waiting-tip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 60rpx 40rpx;
-  background: #fff3cd;
-  border: 2rpx solid #ffeaa7;
-  border-radius: 16rpx;
-  margin-top: 24rpx;
-}
-
-.waiting-icon {
-  font-size: 80rpx;
-  margin-bottom: 20rpx;
-  animation: rotate 2s linear infinite;
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* ── 等待提示栏 ── */
+.waiting-bar {
+  flex-shrink: 0;
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background: #fff8e1;
+  border-top: 2rpx solid #ffe082;
+  text-align: center;
 }
 
 .waiting-text {
@@ -397,135 +486,111 @@
   font-weight: 600;
 }
 
-/* Draft完成区域 */
-.complete-area {
-  padding: 24rpx;
-}
-
-.complete-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 60rpx 40rpx;
-  background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
-  border-radius: 24rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 184, 148, 0.3);
-}
-
-.complete-icon {
-  font-size: 100rpx;
-  margin-bottom: 20rpx;
-}
-
-.complete-title {
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 12rpx;
-}
-
-.complete-subtitle {
-  font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* 队名设置区域 */
-.team-name-section {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-  margin-bottom: 24rpx;
-}
-
-.team-name-card {
-  background: #ffffff;
-  border-radius: 20rpx;
-  padding: 32rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20rpx;
-}
-
-.card-title {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-.card-captain {
-  font-size: 24rpx;
-  color: #95a5a6;
-}
-
-.team-name-input {
-  width: 100%;
-  height: 88rpx;
-  padding: 0 24rpx;
-  background: #f8f9fa;
-  border: 2rpx solid #ecf0f1;
-  border-radius: 16rpx;
-  font-size: 28rpx;
-  color: #2c3e50;
-  margin-bottom: 20rpx;
-  transition: all 0.3s;
-}
-
-.team-name-input:focus {
-  background: #ffffff;
-  border-color: var(--theme-color);
-}
-
-.team-members-preview {
-  padding: 20rpx;
-  background: #f8f9fa;
-  border-radius: 12rpx;
-}
-
-.preview-label {
-  font-size: 24rpx;
-  color: #636e72;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 8rpx;
-}
-
-.preview-names {
-  font-size: 26rpx;
-  color: #2c3e50;
-  line-height: 1.6;
-  display: block;
-}
-
-/* 发布按钮 */
-.publish-btn {
-  width: 100%;
-  height: 88rpx;
-  padding: 0;
-  background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-color-dark) 100%);
-  color: #ffffff;
-  font-size: 32rpx;
-  font-weight: 700;
-  border: none;
-  border-radius: 16rpx;
-  box-shadow: 0 4rpx 16rpx rgba(242, 8, 16, 0.4);
-  transition: all 0.3s;
-}
-
-.publish-btn::after {
-  border: none;
-}
-
-.publish-btn:active {
-  transform: scale(0.98);
-}
-
-/* 底部占位 */
+/* ── 底部占位（为弹幕区留空间） ── */
 .bottom-space {
-  height: 180rpx;
+  height: 360rpx;
+}
+
+/* ── 弹幕区 ── */
+.danmaku-area {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  transition: bottom 0.2s ease;
+  pointer-events: none;
+}
+
+.danmaku-area-up {
+  bottom: 128rpx;
+}
+
+.danmaku-list {
+  padding: 12rpx 24rpx 8rpx;
+  background: transparent;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.danmaku-item {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+  padding: 6rpx 16rpx;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 32rpx;
+  max-width: 90%;
+  clear: both;
+  float: left;
+}
+
+.danmaku-new {
+  animation: danmaku-in 0.3s ease both;
+}
+
+@keyframes danmaku-in {
+  from {
+    opacity: 0;
+    transform: translateY(16rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.danmaku-nickname {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: rgba(255, 210, 80, 1);
+  flex-shrink: 0;
+}
+
+.danmaku-text {
+  font-size: 24rpx;
+  color: #ffffff;
+}
+
+.danmaku-system {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.danmaku-text-system {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.danmaku-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 12rpx 24rpx;
+  padding-bottom: calc(12rpx + env(safe-area-inset-bottom));
+  background: #ffffff;
+  border-top: 2rpx solid #f0f0f0;
+  pointer-events: auto;
+}
+
+.danmaku-input {
+  flex: 1;
+  height: 64rpx;
+  padding: 0 20rpx;
+  background: #f5f6f8;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: #2c3e50;
+}
+
+.danmaku-send {
+  font-size: 26rpx;
+  color: #95a5a6;
+  padding: 0 8rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  flex-shrink: 0;
+}
+
+.danmaku-send.active {
+  color: var(--theme-color);
+  font-weight: 600;
 }

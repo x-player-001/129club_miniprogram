@@ -136,7 +136,7 @@ Page({
       'registration': 'upcoming',
       'in_progress': 'ongoing',
       'completed': 'finished',
-      'cancelled': 'finished'
+      'cancelled': 'cancelled'
     };
 
     // 处理点球大战数据

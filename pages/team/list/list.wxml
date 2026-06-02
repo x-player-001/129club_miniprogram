@@ -24,7 +24,6 @@
           <button class="prompt-btn create" catchtap="onBatchCreateTeam">
             <text>创建队伍</text>
           </button>
-          <!-- 暂时隐藏发起重组按钮 -->
           <!-- <button class="prompt-btn reshuffle" catchtap="onReshuffle">
             <text>发起重组（Draft）</text>
           </button> -->
@@ -41,13 +40,12 @@
           bind:tap="onTeamCardTap">
         </team-card>
 
-        <!-- 暂时隐藏发起选人按钮 -->
-        <!-- <view class="reshuffle-action" wx:if="{{isAdmin && currentSeason && currentSeason.status === 'active'}}">
+        <view class="reshuffle-action" wx:if="{{isAdmin && currentSeason && currentSeason.status === 'active'}}">
           <button class="reshuffle-btn" catchtap="onReshuffle">
             <text class="btn-icon">🔄</text>
             <text class="btn-text">发起选人</text>
           </button>
-        </view> -->
+        </view>
       </view>
 
       <!-- 空状态 - 使用 empty-state 组件 -->

@@ -6,7 +6,7 @@
     <view class="match-header">
       <view class="match-title">{{matchData.title}}</view>
       <view class="match-status status-{{matchData.status}}">
-        {{matchData.status === 'upcoming' ? '未开始' : matchData.status === 'ongoing' ? '进行中' : '已结束'}}
+        {{matchData.status === 'upcoming' ? '未开始' : matchData.status === 'ongoing' ? '进行中' : matchData.status === 'cancelled' ? '已取消' : '已结束'}}
       </view>
     </view>
 
@@ -133,7 +133,7 @@
         <text class="match-time">{{matchData.time}}</text>
         <text class="match-location">{{matchData.location}}</text>
         <view class="status-tag {{matchData.status}}">
-          {{matchData.status === 'upcoming' ? '未开始' : matchData.status === 'ongoing' ? '进行中' : '已结束'}}
+          {{matchData.status === 'upcoming' ? '未开始' : matchData.status === 'ongoing' ? '进行中' : matchData.status === 'cancelled' ? '已取消' : '已结束'}}
         </view>
       </view>
       <!-- 点球大战比分（紧凑版） -->

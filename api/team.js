@@ -45,17 +45,27 @@ function startReshuffle(data) {
 /**
  * 选择球员（Draft）
  * @param {Object} data 选人数据
+ * @param {String} data.sessionId 会话ID
+ * @param {String} data.playerId 球员ID
  */
 function pickPlayer(data) {
-  return post('/team/reshuffle/pick', data);
+  return post('/team/reshuffle/pick', { reshuffleId: data.sessionId, pickedUserId: data.playerId });
 }
 
 /**
- * 获取Draft会话信息
+ * 获取Draft会话状态
  * @param {String} sessionId 会话ID
  */
 function getDraftSession(sessionId) {
-  return get(`/team/reshuffle/${sessionId}`);
+  return get(`/team/reshuffle/${sessionId}/status`);
+}
+
+/**
+ * 获取可选球员列表
+ * @param {String} sessionId 会话ID
+ */
+function getAvailablePlayers(sessionId) {
+  return get(`/team/reshuffle/${sessionId}/available`);
 }
 
 /**
@@ -68,7 +78,14 @@ function getDraftSession(sessionId) {
  * @param {String} data.team2Color 队伍2颜色（可选）
  */
 function publishDraftTeams(data) {
-  return post('/team/reshuffle/publish', data);
+  return post(`/team/reshuffle/${data.sessionId}/publish`, data);
+}
+
+/**
+ * 获取重组历史记录
+ */
+function getReshuffleHistory() {
+  return get('/team/reshuffle/history');
 }
 
 /**
@@ -77,6 +94,10 @@ function publishDraftTeams(data) {
  */
 function completeReshuffle(reshuffleId) {
   return post(`/team/reshuffle/${reshuffleId}/complete`);
+}
+
+function resetReshuffle(reshuffleId) {
+  return post(`/team/reshuffle/${reshuffleId}/reset`);
 }
 
 /**
@@ -125,9 +146,12 @@ module.exports = {
   updateTeam,
   startReshuffle,
   getDraftSession,
+  getAvailablePlayers,
   pickPlayer,
   publishDraftTeams,
+  getReshuffleHistory,
   completeReshuffle,
+  resetReshuffle,
   getTeamVsRecord,
   getTeamMembers,
   getCurrentTeam,

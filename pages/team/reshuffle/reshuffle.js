@@ -21,6 +21,10 @@ Page({
     captain1: null,
     captain2: null,
 
+    // 队伍信息
+    team1Info: null,
+    team2Info: null,
+
     // 球员列表
     availablePlayers: [], // 可选球员
     team1Players: [], // 队伍1已选球员
@@ -42,50 +46,56 @@ Page({
     ],
 
     // UI 状态
-    selectedPlayerId: null, // 当前选中的球员ID
-    isMyTurn: false, // 是否轮到我选人
+    loading: true,
+    selectedPlayerId: null,
+    isMyTurn: false,
+    searchKeyword: '',
+    filteredPlayers: [], // 搜索+排序后的展示列表
+    danmakuList: [], // 弹幕消息列表
+    danmakuInput: '', // 弹幕输入框
 
     // WebSocket连接（暂时用Mock替代）
     socketConnected: false
   },
 
   onLoad(options) {
-    console.log('[Reshuffle] ========== onLoad 被调用 ==========');
-    console.log('[Reshuffle] onLoad options:', options);
-    console.log('[Reshuffle] 当前页面栈:', getCurrentPages().map(p => p.route));
-
-    // 防止页面被多次加载
-    if (this._hasLoaded) {
-      console.log('[Reshuffle] 页面已加载过，跳过');
-      return;
-    }
-    this._hasLoaded = true;
-
-    // 保存所有参数到 data
     const updateData = {};
-    if (options.sessionId) {
-      updateData.sessionId = options.sessionId;
-    }
-    if (options.team1Id) {
-      updateData.team1Id = options.team1Id;
-    }
-    if (options.team2Id) {
-      updateData.team2Id = options.team2Id;
-    }
+    if (options.sessionId) updateData.sessionId = options.sessionId;
+    if (options.team1Id) updateData.team1Id = options.team1Id;
+    if (options.team2Id) updateData.team2Id = options.team2Id;
 
     this.setData(updateData, () => {
-      console.log('[Reshuffle] team1Id:', this.data.team1Id, 'team2Id:', this.data.team2Id);
-
       this.checkAdminRole();
       this.loadDraftSession();
     });
   },
 
-  onUnload() {
-    // 断开WebSocket连接
+  onShow() {
+    // 重新进入页面（含退出后再进）：断开旧连接，重新加载状态并重连
+    if (this.data.sessionId) {
+      this.disconnectSocket();
+      this.loadDraftSession();
+    }
+  },
+
+  onHide() {
+    // 切后台时主动断开，节省资源
     this.disconnectSocket();
-    // 重置实例变量，防止页面复用时出问题
-    this._hasLoaded = false;
+  },
+
+  onShareAppMessage() {
+    const { sessionId, team1Info, team2Info } = this.data;
+    const title = `${team1Info?.name || '队伍1'} vs ${team2Info?.name || '队伍2'} 正在选人，点击围观！`;
+    return {
+      title,
+      path: `/pages/team/reshuffle/reshuffle?sessionId=${sessionId}`
+    };
+  },
+
+  onUnload() {
+    this._clearReconnectTimer();
+    if (this._viewerTimer) clearTimeout(this._viewerTimer);
+    this.disconnectSocket();
     this._isCreatingDraft = false;
   },
 
@@ -114,43 +124,66 @@ Page({
 
     wx.showLoading({ title: '加载中...' });
 
-    // 真实API调用
-    teamAPI.getDraftSession(this.data.sessionId).then(res => {
-      const data = res.data;
+    // 并行获取会话状态和可选球员
+    Promise.all([
+      teamAPI.getDraftSession(this.data.sessionId),
+      teamAPI.getAvailablePlayers(this.data.sessionId)
+    ]).then(([sessionRes, availableRes]) => {
+      const { reshuffle, currentPickOrder, currentCaptain, team1PickedCount, team2PickedCount } = sessionRes.data;
+      const availablePlayers = (availableRes.data || []).map(p => ({
+        id: p.id,
+        name: p.realName || p.nickname,
+        avatar: p.avatar,
+        number: p.jerseyNumber,
+        position: p.position,
+        goals: p.stats?.goals || 0,
+        assists: p.stats?.assists || 0,
+        winRate: p.stats?.winRate || '0',
+        matchesPlayed: p.stats?.matchesPlayed || 0
+      }));
 
-      // 计算队员名字列表
-      const team1MemberNames = (data.team1Players || []).map(p => p.name || p.realName).join('、');
-      const team2MemberNames = (data.team2Players || []).map(p => p.name || p.realName).join('、');
+      // 从 picks 中拆分两队已选球员，按 pickOrder 升序排列
+      const picks = (reshuffle.picks || []).slice().sort((a, b) => a.pickOrder - b.pickOrder);
+      const formatPick = p => ({
+        id: p.pickedUser.id,
+        name: p.pickedUser.realName || p.pickedUser.nickname,
+        avatar: p.pickedUser.avatar,
+        number: p.pickedUser.jerseyNumber,
+        position: p.pickedUser.position
+      });
+      const team1Players = picks.filter(p => p.teamId === reshuffle.team1Id).map(formatPick);
+      const team2Players = picks.filter(p => p.teamId === reshuffle.team2Id).map(formatPick);
+      const team1MemberNames = team1Players.map(p => p.name).join('、');
+      const team2MemberNames = team2Players.map(p => p.name).join('、');
 
       // 判断是否轮到当前用户
       const currentUserId = app.globalData.userInfo?.id || wx.getStorageSync('userInfo')?.id;
-      const isMyTurn = (
-        (data.currentTurn === 'captain1' && currentUserId === data.captain1?.id) ||
-        (data.currentTurn === 'captain2' && currentUserId === data.captain2?.id)
-      );
+      const isMyTurn = currentCaptain?.id === currentUserId;
 
       this.setData({
-        captain1: data.captain1,
-        captain2: data.captain2,
-        availablePlayers: data.availablePlayers || [],
-        team1Players: data.team1Players || [],
-        team2Players: data.team2Players || [],
+        captain1: reshuffle.captain1,
+        captain2: reshuffle.captain2,
+        team1Info: reshuffle.team1,
+        team2Info: reshuffle.team2,
+        availablePlayers,
+        team1Players,
+        team2Players,
         team1MemberNames,
         team2MemberNames,
-        currentRound: data.currentRound || 1,
-        currentTurn: data.currentTurn || 'captain1',
-        draftStatus: data.status || 'in_progress',
-        totalRounds: data.totalRounds || 0,
+        currentRound: currentPickOrder || 1,
+        currentTurn: currentCaptain?.id === reshuffle.captain1Id ? 'captain1' : 'captain2',
+        draftStatus: reshuffle.status === 'draft_in_progress' ? 'in_progress' : reshuffle.status,
         isMyTurn,
         currentUserId
       });
+      this.applyFilter();
+      this.setData({ loading: false });
 
       wx.hideLoading();
-
-      // 可选：连接WebSocket接收实时更新
-      // this.connectSocket();
+      this.connectSocket();
     }).catch(err => {
       wx.hideLoading();
+      this.setData({ loading: false });
       wx.showToast({
         title: err.message || '加载失败',
         icon: 'none'
@@ -257,20 +290,24 @@ Page({
         const sessionId = res.data.sessionId || res.data.id;
         console.log('[Reshuffle] startReshuffle 成功, sessionId:', sessionId);
 
-        // 先设置 sessionId，再重置标志，最后加载
         this.setData({ sessionId }, () => {
-          this._isCreatingDraft = false; // 重置标志
-          // 重新加载Draft信息
+          this._isCreatingDraft = false;
           this.loadDraftSession();
         });
       }).catch(err => {
         console.error('[Reshuffle] startReshuffle 失败:', err);
         wx.hideLoading();
-        this._isCreatingDraft = false; // 重置标志
-        wx.showToast({
-          title: err.message || '创建失败',
-          icon: 'none'
-        });
+        this._isCreatingDraft = false;
+
+        // 已有进行中的重组，从 message 中提取 ID 并跳转
+        const match = err.message && err.message.match(/ID:\s*([a-f0-9-]{36})/);
+        if (match) {
+          this.setData({ sessionId: match[1] }, () => {
+            this.loadDraftSession();
+          });
+        } else {
+          wx.showToast({ title: err.message || '创建失败', icon: 'none' });
+        }
       });
     }).catch(err => {
       console.error('[Reshuffle] 获取队伍详情失败:', err);
@@ -285,70 +322,277 @@ Page({
 
   // 连接WebSocket
   connectSocket() {
-    // Mock实现
-    this.setData({ socketConnected: true });
+    if (this._socketTask) return;
 
-    // 真实WebSocket连接（暂时注释）
-    // wx.connectSocket({
-    //   url: `wss://your-domain.com/draft/${this.data.sessionId}`
-    // });
+    const token = wx.getStorageSync('token') || '';
+    const reshuffleId = this.data.sessionId;
 
-    // wx.onSocketOpen(() => {
-    //   console.log('WebSocket连接已打开');
-    //   this.setData({ socketConnected: true });
-    // });
+    this._socketTask = wx.connectSocket({
+      url: 'wss://api.129club.cloud/ws/reshuffle',
+      fail: () => {
+        this._socketTask = null;
+      }
+    });
 
-    // wx.onSocketMessage((res) => {
-    //   const data = JSON.parse(res.data);
-    //   this.handleSocketMessage(data);
-    // });
+    this._socketTask.onOpen(() => {
+      this.setData({ socketConnected: true });
+      // 加入房间
+      this._socketTask.send({
+        data: JSON.stringify({ type: 'join', reshuffleId, token })
+      });
+    });
 
-    // wx.onSocketError((err) => {
-    //   console.error('WebSocket错误', err);
-    //   this.setData({ socketConnected: false });
-    // });
+    this._socketTask.onMessage((res) => {
+      try {
+        const msg = JSON.parse(res.data);
+        this.handleSocketMessage(msg);
+      } catch (e) {
+        console.error('[WS] 消息解析失败', e);
+      }
+    });
 
-    // wx.onSocketClose(() => {
-    //   console.log('WebSocket连接已关闭');
-    //   this.setData({ socketConnected: false });
-    // });
+    this._socketTask.onError(() => {
+      this.setData({ socketConnected: false });
+      this._socketTask = null;
+      this._scheduleReconnect();
+    });
+
+    this._socketTask.onClose(() => {
+      this.setData({ socketConnected: false });
+      this._socketTask = null;
+      // 主动断开时 _manualClose 为 true，不重连
+      if (!this._manualClose) {
+        this._scheduleReconnect();
+      }
+      this._manualClose = false;
+    });
   },
 
   // 断开WebSocket
   disconnectSocket() {
-    if (this.data.socketConnected) {
-      wx.closeSocket();
+    this._manualClose = true;
+    this._clearReconnectTimer();
+    if (this._socketTask) {
+      this._socketTask.close();
+      this._socketTask = null;
+    }
+    this.setData({ socketConnected: false });
+  },
+
+  // 延迟重连
+  _scheduleReconnect() {
+    this._clearReconnectTimer();
+    if (!this.data.sessionId) return;
+    this._reconnectTimer = setTimeout(() => {
+      if (!this._socketTask && this.data.sessionId) {
+        // 重连时重新拉状态，防止断线期间有遗漏
+        this.loadDraftSession();
+      }
+    }, 2000);
+  },
+
+  // 清除重连定时器
+  _clearReconnectTimer() {
+    if (this._reconnectTimer) {
+      clearTimeout(this._reconnectTimer);
+      this._reconnectTimer = null;
     }
   },
 
   // 处理WebSocket消息
-  handleSocketMessage(data) {
-    switch (data.type) {
-      case 'player_picked':
-        this.onPlayerPicked(data.payload);
+  handleSocketMessage(msg) {
+    switch (msg.type) {
+      case 'joined':
+        console.log('[WS] 加入房间成功');
         break;
-      case 'turn_changed':
-        this.onTurnChanged(data.payload);
+      case 'pick':
+        this.onWsPick(msg);
         break;
-      case 'draft_completed':
-        this.onDraftCompleted(data.payload);
+      case 'danmaku':
+        this.onWsDanmaku(msg);
+        break;
+      case 'danmaku_history':
+        this.onWsDanmakuHistory(msg);
+        break;
+      case 'viewer_joined':
+        this.onWsViewerJoined(msg);
+        break;
+      case 'complete':
+        this.onWsComplete();
         break;
     }
   },
 
+  // 收到选人推送
+  onWsPick(msg) {
+    const { pick, nextCaptain, currentPickOrder } = msg;
+    const { pickedUserId, teamId, pickedUser } = pick;
+
+    // 从可选列表移除已选球员
+    const availablePlayers = this.data.availablePlayers.filter(p => p.id !== pickedUserId);
+
+    // 追加到对应队伍
+    const pickedPlayer = {
+      id: pickedUser?.id || pickedUserId,
+      name: pickedUser?.realName || pickedUser?.nickname || '',
+      avatar: pickedUser?.avatar || '',
+      number: pickedUser?.jerseyNumber || ''
+    };
+    const isTeam1 = teamId === this.data.team1Info?.id;
+    const team1Players = isTeam1 ? [...this.data.team1Players, pickedPlayer] : this.data.team1Players;
+    const team2Players = !isTeam1 ? [...this.data.team2Players, pickedPlayer] : this.data.team2Players;
+
+    // 用 nextCaptain 决定下一个该谁选人
+    const currentUserId = this.data.currentUserId;
+    const nextTurn = nextCaptain?.id === this.data.captain1?.id ? 'captain1' : 'captain2';
+    const isMyTurn = nextCaptain?.id === currentUserId;
+
+    // 追加选人消息
+    const captainName = pick.captain?.nickname || '';
+    const pickedName = pickedUser?.realName || pickedUser?.nickname || '';
+    this.appendDanmaku({
+      id: msg.time || Date.now(),
+      nickname: captainName,
+      text: `选了 ${pickedName}`,
+      isSystem: true
+    });
+
+    this.setData({
+      availablePlayers,
+      team1Players,
+      team2Players,
+      team1MemberNames: team1Players.map(p => p.name).join('、'),
+      team2MemberNames: team2Players.map(p => p.name).join('、'),
+      currentTurn: nextTurn,
+      currentRound: currentPickOrder,
+      isMyTurn,
+      selectedPlayerId: null
+    });
+    this.applyFilter();
+  },
+
+  // 收到弹幕
+  onWsDanmaku(msg) {
+    this.appendDanmaku({
+      id: msg.time,
+      nickname: msg.nickname || '游客',
+      text: msg.text
+    });
+  },
+
+  // 收到历史弹幕（刚加入房间时）
+  onWsDanmakuHistory(msg) {
+    const history = (msg.list || msg.history || []).map(d => ({
+      id: d.time || d.id,
+      nickname: d.nickname || '游客',
+      text: d.text
+    }));
+    // 合并历史记录和现有消息，按 id 去重，取最后 6 条
+    const existing = this.data.danmakuList;
+    const existingIds = new Set(existing.map(d => d.id));
+    const merged = [...history.filter(d => !existingIds.has(d.id)), ...existing];
+    this.setData({ danmakuList: merged.slice(-6) });
+  },
+
+  // 有人进入房间（2秒后自动消失，2秒内复用同一条消息）
+  onWsViewerJoined(msg) {
+    const VIEWER_ID = 'viewer-joined';
+    const nickname = msg.nickname || '游客';
+
+    // 更新或插入消息
+    const list = this.data.danmakuList;
+    const idx = list.findIndex(d => d.id === VIEWER_ID);
+    if (idx >= 0) {
+      // 已存在，更新名字
+      const newList = list.slice();
+      newList[idx] = { ...newList[idx], nickname };
+      this.setData({ danmakuList: newList });
+    } else {
+      this.appendDanmaku({
+        id: VIEWER_ID,
+        nickname,
+        text: '来了',
+        isSystem: true
+      });
+    }
+
+    // 重置2秒定时器
+    if (this._viewerTimer) clearTimeout(this._viewerTimer);
+    this._viewerTimer = setTimeout(() => {
+      const l = this.data.danmakuList.filter(d => d.id !== VIEWER_ID);
+      this.setData({ danmakuList: l });
+      this._viewerTimer = null;
+    }, 2000);
+  },
+
+
+  // 追加一条弹幕
+  appendDanmaku(item) {
+    const danmakuList = [...this.data.danmakuList, item].slice(-6);
+    this.setData({ danmakuList });
+  },
+
+  // 弹幕输入
+  onDanmakuInput(e) {
+    this.setData({ danmakuInput: e.detail.value });
+  },
+
+  // 发送弹幕
+  onSendDanmaku() {
+    const text = this.data.danmakuInput.trim();
+    if (!text || !this._socketTask) return;
+    this._socketTask.send({
+      data: JSON.stringify({ type: 'danmaku', text })
+    });
+    this.setData({ danmakuInput: '' });
+  },
+
+  // 重组结束
+  onWsComplete() {
+    this.setData({ draftStatus: 'completed' });
+    this.disconnectSocket();
+  },
+
+  // 搜索关键词变化
+  onSearchInput(e) {
+    this.setData({ searchKeyword: e.detail.value });
+    this.applyFilter();
+  },
+
+  // 清空搜索
+  onSearchClear() {
+    this.setData({ searchKeyword: '' });
+    this.applyFilter();
+  },
+
+  // 按场次倒序 + 关键词过滤
+  applyFilter() {
+    const { availablePlayers, searchKeyword } = this.data;
+    const keyword = searchKeyword.trim();
+    let list = availablePlayers.slice();
+
+    if (keyword) {
+      list = list.filter(p => p.name && p.name.includes(keyword));
+    }
+
+    list.sort((a, b) => b.matchesPlayed - a.matchesPlayed);
+    this.setData({ filteredPlayers: list });
+  },
+
   // 选择球员
   onSelectPlayer(e) {
-    const playerId = e.currentTarget.dataset.playerId;
+    const { currentUserId, captain1, captain2 } = this.data;
+    const isCaptain = currentUserId === captain1?.id || currentUserId === captain2?.id;
+
+    // 非队长静默忽略，不响应点击
+    if (!isCaptain) return;
 
     if (!this.data.isMyTurn) {
-      wx.showToast({
-        title: '还未轮到你选人',
-        icon: 'none'
-      });
+      wx.showToast({ title: '还未轮到你选人', icon: 'none' });
       return;
     }
 
-    this.setData({ selectedPlayerId: playerId });
+    this.setData({ selectedPlayerId: e.currentTarget.dataset.playerId });
   },
 
   // 确认选择球员
@@ -372,21 +616,10 @@ Page({
     teamAPI.pickPlayer({
       sessionId: this.data.sessionId,
       playerId: this.data.selectedPlayerId
-    }).then(res => {
+    }).then(() => {
       wx.hideLoading();
-
-      // 更新本地状态（也可以重新加载整个会话）
-      if (res.data) {
-        this.updateDraftState(res.data);
-      } else {
-        // 如果后端没有返回完整状态，则重新加载
-        this.loadDraftSession();
-      }
-
-      wx.showToast({
-        title: `已选择 ${player.name || player.realName}`,
-        icon: 'success'
-      });
+      // 状态更新由 ws pick 消息驱动，这里只清除选中状态
+      this.setData({ selectedPlayerId: null });
     }).catch(err => {
       wx.hideLoading();
       wx.showToast({
@@ -541,42 +774,55 @@ Page({
     this.setData({ team2Color: color });
   },
 
-  // 确认发布队伍
-  onPublishTeams() {
-    if (!this.data.team1Name || !this.data.team2Name) {
-      wx.showToast({
-        title: '请输入队伍名称',
-        icon: 'none'
-      });
-      return;
-    }
+  // 管理员重置重组
+  onResetReshuffle() {
+    wx.showModal({
+      title: '确认重置',
+      content: '重置后所有已选人员清空，重新开始选人',
+      confirmColor: '#e74c3c',
+      success: (res) => {
+        if (!res.confirm) return;
+        wx.showLoading({ title: '重置中...' });
+        teamAPI.resetReshuffle(this.data.sessionId).then(() => {
+          wx.hideLoading();
+          wx.showToast({ title: '已重置', icon: 'success' });
+          this.loadDraftSession();
+        }).catch(err => {
+          wx.hideLoading();
+          wx.showToast({ title: err.message || '重置失败', icon: 'none' });
+        });
+      }
+    });
+  },
 
-    wx.showLoading({ title: '发布中...' });
+  // 管理员结束重组
+  onCompleteReshuffle() {
+    wx.showModal({
+      title: '确认结束重组',
+      content: '结束后将正式生成队员关系，无法撤销',
+      success: (res) => {
+        if (!res.confirm) return;
 
-    // 真实API调用
-    teamAPI.publishDraftTeams({
-      sessionId: this.data.sessionId,
-      team1Name: this.data.team1Name,
-      team2Name: this.data.team2Name,
-      // 可选：添加颜色信息
-      team1Color: this.data.team1Color,
-      team2Color: this.data.team2Color
-    }).then(() => {
-      wx.hideLoading();
-      wx.showToast({
-        title: '队伍创建成功',
-        icon: 'success',
-        duration: 1500
-      });
-      setTimeout(() => {
-        wx.navigateBack();
-      }, 1500);
-    }).catch(err => {
-      wx.hideLoading();
-      wx.showToast({
-        title: err.message || '发布失败',
-        icon: 'none'
-      });
+        wx.showLoading({ title: '处理中...' });
+
+        teamAPI.completeReshuffle(this.data.sessionId).then(() => {
+          wx.hideLoading();
+          wx.showToast({
+            title: '重组完成',
+            icon: 'success',
+            duration: 1500
+          });
+          setTimeout(() => {
+            wx.navigateBack();
+          }, 1500);
+        }).catch(err => {
+          wx.hideLoading();
+          wx.showToast({
+            title: err.message || '操作失败',
+            icon: 'none'
+          });
+        });
+      }
     });
   }
 });

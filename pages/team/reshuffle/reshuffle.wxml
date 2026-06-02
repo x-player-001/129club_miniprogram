@@ -1,183 +1,192 @@
 <!-- 队伍重组（Draft选人）页面 -->
 <view class="reshuffle-container">
-  <!-- 顶部进度条 -->
-  <view class="progress-header">
-    <view class="progress-info">
-      <text class="progress-text">第 {{currentRound}}/{{totalRounds}} 轮</text>
-      <text class="turn-indicator" wx:if="{{draftStatus === 'in_progress'}}">
-        轮到：<text class="captain-name {{currentTurn === 'captain1' ? 'captain1-color' : 'captain2-color'}}">
-          {{currentTurn === 'captain1' ? captain1.name : captain2.name}}
-        </text>
-      </text>
+
+  <!-- 加载中 -->
+  <view class="page-loading" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">数据加载中...</text>
+  </view>
+
+  <!-- 主内容 -->
+  <view class="main-content" wx:else>
+
+  <!-- 顶部状态栏：当前轮到谁 -->
+  <view class="turn-header">
+    <!-- 队长1 -->
+    <view class="turn-captain {{currentTurn === 'captain1' ? 'active' : 'inactive'}}">
+      <image class="turn-avatar {{currentTurn === 'captain1' ? 'avatar-ring-team1' : ''}}" src="{{captain1.avatar}}" mode="aspectFill"></image>
+      <text class="turn-captain-name">{{captain1.nickname}}</text>
+      <view class="turn-picking-tag" wx:if="{{currentTurn === 'captain1'}}">选人中</view>
     </view>
-    <view class="progress-bar">
-      <view class="progress-fill" style="width: {{(currentRound / totalRounds) * 100}}%"></view>
+
+    <!-- 中间顺位 -->
+    <view class="turn-center">
+      <text class="order-num">{{currentRound}}</text>
+      <text class="order-label">顺位</text>
+    </view>
+
+    <!-- 队长2 -->
+    <view class="turn-captain {{currentTurn === 'captain2' ? 'active' : 'inactive'}}">
+      <image class="turn-avatar {{currentTurn === 'captain2' ? 'avatar-ring-team2' : ''}}" src="{{captain2.avatar}}" mode="aspectFill"></image>
+      <text class="turn-captain-name">{{captain2.nickname}}</text>
+      <view class="turn-picking-tag tag-team2" wx:if="{{currentTurn === 'captain2'}}">选人中</view>
+    </view>
+
+  </view>
+
+  <!-- 两队已选名单 -->
+  <view class="teams-bar">
+    <!-- 队伍1 -->
+    <view class="team-bar-item team1-bar">
+      <view class="team-bar-header">
+        <view class="team-bar-dot dot-team1"></view>
+        <text class="team-bar-name">{{team1Info.name || captain1.nickname + '队'}}</text>
+        <text class="team-bar-count">{{team1Players.length}}人</text>
+      </view>
+      <scroll-view class="team-bar-scroll">
+        <view class="team-bar-avatars">
+          <!-- 队长固定第一位 -->
+          <view class="bar-player-item">
+            <image class="bar-avatar captain-ring-team1" src="{{captain1.avatar}}" mode="aspectFill"></image>
+            <text class="bar-name">{{captain1.nickname}}</text>
+          </view>
+          <view class="bar-player-item" wx:for="{{team1Players}}" wx:key="id">
+            <image class="bar-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+            <text class="bar-name">{{item.name}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 分隔线 -->
+    <view class="teams-divider"></view>
+
+    <!-- 队伍2 -->
+    <view class="team-bar-item team2-bar">
+      <view class="team-bar-header">
+        <view class="team-bar-dot dot-team2"></view>
+        <text class="team-bar-name">{{team2Info.name || captain2.nickname + '队'}}</text>
+        <text class="team-bar-count">{{team2Players.length}}人</text>
+      </view>
+      <scroll-view class="team-bar-scroll">
+        <view class="team-bar-avatars">
+          <!-- 队长固定第一位 -->
+          <view class="bar-player-item">
+            <image class="bar-avatar captain-ring-team2" src="{{captain2.avatar}}" mode="aspectFill"></image>
+            <text class="bar-name">{{captain2.nickname}}</text>
+          </view>
+          <view class="bar-player-item" wx:for="{{team2Players}}" wx:key="id">
+            <image class="bar-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+            <text class="bar-name">{{item.name}}</text>
+          </view>
+        </view>
+      </scroll-view>
     </view>
   </view>
 
-  <scroll-view class="content" scroll-y enable-back-to-top>
-    <!-- Draft进行中 -->
-    <view class="draft-area" wx:if="{{draftStatus === 'in_progress'}}">
-      <!-- 三栏布局 -->
-      <view class="teams-layout">
-        <!-- 队伍1 -->
-        <view class="team-column team1-column">
-          <view class="team-header">
-            <image class="captain-avatar" src="{{captain1.avatar}}" mode="aspectFill"></image>
-            <text class="team-title">{{captain1.name}}的队伍</text>
-            <text class="team-count">{{team1Players.length}}人</text>
-          </view>
-          <view class="player-list">
-            <view class="player-item-small" wx:for="{{team1Players}}" wx:key="id">
-              <image class="player-avatar-small" src="{{item.avatar}}" mode="aspectFill"></image>
-              <view class="player-info-small">
-                <text class="player-name-small">{{item.name}}</text>
-                <text class="player-number-small">{{item.number}}号</text>
-              </view>
-              <view class="captain-badge" wx:if="{{item.id === captain1.id}}">队长</view>
-            </view>
-          </view>
-        </view>
+  <!-- 管理员操作 -->
+  <view class="admin-bar" wx:if="{{isAdmin}}">
+    <button class="admin-btn reset-btn" catchtap="onResetReshuffle">重置选人</button>
+    <button class="admin-btn complete-btn" catchtap="onCompleteReshuffle">结束重组</button>
+  </view>
 
-        <!-- 可选球员池 -->
-        <view class="available-column">
-          <view class="available-header">
-            <text class="available-title">可选球员</text>
-            <text class="available-count">剩余 {{availablePlayers.length}} 人</text>
-          </view>
-          <view class="available-list">
-            <view
-              class="player-card {{selectedPlayerId === item.id ? 'selected' : ''}}"
-              wx:for="{{availablePlayers}}"
-              wx:key="id"
-              bindtap="onSelectPlayer"
-              data-player-id="{{item.id}}">
-              <image class="player-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
-              <view class="player-info">
-                <view class="player-header">
-                  <text class="player-name">{{item.name}}</text>
-                  <text class="player-number">#{{item.number}}</text>
-                </view>
-                <position-tag wx:if="{{item.position}}" code="{{item.position}}" size="small"></position-tag>
-                <view class="player-stats">
-                  <view class="stat-item">
-                    <text class="stat-label">⚽</text>
-                    <text class="stat-value">{{item.goals}}</text>
-                  </view>
-                  <view class="stat-item">
-                    <text class="stat-label">🅰️</text>
-                    <text class="stat-value">{{item.assists}}</text>
-                  </view>
-                  <view class="stat-item">
-                    <text class="stat-label">📊</text>
-                    <text class="stat-value">{{item.rating}}</text>
-                  </view>
-                  <view class="stat-item">
-                    <text class="stat-label">📅</text>
-                    <text class="stat-value">{{item.attendance * 100}}%</text>
-                  </view>
-                </view>
-              </view>
-              <view class="check-icon" wx:if="{{selectedPlayerId === item.id}}">✓</view>
-            </view>
+  <!-- 可选球员列表 -->
+  <scroll-view class="available-scroll" scroll-y enable-back-to-top>
+    <view class="available-header">
+      <text class="available-title">可选球员</text>
+      <text class="available-count">剩余 {{availablePlayers.length}} 人</text>
+    </view>
 
-            <!-- 空状态 -->
-            <view class="empty-state" wx:if="{{availablePlayers.length === 0}}">
-              <text class="empty-icon">✅</text>
-              <text class="empty-text">所有球员已选完</text>
-            </view>
-          </view>
-        </view>
-
-        <!-- 队伍2 -->
-        <view class="team-column team2-column">
-          <view class="team-header">
-            <image class="captain-avatar" src="{{captain2.avatar}}" mode="aspectFill"></image>
-            <text class="team-title">{{captain2.name}}的队伍</text>
-            <text class="team-count">{{team2Players.length}}人</text>
-          </view>
-          <view class="player-list">
-            <view class="player-item-small" wx:for="{{team2Players}}" wx:key="id">
-              <image class="player-avatar-small" src="{{item.avatar}}" mode="aspectFill"></image>
-              <view class="player-info-small">
-                <text class="player-name-small">{{item.name}}</text>
-                <text class="player-number-small">{{item.number}}号</text>
-              </view>
-              <view class="captain-badge" wx:if="{{item.id === captain2.id}}">队长</view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <!-- 确认选择按钮 -->
-      <view class="action-bar" wx:if="{{isMyTurn && selectedPlayerId}}">
-        <button class="confirm-btn" bindtap="onConfirmPick">
-          确认选择
-        </button>
-      </view>
-
-      <!-- 等待提示 -->
-      <view class="waiting-tip" wx:if="{{!isMyTurn}}">
-        <text class="waiting-icon">⏳</text>
-        <text class="waiting-text">等待{{currentTurn === 'captain1' ? captain1.name : captain2.name}}选人...</text>
+    <!-- 搜索框 -->
+    <view class="search-bar">
+      <view class="search-inner">
+        <text class="search-icon">🔍</text>
+        <input
+          class="search-input"
+          placeholder="搜索球员姓名"
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+          confirm-type="search"
+        />
+        <view class="search-clear" wx:if="{{searchKeyword}}" catchtap="onSearchClear">✕</view>
       </view>
     </view>
 
-    <!-- Draft完成 - 设置队名 -->
-    <view class="complete-area" wx:if="{{draftStatus === 'completed'}}">
-      <view class="complete-header">
-        <text class="complete-icon">🎉</text>
-        <text class="complete-title">选人完成！</text>
-        <text class="complete-subtitle">请两位队长设置队伍名称</text>
-      </view>
+    <view class="available-list">
+      <view
+        class="player-card {{selectedPlayerId === item.id ? 'selected' : ''}}"
+        wx:for="{{filteredPlayers}}"
+        wx:key="id"
+        bindtap="onSelectPlayer"
+        data-player-id="{{item.id}}">
 
-      <view class="team-name-section">
-        <!-- 队伍1设置 -->
-        <view class="team-name-card">
-          <view class="card-header">
-            <text class="card-title">队伍1</text>
-            <text class="card-captain">队长：{{captain1.name}}</text>
+        <view class="check-icon" wx:if="{{selectedPlayerId === item.id}}">✓</view>
+        <image class="player-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+        <view class="player-info">
+          <view class="player-top">
+            <text class="player-name">{{item.name}}</text>
+            <text class="player-number">#{{item.number}}</text>
           </view>
-          <input
-            class="team-name-input"
-            placeholder="请输入队伍名称"
-            value="{{team1Name}}"
-            bindinput="onTeam1NameInput"
-            maxlength="20"
-          />
-          <view class="team-members-preview">
-            <text class="preview-label">队员（{{team1Players.length}}人）：</text>
-            <text class="preview-names">{{team1MemberNames}}</text>
-          </view>
-        </view>
-
-        <!-- 队伍2设置 -->
-        <view class="team-name-card">
-          <view class="card-header">
-            <text class="card-title">队伍2</text>
-            <text class="card-captain">队长：{{captain2.name}}</text>
-          </view>
-          <input
-            class="team-name-input"
-            placeholder="请输入队伍名称"
-            value="{{team2Name}}"
-            bindinput="onTeam2NameInput"
-            maxlength="20"
-          />
-          <view class="team-members-preview">
-            <text class="preview-label">队员（{{team2Players.length}}人）：</text>
-            <text class="preview-names">{{team2MemberNames}}</text>
+          <view class="player-stats">
+            <view class="stat-item">
+              <text class="stat-label">进球</text>
+              <text class="stat-value">{{item.goals}}</text>
+            </view>
+            <view class="stat-item">
+              <text class="stat-label">助攻</text>
+              <text class="stat-value">{{item.assists}}</text>
+            </view>
+            <view class="stat-item">
+              <text class="stat-label">场次</text>
+              <text class="stat-value">{{item.matchesPlayed}}</text>
+            </view>
           </view>
         </view>
       </view>
 
-      <!-- 发布按钮 -->
-      <button class="publish-btn" bindtap="onPublishTeams">
-        确认发布队伍
-      </button>
+      <view class="empty-state" wx:if="{{availablePlayers.length === 0}}">
+        <text class="empty-icon">✅</text>
+        <text class="empty-text">所有球员已选完</text>
+      </view>
     </view>
 
-    <!-- 底部占位 -->
     <view class="bottom-space"></view>
   </scroll-view>
+
+  <!-- 底部操作栏（我的回合且已选中球员） -->
+  <view class="action-bar" wx:if="{{isMyTurn && selectedPlayerId}}">
+    <button class="confirm-btn" bindtap="onConfirmPick">确认选择</button>
+  </view>
+
+  <!-- 等待提示（非我的回合） -->
+  <view class="waiting-bar" wx:if="{{!isMyTurn}}">
+    <text class="waiting-text">⏳ 等待{{currentTurn === 'captain1' ? captain1.nickname : captain2.nickname}}选人...</text>
+  </view>
+
+  <!-- 弹幕区 -->
+  <view class="danmaku-area {{isMyTurn && selectedPlayerId ? 'danmaku-area-up' : ''}}">
+    <!-- 消息列表 -->
+    <view class="danmaku-list">
+      <view class="danmaku-item {{item.isSystem ? 'danmaku-system' : ''}} {{index === danmakuList.length - 1 ? 'danmaku-new' : ''}}" wx:for="{{danmakuList}}" wx:key="id">
+        <text class="danmaku-nickname">{{item.nickname}}</text>
+        <text class="danmaku-text {{item.isSystem ? 'danmaku-text-system' : ''}}"> {{item.text}}</text>
+      </view>
+    </view>
+
+    <!-- 输入框 -->
+    <view class="danmaku-input-bar">
+      <input
+        class="danmaku-input"
+        placeholder="说点什么..."
+        value="{{danmakuInput}}"
+        bindinput="onDanmakuInput"
+        confirm-type="send"
+        bindconfirm="onSendDanmaku"
+      />
+      <view class="danmaku-send {{danmakuInput ? 'active' : ''}}" catchtap="onSendDanmaku">发送</view>
+    </view>
+  </view>
+
+  </view> <!-- /main-content -->
+
 </view>
