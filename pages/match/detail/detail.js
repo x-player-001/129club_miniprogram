@@ -333,6 +333,7 @@ Page({
             events: quarterGroups[q.quarterNumber] || [], // 该节次的事件（可能为空）
             team1Score: q.team1Goals || q.team1Points || 0,
             team2Score: q.team2Goals || q.team2Points || 0,
+            summary: q.summary || '', // 本节简报/备注
             // 裁判和守门员信息
             mainReferee: q.mainReferee || null,
             assistantReferee1: q.assistantReferee1 || null,

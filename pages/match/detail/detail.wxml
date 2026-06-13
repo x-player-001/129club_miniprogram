@@ -130,6 +130,11 @@
           </view>
         </view>
 
+        <!-- 本节简报/备注 -->
+        <view class="quarter-summary" wx:if="{{item.summary}}">
+          <text class="quarter-summary-text">{{item.summary}}</text>
+        </view>
+
         <!-- 该节次的事件时间轴 -->
         <view class="timeline-wrapper" wx:if="{{item.events.length > 0}}">
           <event-timeline events="{{item.events}}" team1="{{matchInfo.team1}}" team2="{{matchInfo.team2}}" showActions="{{false}}">
