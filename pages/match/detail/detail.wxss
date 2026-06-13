@@ -298,12 +298,49 @@
 /* ========== 通用Section样式 ========== */
 .match-data-section,
 .registration-section,
-.description-section {
+.description-section,
+.player-stats-section {
   background: #ffffff;
   border-radius: 28rpx;
   padding: 32rpx;
   margin-bottom: 24rpx;
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 个人数据统计 */
+.copy-btn {
+  font-size: 26rpx;
+  color: var(--theme-color);
+  padding: 4rpx 16rpx;
+}
+
+.player-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 24rpx;
+  row-gap: 16rpx;
+}
+
+.player-stat-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  min-width: 0;
+}
+
+.player-stat-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  flex-shrink: 0;
+}
+
+.player-stat-text {
+  font-size: 24rpx;
+  color: #636e72;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .section-header {

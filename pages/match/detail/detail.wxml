@@ -187,6 +187,20 @@
       </view>
     </view>
 
+    <!-- 个人数据统计（已完成的比赛且有数据时显示） -->
+    <view class="player-stats-section" wx:if="{{matchInfo.status === 'finished' && playerStats.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">个人数据</text>
+        <text class="copy-btn" bindtap="onCopyPlayerStats">复制</text>
+      </view>
+      <view class="player-stats-grid">
+        <view class="player-stat-item" wx:for="{{playerStats}}" wx:key="id">
+          <text class="player-stat-name">{{item.name}}</text>
+          <text class="player-stat-text">{{item.statsText}}</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 报名情况/到场情况（所有状态都显示） -->
     <view class="registration-section">
       <view class="section-header">

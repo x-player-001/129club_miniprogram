@@ -5,6 +5,79 @@ const shareConfigAPI = require('../../../api/share-config.js');
 const { getTeamLogoUrl } = require('../../../utils/dataFormatter.js');
 const config = require('../../../utils/config.js');
 
+/**
+ * 统计个人数据：进球、助攻、裁判、守门员
+ * 进球/助攻按事件次数统计；裁判/守门员每节算一次
+ * @param {Array} events 比赛事件列表
+ * @param {Array} quarters 节次列表
+ * @returns {Array} 个人数据统计列表
+ */
+function buildPlayerStats(events, quarters) {
+  // statsMap: { userId: { name, goals, assists, referee, goalkeeper } }
+  const statsMap = {};
+
+  const ensure = (id, name) => {
+    if (!id) return null;
+    if (!statsMap[id]) {
+      statsMap[id] = { id, name: name || '未知球员', goals: 0, assists: 0, referee: 0, goalkeeper: 0 };
+    } else if (name && statsMap[id].name === '未知球员') {
+      statsMap[id].name = name;
+    }
+    return statsMap[id];
+  };
+
+  // 统计进球和助攻（乌龙球不计入进球者功劳）
+  (events || []).forEach(event => {
+    if (event.eventType === 'goal' && !event.isOwnGoal) {
+      const s = ensure(event.userId, event.playerName);
+      if (s) s.goals += 1;
+      if (event.assistUserId) {
+        const a = ensure(event.assistUserId, event.assistName);
+        if (a) a.assists += 1;
+      }
+    }
+  });
+
+  // 统计裁判和守门员（每节算一次）
+  (quarters || []).forEach(q => {
+    [q.mainReferee, q.assistantReferee1, q.assistantReferee2].forEach(ref => {
+      if (ref && ref.id) {
+        const s = ensure(ref.id, ref.realName || ref.nickname);
+        if (s) s.referee += 1;
+      }
+    });
+    [q.team1Goalkeeper, q.team2Goalkeeper].forEach(gk => {
+      if (gk && gk.id) {
+        const s = ensure(gk.id, gk.realName || gk.nickname);
+        if (s) s.goalkeeper += 1;
+      }
+    });
+  });
+
+  // 转为数组，拼接展示文本，按进球+助攻总数降序；外援、未知球员不展示
+  return Object.values(statsMap)
+    .filter(s => s.name && s.name !== '未知球员' && s.name !== '外援')
+    .map(s => {
+      const parts = [];
+      if (s.goals > 0) parts.push(`进球${s.goals}`);
+      if (s.assists > 0) parts.push(`助攻${s.assists}`);
+      if (s.referee > 0) parts.push(`裁判${s.referee}`);
+      if (s.goalkeeper > 0) parts.push(`守门员${s.goalkeeper}`);
+      return { ...s, statsText: parts.join(' ') };
+    })
+    .filter(s => s.statsText)
+    .sort((a, b) => (b.goals + b.assists) - (a.goals + a.assists));
+}
+
+/**
+ * 将个人数据统计列表拼接为可复制的多行文本
+ * @param {Array} stats buildPlayerStats 的返回值
+ * @returns {String} 形如 "球员A：进球1 助攻1\n球员B：裁判1"
+ */
+function formatPlayerStatsText(stats) {
+  return (stats || []).map(s => `${s.name}：${s.statsText}`).join('\n');
+}
+
 Page({
   data: {
     matchId: '',
@@ -16,6 +89,8 @@ Page({
     currentTeam: 'team1', // 当前显示的队伍
     currentPlayers: [], // 当前显示的球员列表
     currentQuarter: 1, // 当前显示的节次
+    playerStats: [], // 个人数据统计（进球、助攻、裁判、守门员）
+    playerStatsText: '', // 个人数据统计的可复制文本
     myTeamId: '',
     isRegistered: false,
     canRegister: true,
@@ -374,6 +449,10 @@ Page({
         });
       }
 
+      // 统计个人数据（进球、助攻、裁判、守门员）
+      const playerStats = buildPlayerStats(events, data.quarters || []);
+      const playerStatsText = formatPlayerStatsText(playerStats);
+
       // 更新比赛信息，默认显示第一节
       // team1Score/team2Score 显示累计积分，team1TotalGoals/team2TotalGoals 显示总进球数
       this.setData({
@@ -384,12 +463,25 @@ Page({
         'matchInfo.team2Score': totalTeam2Score || matchInfo.team2Score || 0,
         'matchInfo.team1TotalGoals': totalTeam1Goals,
         'matchInfo.team2TotalGoals': totalTeam2Goals,
+        playerStats,
+        playerStatsText,
         currentQuarter: quarterEvents.length > 0 ? quarterEvents[0].quarterNumber : 1
       });
 
       console.log('按节次分组的事件:', quarterEvents);
     }).catch(err => {
       console.error('加载比赛数据失败:', err);
+    });
+  },
+
+  // 复制个人数据文本
+  onCopyPlayerStats() {
+    if (!this.data.playerStatsText) return;
+    wx.setClipboardData({
+      data: this.data.playerStatsText,
+      success: () => {
+        wx.showToast({ title: '已复制', icon: 'success' });
+      }
     });
   },
 
