@@ -229,6 +229,11 @@ Page({
       return;
     }
 
+    // 强制拦截：资料不完整不允许报名（避免无昵称/头像的裸账号报名）
+    if (!this.checkProfileBeforeRegister()) {
+      return;
+    }
+
     // 判断用户是否有队伍
     if (this.data.hasTeam) {
       // 有队伍：直接报名
@@ -258,6 +263,35 @@ Page({
   validateForm() {
     // 不再需要验证位置
     return true;
+  },
+
+  /**
+   * 报名前检查资料是否完整（必填：nickname、realName、position、jerseyNumber）
+   * 资料不完整时弹窗引导用户去完善信息页，并阻断报名流程
+   * @returns {Boolean} true=资料完整可继续，false=已拦截
+   */
+  checkProfileBeforeRegister() {
+    const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
+
+    if (app.checkUserInfoComplete(userInfo)) {
+      return true;
+    }
+
+    wx.showModal({
+      title: '请先完善资料',
+      content: '报名前需要完善昵称、真实姓名、场上位置和球衣号码，方便组织安排比赛。',
+      confirmText: '去完善',
+      cancelText: '稍后再说',
+      success: (res) => {
+        if (res.confirm) {
+          wx.navigateTo({
+            url: '/pages/user/profile-edit/profile-edit?type=complete&required=true'
+          });
+        }
+      }
+    });
+
+    return false;
   },
 
   // 提交报名
